@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
+#include "TemplateBuilder/Data/CustomStructLibrary.h"
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
@@ -23,8 +24,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetGunImpulse(float out_GunImpulse, float out_HeadMultiplier);
 
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	// void SetWeaponAmmo(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount);
+
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void SetWeaponAmmo(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount);
+	void SetWeaponData(const FWeaponData in_WeaponData);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void Fire();
@@ -36,22 +40,22 @@ public:
 	void SwitchAutoMode();
 
 	//Get Weapon infos
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	// int GetCurrentAmmo();
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	// int GetTotalAmmoCount();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	int GetCurrentAmmo();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	int GetTotalAmmoCount();
+	FWeaponData GetWeaponData();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	bool IsInAutoMode();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickup")
-	void GetWeaponInfo();
+
+
+	//TO Remove
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickup")
+	// void GetWeaponInfo();
 
 
 	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	//void InitaizeWeaponStats();
-
-	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	//void HitInfo(const AActor* ActorHit, );
-
-
 
 };

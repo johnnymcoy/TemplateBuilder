@@ -36,26 +36,25 @@ class TEMPLATEBUILDER_API AWeaponBase : public AWeaponClassIdentifier, public IW
 public:	
 	AWeaponBase();
 
-	//Components//
+	//Gun Visual Components//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class USkeletalMeshComponent* GunMeshComponent; 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class USceneComponent* Muzzle;
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	void PlayFireEffects(FVector TraceEnd);
 	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 
-	//Server Playing the 
+	//Server Playing the Effects
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
 	FHitScanTrace HitScanTrace;
 	UFUNCTION()
 	void OnRep_HitScanTrace();
 
-	//Ammo Counter 
+	//Ammo UMG Counter 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class USceneComponent* UMG_RightLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
@@ -77,7 +76,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
 	void SwitchAutoMode();
 	virtual void SwitchAutoMode_Implementation();
-	//Multiplayer
+	//Multiplayer//
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
 	UFUNCTION(Server, Reliable)
@@ -88,16 +87,11 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerBulletDamage(FHitResult Hit, FVector in_Impulse);
 
-
-	//Could Remove these and replace with a function that returns WeaponData?
-	//Extra Functions
-	int GetCurrentAmmo_Implementation();
-	int GetTotalAmmoCount_Implementation();
-
-	//Pickups
-	virtual void GetWeaponInfo_Implementation();
-
+	//Interface
+	FWeaponData GetWeaponData_Implementation();
 	bool IsInAutoMode_Implementation();
+
+	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData);
 
 
 
@@ -121,10 +115,6 @@ public:
 	void GetGunImpulse(float out_GunImpulse, float out_HeadMultiplier);
 	virtual void GetGunImpulse_Implementation(float out_GunImpulse, float out_HeadMultiplier);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void SetWeaponAmmo(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount);
-	virtual void SetWeaponAmmo_Implementation(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount);
-
 	UFUNCTION(Server, Reliable)
 	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 
@@ -140,9 +130,6 @@ private:
 	UFUNCTION()
 	bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
 	
-	//bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
-
-
 	void CalculateBulletSpread(FVector& NewBulletSpread);
 
 	bool CanShoot();
@@ -168,7 +155,8 @@ private:
 	bool bDebuggingMode;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
+	//New Var for All Weapon Stats
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
 	FWeaponData GunWeaponData;
 
 	//Base Variables//
@@ -176,10 +164,6 @@ public:
 	float ReloadTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float BulletSpread;
-
-
-	//bool IsOwnerAI;
-	// for changing the Bullet spread // 
 
 	//Weapon Damage 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")

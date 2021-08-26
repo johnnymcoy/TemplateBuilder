@@ -173,7 +173,7 @@ void AALSCustomCharacter::ShootGun() //Calculated every bullet
 			//Gun interface also needs function
 		}
 		//Update Ammo
-		CurrentWeaponData.CurrentAmmo = CurrentWeapon->Execute_GetCurrentAmmo(Gun->GetChildActor());
+		CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
 		if(CurrentWeaponData.CurrentAmmo > 0)
 		{
 			Recoil();
@@ -381,8 +381,9 @@ void AALSCustomCharacter::ReloadDelay()
 		IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
 		if(CurrentWeapon)
 		{	
-			CurrentWeaponData.CurrentAmmo = CurrentWeapon->Execute_GetCurrentAmmo(Gun->GetChildActor());
-			CurrentWeaponData.TotalAmmoCount = CurrentWeapon->Execute_GetTotalAmmoCount(Gun->GetChildActor());
+			CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
+			// CurrentWeaponData.CurrentAmmo = CurrentWeapon->Execute_GetCurrentAmmo(Gun->GetChildActor());
+			// CurrentWeaponData.TotalAmmoCount = CurrentWeapon->Execute_GetTotalAmmoCount(Gun->GetChildActor());
 			if(!bIsNPC){UpdateWBP(CurrentWeaponData);}
 		}
 		bIsReloading = false;
@@ -665,6 +666,9 @@ void AALSCustomCharacter::EquipWeapon(FWeaponData WeaponData)
 		ServerEquipWeapon(WeaponData);
 	}
 	CurrentWeaponData = WeaponData;
+	int32 CurrentAmmoTest = CurrentWeaponData.CurrentAmmo;
+	// *FString::SanitizeFloat(OverShieldAmount), *GetOwner()->GetName());
+	UE_LOG(LogTemp,Warning,TEXT("(Player)Current Ammo = %s"), *FString::FromInt(CurrentAmmoTest));
 	Gun->SetChildActorClass(CurrentWeaponData.WeaponClass);
 	SetOverlayState(CurrentWeaponData.OverlayState);
 	FName SocketName;
@@ -681,7 +685,8 @@ void AALSCustomCharacter::EquipWeapon(FWeaponData WeaponData)
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Execute_SetWeaponAmmo(Gun->GetChildActor(), CurrentWeaponData.CurrentAmmo, CurrentWeaponData.TotalAmmoCount); // Set the gun to the players Weapon Data
+		CurrentWeapon->Execute_SetWeaponData(Gun->GetChildActor(), CurrentWeaponData);
+		//CurrentWeapon->Execute_SetWeaponAmmo(Gun->GetChildActor(), CurrentWeaponData.CurrentAmmo, CurrentWeaponData.TotalAmmoCount); // Set the gun to the players Weapon Data
 		PickupGunWBP(CurrentWeaponData);
 	}
 }

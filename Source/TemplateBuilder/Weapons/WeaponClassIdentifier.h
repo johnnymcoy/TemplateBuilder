@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "WeaponClassIdentifier.generated.h"
 
+// This is a base class used to be able to include WeaponNames to a struct without adding all the weaponBase data
 UENUM(BlueprintType)
 enum class EWeaponName : uint8
 {
@@ -39,13 +40,5 @@ class TEMPLATEBUILDER_API AWeaponClassIdentifier : public AActor
 public:	
 	// Sets default values for this actor's properties
 	AWeaponClassIdentifier();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 };

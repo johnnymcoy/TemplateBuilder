@@ -54,7 +54,8 @@ void AWeaponBase::Fire_Implementation()
 
 float AWeaponBase::Reload_Implementation() 
 {
-	if(CurrentAmmoCount < ClipSize && TotalAmmoCount > 0)
+	if(GunWeaponData.CurrentAmmo < GunWeaponData.ClipSize && GunWeaponData.TotalAmmoCount > 0)
+	//(CurrentAmmoCount < ClipSize && TotalAmmoCount > 0)
 	{
 		if(!IsReloading)
 		{
@@ -86,15 +87,20 @@ void AWeaponBase::ReloadDelay()
 	}
 	if(IsReloading)
 	{
-		if(TotalAmmoCount + CurrentAmmoCount > ClipSize)
+		if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
+		// TotalAmmoCount + CurrentAmmoCount > ClipSize)
 		{
-			TotalAmmoCount = TotalAmmoCount - (ClipSize - CurrentAmmoCount);
-			CurrentAmmoCount = ClipSize;
+			GunWeaponData.TotalAmmoCount = GunWeaponData.TotalAmmoCount - (GunWeaponData.ClipSize - GunWeaponData.CurrentAmmo);
+			GunWeaponData.CurrentAmmo = GunWeaponData.ClipSize;
+			//TotalAmmoCount = TotalAmmoCount - (ClipSize - CurrentAmmoCount);
+			//CurrentAmmoCount = ClipSize;
 		}
 		else
 		{
-			CurrentAmmoCount = CurrentAmmoCount + TotalAmmoCount;
-			TotalAmmoCount = 0;
+			GunWeaponData.CurrentAmmo = GunWeaponData.CurrentAmmo + GunWeaponData.TotalAmmoCount;
+			GunWeaponData.TotalAmmoCount = 0;
+			//CurrentAmmoCount = CurrentAmmoCount + TotalAmmoCount;
+			//TotalAmmoCount = 0;
 		}
 	}
 	
@@ -117,19 +123,9 @@ void AWeaponBase::SwitchAutoMode_Implementation()
 	}
 }
 
-int AWeaponBase::GetCurrentAmmo_Implementation() 
+FWeaponData AWeaponBase::GetWeaponData_Implementation() 
 {
-	return CurrentAmmoCount;
-}
-
-int AWeaponBase::GetTotalAmmoCount_Implementation() 
-{
-	return TotalAmmoCount;
-}
-
-void AWeaponBase::GetWeaponInfo_Implementation() 
-{
-	
+	return GunWeaponData;
 }
 
 void AWeaponBase::UpdateAmmoUMG_Implementation() 
@@ -162,12 +158,6 @@ void AWeaponBase::GetGunImpulse_Implementation(float out_GunImpulse, float out_H
 	out_HeadMultiplier = HeadMultiplier;
 }
 
-void AWeaponBase::SetWeaponAmmo_Implementation(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount) 
-{
-	CurrentAmmoCount = in_CurrentAmmo;
-	TotalAmmoCount = in_TotalAmmoCount;
-}
-
 void AWeaponBase::EnableWeaponDebug_Implementation(bool DebugStatus) 
 {
 	bDebuggingMode = DebugStatus;
@@ -176,6 +166,11 @@ void AWeaponBase::EnableWeaponDebug_Implementation(bool DebugStatus)
 bool AWeaponBase::IsInAutoMode_Implementation() 
 {
 	return InAutoMode;
+}
+
+void AWeaponBase::SetWeaponData_Implementation(const FWeaponData in_WeaponData) 
+{
+	GunWeaponData = in_WeaponData;
 }
 
 void AWeaponBase::FadeInUMG(float Alpha) 
@@ -221,8 +216,11 @@ void AWeaponBase::Shoot()
 	}
 	if(CanShoot())
 	{
-		CurrentAmmoCount--;
-		if(bDebuggingMode){CurrentAmmoCount++;}
+		//Remove
+		// CurrentAmmoCount--;
+
+		GunWeaponData.CurrentAmmo--;
+		if(bDebuggingMode){GunWeaponData.CurrentAmmo++;}
 		FHitResult Hit;
 		FVector ShotDirection;
 		bool bSuccess = LineTrace(Hit, ShotDirection);
@@ -402,7 +400,7 @@ void AWeaponBase::CalculateBulletSpread(FVector& NewBulletSpread)
 bool AWeaponBase::CanShoot() 
 {
 	if(IsReloading){return false;}
-	if(CurrentAmmoCount <= 0){UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo 0 (Weapon)")); return false;}
+	if(GunWeaponData.CurrentAmmo <= 0){UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo 0 (Weapon)")); return false;}
 	else{return true;}
 }
 
@@ -413,5 +411,5 @@ void AWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
  	DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
 	DOREPLIFETIME(AWeaponBase, TraceLocation);
 	DOREPLIFETIME(AWeaponBase, CurrentAmmoCount);
-
+	DOREPLIFETIME(AWeaponBase, GunWeaponData);
 }
