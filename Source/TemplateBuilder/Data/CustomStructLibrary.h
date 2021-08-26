@@ -35,6 +35,8 @@ struct FWeaponData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Offsets")
 	bool bIsLeftHand;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float ReloadTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Extra Stats")
 	float Recoil;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode")

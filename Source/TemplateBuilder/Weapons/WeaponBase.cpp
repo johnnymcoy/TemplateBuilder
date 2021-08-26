@@ -28,7 +28,6 @@ AWeaponBase::AWeaponBase()
 	UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
 	UMG_LeftLocation->SetupAttachment(GunMeshComponent);
 	
-	//Multiplayer
 	bReplicates = true;
 }
 
@@ -52,21 +51,17 @@ void AWeaponBase::Fire_Implementation()
 	}	
 }
 
-float AWeaponBase::Reload_Implementation() 
+void AWeaponBase::Reload_Implementation(float ReloadTime) 
 {
 	if(GunWeaponData.CurrentAmmo < GunWeaponData.ClipSize && GunWeaponData.TotalAmmoCount > 0)
-	//(CurrentAmmoCount < ClipSize && TotalAmmoCount > 0)
 	{
-		if(!IsReloading)
-		{
+		// if(!IsReloading)
+		// {
 			IsReloading = true;
-			//Play Gun Reload Animation at speed dependant on Reload time
-			GetWorldTimerManager().SetTimer(ReloadTimer, this, &AWeaponBase::ReloadDelay, ReloadTime, false);
+			GetWorldTimerManager().SetTimer(ReloadTimer, this, &AWeaponBase::ServerReload, ReloadTime, false);
 			//Update Ammo UMG
-		}
+		// }
 	} 
-	//Needs an Offset to make sure it's after the ReloadDelay Function
-	return (ReloadTime + 0.1f);
 }
 
 void AWeaponBase::CancelReload_Implementation() 
@@ -76,36 +71,50 @@ void AWeaponBase::CancelReload_Implementation()
 
 void AWeaponBase::ServerReload_Implementation() 
 {
-	ReloadDelay();
-}
-
-void AWeaponBase::ReloadDelay() 
-{
-	if(GetLocalRole() < ROLE_Authority)
-	{
-		ServerReload();
-	}
-	if(IsReloading)
-	{
+	// ReloadDelay();
+	UE_LOG(LogTemp,Warning,TEXT("ServerReload"));
+	// if(IsReloading)
+	// {
+		// UE_LOG(LogTemp,Warning,TEXT("bIsReloading?"));
 		if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
-		// TotalAmmoCount + CurrentAmmoCount > ClipSize)
 		{
 			GunWeaponData.TotalAmmoCount = GunWeaponData.TotalAmmoCount - (GunWeaponData.ClipSize - GunWeaponData.CurrentAmmo);
 			GunWeaponData.CurrentAmmo = GunWeaponData.ClipSize;
-			//TotalAmmoCount = TotalAmmoCount - (ClipSize - CurrentAmmoCount);
-			//CurrentAmmoCount = ClipSize;
+
 		}
 		else
 		{
 			GunWeaponData.CurrentAmmo = GunWeaponData.CurrentAmmo + GunWeaponData.TotalAmmoCount;
 			GunWeaponData.TotalAmmoCount = 0;
-			//CurrentAmmoCount = CurrentAmmoCount + TotalAmmoCount;
-			//TotalAmmoCount = 0;
 		}
-	}
-	
+	// }
 	GetWorldTimerManager().ClearTimer(ReloadTimer);
 	IsReloading = false;
+}
+
+void AWeaponBase::ReloadDelay() 
+{
+	// if(GetLocalRole() < ROLE_Authority)
+	// {
+		ServerReload();
+	// }
+	// if(IsReloading)
+	// {
+	// 	if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
+	// 	{
+	// 		GunWeaponData.TotalAmmoCount = GunWeaponData.TotalAmmoCount - (GunWeaponData.ClipSize - GunWeaponData.CurrentAmmo);
+	// 		GunWeaponData.CurrentAmmo = GunWeaponData.ClipSize;
+	// 		UE_LOG(LogTemp,Warning,TEXT("Reload"));
+
+	// 	}
+	// 	else
+	// 	{
+	// 		GunWeaponData.CurrentAmmo = GunWeaponData.CurrentAmmo + GunWeaponData.TotalAmmoCount;
+	// 		GunWeaponData.TotalAmmoCount = 0;
+	// 	}
+	// }
+	// GetWorldTimerManager().ClearTimer(ReloadTimer);
+	// IsReloading = false;
 }
 
 void AWeaponBase::SwitchAutoMode_Implementation() 
@@ -135,10 +144,6 @@ void AWeaponBase::UpdateAmmoUMG_Implementation()
 
 void AWeaponBase::GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
 {
-	TraceLocation = in_Location;
-	TraceRotation = in_Rotation;
-	TraceActorToIgnore = ActorToIgnore;
-	AccuracyMultiplier = in_Accuracy;
 	ServerGetTraceParams(in_Location, in_Rotation, ActorToIgnore, in_Accuracy);
 }
 
@@ -208,17 +213,11 @@ bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection)
 	true, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
 }
 
+//TraceParams Already calls Server shoot
 void AWeaponBase::Shoot() 
 {
-	if(GetLocalRole() < ROLE_Authority)
-	{
-		ServerShoot();
-	}
 	if(CanShoot())
 	{
-		//Remove
-		// CurrentAmmoCount--;
-
 		GunWeaponData.CurrentAmmo--;
 		if(bDebuggingMode){GunWeaponData.CurrentAmmo++;}
 		FHitResult Hit;
@@ -400,7 +399,7 @@ void AWeaponBase::CalculateBulletSpread(FVector& NewBulletSpread)
 bool AWeaponBase::CanShoot() 
 {
 	if(IsReloading){return false;}
-	if(GunWeaponData.CurrentAmmo <= 0){UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo 0 (Weapon)")); return false;}
+	if(GunWeaponData.CurrentAmmo <= 0){UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo 0 (Weapon) %s"), *FString::FromInt(GunWeaponData.CurrentAmmo)); return false;}
 	else{return true;}
 }
 
@@ -410,6 +409,6 @@ void AWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
  	DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
 	DOREPLIFETIME(AWeaponBase, TraceLocation);
-	DOREPLIFETIME(AWeaponBase, CurrentAmmoCount);
 	DOREPLIFETIME(AWeaponBase, GunWeaponData);
+	DOREPLIFETIME(AWeaponBase, IsReloading);
 }

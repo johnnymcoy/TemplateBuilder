@@ -24,26 +24,19 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetGunImpulse(float out_GunImpulse, float out_HeadMultiplier);
 
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	// void SetWeaponAmmo(const int32 in_CurrentAmmo, const int32 in_TotalAmmoCount);
-
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void SetWeaponData(const FWeaponData in_WeaponData);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void Fire();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	float Reload();
+	void Reload(float ReloadTime);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void CancelReload();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void SwitchAutoMode();
 
 	//Get Weapon infos
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	// int GetCurrentAmmo();
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	// int GetTotalAmmoCount();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	FWeaponData GetWeaponData();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")

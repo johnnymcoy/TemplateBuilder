@@ -172,18 +172,26 @@ void AALSCustomCharacter::ShootGun() //Calculated every bullet
 			//Gun needs a blindfire Function that then goes into GetTraceParams
 			//Gun interface also needs function
 		}
-		//Update Ammo
-		CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
-		if(CurrentWeaponData.CurrentAmmo > 0)
-		{
-			Recoil();
-		}
-		if(!bIsNPC){UpdateWBP(CurrentWeaponData);}
+		//Update Ammo with a slight delay so theirs time for the gun to fire
+		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.01f, false);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Please Add a Gun Child Class in editor"));
 	}
+}
+
+void AALSCustomCharacter::UpdateWBPDelayed() 
+{
+	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
+    if (!ensure(CurrentWeapon != nullptr)) return;
+	CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
+	if(CurrentWeaponData.CurrentAmmo > 0)
+	{
+		Recoil();
+	}
+	if(!bIsNPC) UpdateWBP(CurrentWeaponData);
+
 }
 
 void AALSCustomCharacter::ShootGunCheck() 
@@ -194,7 +202,7 @@ void AALSCustomCharacter::ShootGunCheck()
 		IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
 		if(CurrentWeapon)
 		{
-			if(bIsReloading){CancelReload();}
+			if(bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
 			if(CurrentWeapon->Execute_IsInAutoMode(Gun->GetChildActor()))
 			{
 				//Not good to have magic number (/200.f)
@@ -341,11 +349,12 @@ void AALSCustomCharacter::Reload()
 		{	
 			if(CurrentWeaponData.CurrentAmmo < CurrentWeaponData.ClipSize && CurrentWeaponData.TotalAmmoCount > 0)
 			{
-				float ReloadTime = MainAnimInstance->Montage_Play(GetReloadAnimation(CurrentWeaponData.WeaponType),(1.0f / CurrentWeapon->Execute_Reload(Gun->GetChildActor())), EMontagePlayReturnType::Duration, 0.0f, true);
-				if(GetLocalRole() < ROLE_Authority){ServerPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType),(1.0f / CurrentWeapon->Execute_Reload(Gun->GetChildActor())), EMontagePlayReturnType::Duration, 0.0f, true);}
-				else{MulticastPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType),(1.0f / CurrentWeapon->Execute_Reload(Gun->GetChildActor())), EMontagePlayReturnType::Duration, 0.0f, true);}
+				float ReloadTime = MainAnimInstance->Montage_Play(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);
+				if(GetLocalRole() < ROLE_Authority){ServerPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);}
+				else{MulticastPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);}
+				CurrentWeapon->Execute_Reload(Gun->GetChildActor(), ReloadTime);
 				bIsReloading = true;
-				GetWorldTimerManager().SetTimer(ReloadTimer, this, &AALSCustomCharacter::ReloadDelay, ReloadTime, false);
+				GetWorldTimerManager().SetTimer(ReloadTimer, this, &AALSCustomCharacter::ReloadDelay, (ReloadTime + 0.1f), false); //Offset so that the HUD isn't offset
 			}
 		}
 	}
@@ -482,6 +491,7 @@ void AALSCustomCharacter::UpdateWBP_Implementation(FWeaponData WeaponData)
 {
 	//Default UpdateWBP Stuff
 }
+
 
 void AALSCustomCharacter::PickupGunWBP_Implementation(FWeaponData WeaponData) 
 {

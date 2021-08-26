@@ -68,8 +68,8 @@ public:
 	void Fire();
 	virtual void Fire_Implementation();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	float Reload();
-	float Reload_Implementation();
+	void Reload(float ReloadTime);
+	void Reload_Implementation(float ReloadTime);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void CancelReload();
 	void CancelReload_Implementation();
@@ -133,7 +133,7 @@ private:
 	void CalculateBulletSpread(FVector& NewBulletSpread);
 
 	bool CanShoot();
-
+	UPROPERTY(Replicated)
 	bool IsReloading;
 	FTimerHandle ReloadTimer;
 	float GunRange = 200000.0f;
@@ -161,8 +161,6 @@ public:
 
 	//Base Variables//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float ReloadTime;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	float BulletSpread;
 
 	//Weapon Damage 
@@ -177,7 +175,7 @@ public:
 	TSubclassOf<class UDamageType> DamageType;
 
 	//Ammo
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int CurrentAmmoCount;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int TotalAmmoCount;

@@ -101,6 +101,7 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
 	void UpdateWBP(FWeaponData WeaponData);
 	virtual void UpdateWBP_Implementation(FWeaponData WeaponData);
+	void UpdateWBPDelayed();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
 	void PickupGunWBP(FWeaponData WeaponData);
 	virtual void PickupGunWBP_Implementation(FWeaponData WeaponData);
@@ -110,7 +111,6 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
 	void AddRecoilWBP(float RecoilAmmount);
 	virtual void AddRecoilWBP_Implementation(float RecoilAmmount);
-
 
 	//Optimization
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Optimization")
@@ -198,6 +198,8 @@ private:
 
 
 	FTimerHandle ShootingTimerHandle;
+	FTimerHandle HudUpdateHandle;
+
 
 	void Recoil();
 	float RecoilAmount;
