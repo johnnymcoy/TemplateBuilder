@@ -120,7 +120,8 @@ void AALSCustomCharacter::AimPressedAction()
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
 	if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
 	{
-		// CurrentWeapon->FadeUMG();
+		CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), !bRightShoulder);
+		CurrentWeapon->Execute_FadeInUMG(Gun->GetChildActor(), bIsAiming);
 		UE_LOG(LogTemp,Warning,TEXT("Fade UMG"));
 	}
 }
@@ -129,6 +130,12 @@ void AALSCustomCharacter::AimReleasedAction()
 {
 	Super::AimReleasedAction();
 	bIsAiming = false;
+	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
+	if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
+	{
+		CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), !bRightShoulder);
+		CurrentWeapon->Execute_FadeInUMG(Gun->GetChildActor(), bIsAiming);
+	}
 }
 
 void AALSCustomCharacter::CameraButtonPressed() 
@@ -137,7 +144,7 @@ void AALSCustomCharacter::CameraButtonPressed()
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
 	if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
 	{
-		UE_LOG(LogTemp,Warning,TEXT("Move UMG Side"));
+		CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), bRightShoulder);
 	}
 }
 
@@ -173,7 +180,7 @@ void AALSCustomCharacter::ShootGun() //Calculated every bullet
 			//Gun interface also needs function
 		}
 		//Update Ammo with a slight delay so theirs time for the gun to fire
-		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.01f, false);
+		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
 	}
 	else
 	{

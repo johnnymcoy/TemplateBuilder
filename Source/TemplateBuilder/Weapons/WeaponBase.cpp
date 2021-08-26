@@ -55,66 +55,42 @@ void AWeaponBase::Reload_Implementation(float ReloadTime)
 {
 	if(GunWeaponData.CurrentAmmo < GunWeaponData.ClipSize && GunWeaponData.TotalAmmoCount > 0)
 	{
-		// if(!IsReloading)
-		// {
-			IsReloading = true;
+		if(!IsReloading)
+		{
+			ServerSetReloading(true);
 			GetWorldTimerManager().SetTimer(ReloadTimer, this, &AWeaponBase::ServerReload, ReloadTime, false);
 			//Update Ammo UMG
-		// }
+		}
 	} 
 }
 
 void AWeaponBase::CancelReload_Implementation() 
 {
-	IsReloading = false;
+	ServerSetReloading(false);
+}
+
+void AWeaponBase::ServerSetReloading_Implementation(bool bReloading) 
+{
+	IsReloading = bReloading;
 }
 
 void AWeaponBase::ServerReload_Implementation() 
 {
-	// ReloadDelay();
-	UE_LOG(LogTemp,Warning,TEXT("ServerReload"));
-	// if(IsReloading)
-	// {
-		// UE_LOG(LogTemp,Warning,TEXT("bIsReloading?"));
+	if(IsReloading)
+	{
 		if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
 		{
 			GunWeaponData.TotalAmmoCount = GunWeaponData.TotalAmmoCount - (GunWeaponData.ClipSize - GunWeaponData.CurrentAmmo);
 			GunWeaponData.CurrentAmmo = GunWeaponData.ClipSize;
-
 		}
 		else
 		{
 			GunWeaponData.CurrentAmmo = GunWeaponData.CurrentAmmo + GunWeaponData.TotalAmmoCount;
 			GunWeaponData.TotalAmmoCount = 0;
 		}
-	// }
+	}
 	GetWorldTimerManager().ClearTimer(ReloadTimer);
-	IsReloading = false;
-}
-
-void AWeaponBase::ReloadDelay() 
-{
-	// if(GetLocalRole() < ROLE_Authority)
-	// {
-		ServerReload();
-	// }
-	// if(IsReloading)
-	// {
-	// 	if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
-	// 	{
-	// 		GunWeaponData.TotalAmmoCount = GunWeaponData.TotalAmmoCount - (GunWeaponData.ClipSize - GunWeaponData.CurrentAmmo);
-	// 		GunWeaponData.CurrentAmmo = GunWeaponData.ClipSize;
-	// 		UE_LOG(LogTemp,Warning,TEXT("Reload"));
-
-	// 	}
-	// 	else
-	// 	{
-	// 		GunWeaponData.CurrentAmmo = GunWeaponData.CurrentAmmo + GunWeaponData.TotalAmmoCount;
-	// 		GunWeaponData.TotalAmmoCount = 0;
-	// 	}
-	// }
-	// GetWorldTimerManager().ClearTimer(ReloadTimer);
-	// IsReloading = false;
+	ServerSetReloading(false);
 }
 
 void AWeaponBase::SwitchAutoMode_Implementation() 
@@ -137,10 +113,62 @@ FWeaponData AWeaponBase::GetWeaponData_Implementation()
 	return GunWeaponData;
 }
 
-void AWeaponBase::UpdateAmmoUMG_Implementation() 
+void AWeaponBase::MoveUMG_Implementation(bool bIsRightShoulder) 
 {
-	
+	if(bIsRightShoulder)
+	{
+		AmmoWidgetComponent->SetWorldLocation(UMG_LeftLocation->GetComponentLocation());
+	}
+	else
+	{
+		AmmoWidgetComponent->SetWorldLocation(UMG_RightLocation->GetComponentLocation());
+	}
 }
+
+void AWeaponBase::FadeInUMG_Implementation(bool bIsAiming) 
+{
+	if(bIsAiming && UMGAlpha <= 0.3)
+	{
+		GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGIn, 0.08, true, 0.0f);
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGOut, 0.08, true, 0.0f);
+	}
+}
+
+void AWeaponBase::FadeUMGIn() 
+{
+	if(UMGAlpha >= 0.3)
+	{
+		GetWorldTimerManager().ClearTimer(UMGTimer);
+		return;
+	}
+	UMGAlpha += 0.04f;
+	FadeInUMGTimed(UMGAlpha);
+}
+
+void AWeaponBase::FadeUMGOut() 
+{
+	if(UMGAlpha <= 0) 
+	{
+		GetWorldTimerManager().ClearTimer(UMGTimer);
+		return;
+	}
+	UMGAlpha -= 0.04f;
+	FadeInUMGTimed(UMGAlpha);
+}
+
+void AWeaponBase::FadeInUMGTimed(float Alpha) 
+{
+	UE_LOG(LogTemp,Warning,TEXT("UMG Alpha = %s"), *FString::SanitizeFloat(UMGAlpha));
+	AmmoWidgetComponent->SetTintColorAndOpacity(FLinearColor(1,1,1,Alpha));
+	if(Alpha >= 0.3 || Alpha <= 0)
+	{
+		GetWorldTimerManager().ClearTimer(UMGTimer);
+	}
+}
+
 
 void AWeaponBase::GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
 {
@@ -156,13 +184,6 @@ void AWeaponBase::ServerGetTraceParams_Implementation(const FVector in_Location,
 	ServerShoot();
 }
 
-//Remove
-void AWeaponBase::GetGunImpulse_Implementation(float out_GunImpulse, float out_HeadMultiplier) 
-{
-	out_GunImpulse = GunImpulse; 
-	out_HeadMultiplier = HeadMultiplier;
-}
-
 void AWeaponBase::EnableWeaponDebug_Implementation(bool DebugStatus) 
 {
 	bDebuggingMode = DebugStatus;
@@ -176,23 +197,6 @@ bool AWeaponBase::IsInAutoMode_Implementation()
 void AWeaponBase::SetWeaponData_Implementation(const FWeaponData in_WeaponData) 
 {
 	GunWeaponData = in_WeaponData;
-}
-
-void AWeaponBase::FadeInUMG(float Alpha) 
-{
-	AmmoWidgetComponent->SetTintColorAndOpacity(FLinearColor(1,1,1,Alpha));
-}
-
-void AWeaponBase::MoveUMG(bool bRightShoulder) 
-{
-	if(bRightShoulder)
-	{
-		AmmoWidgetComponent->SetRelativeLocation(UMG_RightLocation->GetComponentLocation());
-	}
-	else
-	{
-		AmmoWidgetComponent->SetRelativeLocation(UMG_LeftLocation->GetComponentLocation());
-	}
 }
 
 bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection) 
@@ -261,7 +265,7 @@ void AWeaponBase::Shoot()
 				Params.AddIgnoredActor(GetOwner());
 				Params.AddIgnoredActor(TraceActorToIgnore);
 				GetWorld()->LineTraceSingleByChannel(BlindFireHit, MuzzleLocation, Hit.TraceEnd, ECollisionChannel::ECC_GameTraceChannel4, Params);
-				//DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Red, true);
+				if(bDebuggingMode){DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Red, true);}
 			}
 			else
 			{
@@ -277,12 +281,14 @@ void AWeaponBase::Shoot()
 				if(GetWorld()->LineTraceSingleByChannel(HitCheck, Hit.Location, MuzzleLocation, ECollisionChannel::ECC_GameTraceChannel4, Params))
 				{
 					//There's something in the way 
-					// Blindfire from the gun instead
+					// Blindfire from the gun instead					
+					if(bDebuggingMode){DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);}
+
 
 				}
 				else
 				{
-					//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Blue, true);
+					if(bDebuggingMode){DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Blue, true);}
 				}
 			}
 			TracerEndPoint = Hit.ImpactPoint;
@@ -398,9 +404,9 @@ void AWeaponBase::CalculateBulletSpread(FVector& NewBulletSpread)
 
 bool AWeaponBase::CanShoot() 
 {
-	if(IsReloading){return false;}
-	if(GunWeaponData.CurrentAmmo <= 0){UE_LOG(LogTemp, Warning, TEXT("CurrentAmmo 0 (Weapon) %s"), *FString::FromInt(GunWeaponData.CurrentAmmo)); return false;}
-	else{return true;}
+	if(IsReloading) return false;
+	if(GunWeaponData.CurrentAmmo <= 0) return false; 
+	else return true; 
 }
 
 
@@ -410,5 +416,4 @@ void AWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
  	DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
 	DOREPLIFETIME(AWeaponBase, TraceLocation);
 	DOREPLIFETIME(AWeaponBase, GunWeaponData);
-	DOREPLIFETIME(AWeaponBase, IsReloading);
 }

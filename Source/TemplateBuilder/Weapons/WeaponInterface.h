@@ -21,8 +21,6 @@ class TEMPLATEBUILDER_API IWeaponInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void GetGunImpulse(float out_GunImpulse, float out_HeadMultiplier);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void SetWeaponData(const FWeaponData in_WeaponData);
@@ -35,6 +33,11 @@ public:
 	void CancelReload();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void SwitchAutoMode();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	void MoveUMG(bool bIsRightShoulder);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	void FadeInUMG(bool bIsAiming);
 
 	//Get Weapon infos
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")

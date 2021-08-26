@@ -80,6 +80,8 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
 	UFUNCTION(Server, Reliable)
+	void ServerSetReloading(bool bReloading);
+	UFUNCTION(Server, Reliable)
 	void ServerReload();
 
 
@@ -95,25 +97,14 @@ public:
 
 
 
-	//Ammo UMG
-	UFUNCTION()
-	void FadeInUMG(float Alpha);
-	UFUNCTION()
-	void MoveUMG(bool bRightShoulder);
-
-	//Blueprint Pure Function//
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	void UpdateAmmoUMG();
-	virtual void UpdateAmmoUMG_Implementation();
+	virtual void MoveUMG_Implementation(bool bIsRightShoulder);
+	virtual void FadeInUMG_Implementation(bool bIsAiming);
 
 
 	///Interface Functions
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 	virtual void GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void GetGunImpulse(float out_GunImpulse, float out_HeadMultiplier);
-	virtual void GetGunImpulse_Implementation(float out_GunImpulse, float out_HeadMultiplier);
 
 	UFUNCTION(Server, Reliable)
 	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
@@ -125,15 +116,19 @@ public:
 private:
 
 	void Shoot();
-	void ReloadDelay();
 
 	UFUNCTION()
 	bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
 	
 	void CalculateBulletSpread(FVector& NewBulletSpread);
+	void FadeInUMGTimed(float Alpha);
+	void FadeUMGIn();
+	void FadeUMGOut();
+	float UMGAlpha;
+
+	FTimerHandle UMGTimer;
 
 	bool CanShoot();
-	UPROPERTY(Replicated)
 	bool IsReloading;
 	FTimerHandle ReloadTimer;
 	float GunRange = 200000.0f;
