@@ -560,7 +560,7 @@ void AALSCustomCharacter::AddAmmo(FWeaponData WeaponData)
 	else // Should only cover if the ammo is Already Max 
 	{
 		//TODO::
-		//Should not Destory actor 
+		//Should not Destroy actor 
 	}
 	UpdateWBP(CurrentWeaponData);
 }
