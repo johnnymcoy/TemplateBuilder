@@ -6,14 +6,10 @@
 #include "BaseDamageType.h"
 #include "StandardBulletDamageType.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class TEMPLATEBUILDER_API UStandardBulletDamageType : public UBaseDamageType
 {
 	GENERATED_BODY()
-
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")

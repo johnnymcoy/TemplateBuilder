@@ -2,24 +2,23 @@
 
 
 #include "ALSCustomCharacter.h"
-#include "TemplateBuilder/Weapons/WeaponInterface.h"
-#include "Character/Animation/ALSCharacterAnimInstance.h"
-#include "TemplateBuilder/Weapons/WeaponBase.h"
-#include "TemplateBuilder/Interactable/WeaponPickupBase.h"
-#include "TimerManager.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "TemplateBuilder/Health/HealthComponent.h"
-#include "PhysicsEngine/PhysicalAnimationComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "TemplateBuilder/Interactable/InteractableInterface.h"
+#include "TemplateBuilder/Interactable/WeaponPickupBase.h"
+#include "Character/Animation/ALSCharacterAnimInstance.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "PhysicsEngine/PhysicalAnimationComponent.h"
+#include "TemplateBuilder/Weapons/WeaponInterface.h"
+#include "TemplateBuilder/Health/HealthComponent.h"
+#include "TemplateBuilder/Weapons/WeaponBase.h"
 #include "Components/CapsuleComponent.h"
-#include "DrawDebugHelpers.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "ALSCustomController.h"
 #include "Net/UnrealNetwork.h"
+#include "DrawDebugHelpers.h"
+#include "TimerManager.h"
 
-//TODO:
-// Picking up gun always destroys actor
+//TODO: Picking up gun always destroys actor
 
 //Constructor
 AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitializer)
@@ -39,7 +38,7 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AALSCustomCharacter::OnHealthChanged);
 	OnTakeAnyDamage.AddDynamic(this, &AALSCustomCharacter::AnyDamageTaken);
 	SetupPhysicalAnimationDefaults();
-	//Defaults incase nothing is set
+	//Defaults in case nothing is set
 	PickupThrowIntensity = 500;
 }
 

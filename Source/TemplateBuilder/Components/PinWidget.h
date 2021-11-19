@@ -13,7 +13,6 @@ class TEMPLATEBUILDER_API UPinWidget : public UWidgetComponent
 	GENERATED_BODY()
 	
 public:
-
 	UFUNCTION(BlueprintCallable, Category = "Pin")
 	void UpdatePinData(FPinInfo PinData);
 

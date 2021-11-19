@@ -6,9 +6,7 @@
 #include "AIController.h"
 #include "AIControllerBase.generated.h"
 
-/**
- * 
- */
+
 UCLASS()
 class TEMPLATEBUILDER_API AAIControllerBase : public AAIController
 {
@@ -21,7 +19,6 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 	bool IsDead() const;
-
 
 private:
 	UPROPERTY(EditAnywhere)

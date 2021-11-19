@@ -14,7 +14,6 @@ void AAIControllerBase::BeginPlay()
     {
         RunBehaviorTree(AIBehavior);
     }
-
 }
 
 void AAIControllerBase::Tick(float DeltaSeconds) 
