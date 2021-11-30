@@ -20,6 +20,10 @@ class TEMPLATEBUILDER_API IMenuInterface
 
 public:
 	virtual void Host(FOnlineSessionSettings HostSessionSettings) = 0;
+	virtual void SinglePlayer() = 0;
+	virtual void Character() = 0;
+	virtual void Options() = 0;
+
 	virtual void Join(uint32 Index) = 0;
 	virtual void JoinManualAddress(const FString& IpAddress) = 0;
 	virtual void Quit() = 0;

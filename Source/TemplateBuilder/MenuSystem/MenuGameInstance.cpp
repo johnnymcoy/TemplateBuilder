@@ -8,6 +8,7 @@
 #include "OnlineSubsystem.h"
 #include "Online.h"
 #include "Engine/Engine.h"
+#include "Kismet/GameplayStatics.h"
 
 
 const static FName SESSION_NAME = NAME_GameSession;
@@ -67,7 +68,20 @@ void UMenuGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess
 	World->ServerTravel("/Game/MenuSystem/Lobby?listen");
 }
 
+void UMenuGameInstance::SinglePlayer()
+{
+    UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Demos/ShooterDemo/Levels/ShooterDemoLevel"), TRAVEL_Absolute);
+}
 
+void UMenuGameInstance::Character()
+{
+	UE_LOG(LogTemp,Warning, TEXT("CHARACTER MENU"));
+}
+
+void UMenuGameInstance::Options()
+{
+	UE_LOG(LogTemp,Warning, TEXT("Options"));
+}
 
 void UMenuGameInstance::Host(FOnlineSessionSettings HostSessionSettings)
 {

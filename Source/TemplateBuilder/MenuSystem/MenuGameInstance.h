@@ -26,7 +26,10 @@ public:
 	UFUNCTION(Exec, BlueprintCallable)
 	virtual void LaunchInGameMenu();
 	
-	virtual void Host(FOnlineSessionSettings HostSessionSettings);
+	virtual void Host(FOnlineSessionSettings HostSessionSettings) override;
+	virtual void SinglePlayer() override;
+	virtual void Character() override;
+	virtual void Options() override;
 	void StartSession();
 
 	UFUNCTION(Exec)

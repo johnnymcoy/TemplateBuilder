@@ -27,6 +27,9 @@ bool UMainMenuWidget::Initialize()
 	if(!Success) return false;
 	if (!ensure(JoinButton != nullptr)) return false;
 	if (!ensure(HostButton != nullptr)) return false;
+	if (!ensure(SinglePlayerButton != nullptr)) return false;
+	if (!ensure(CharacterButton != nullptr)) return false;
+	if (!ensure(OptionsButton != nullptr)) return false;
 	if (!ensure(JoinBackButton != nullptr)) return false;
 	if (!ensure(HostBackButton != nullptr)) return false;
 	if (!ensure(QuitButton != nullptr)) return false;
@@ -34,11 +37,15 @@ bool UMainMenuWidget::Initialize()
 	if (!ensure(SearchServersButton != nullptr)) return false;
 	if (!ensure(SearchingProgressSpinner != nullptr)) return false;
 	if (!ensure(NumberOfPlayersSlider != nullptr)) return false;
-	if (!ensure(NumberOfPlayersText != nullptr)) return false;    
+	if (!ensure(NumberOfPlayersText != nullptr)) return false;
+	if (!ensure(GameVersionText != nullptr)) return false;	
 	HostButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostButtonClicked);
+	SinglePlayerButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SinglePlayerButtonClicked);
 	JoinBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
 	HostBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
 	JoinButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinButtonClicked);
+	CharacterButton->OnClicked.AddDynamic(this, &UMainMenuWidget::CharacterButtonClicked);
+	OptionsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OptionsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenuWidget::QuitButtonClicked);
 	HostMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostMenuButtonClicked);
 	JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinMenuButtonClicked);
@@ -46,7 +53,32 @@ bool UMainMenuWidget::Initialize()
 	SearchingProgressSpinner->SetVisibility(ESlateVisibility::Hidden);
 	NumberOfPlayersSlider->OnValueChanged.AddDynamic(this, &UMainMenuWidget::NumberOnSliderChanged);
 
+    GameVersionText->SetText(FText::AsNumber(GameVersion));
 	return true;
+}
+
+void UMainMenuWidget::SinglePlayerButtonClicked()
+{
+	if(MenuInterface != nullptr)
+	{
+		MenuInterface->SinglePlayer();
+	}
+}
+
+void UMainMenuWidget::OptionsButtonClicked()
+{
+	if(MenuInterface != nullptr)
+	{
+		MenuInterface->Options();
+	}
+}
+
+void UMainMenuWidget::CharacterButtonClicked()
+{
+	if(MenuInterface != nullptr)
+	{
+		MenuInterface->Character();
+	}
 }
 
 void UMainMenuWidget::JoinMenuButtonClicked() 
@@ -67,9 +99,7 @@ void UMainMenuWidget::HostMenuButtonClicked()
 	if (!ensure(MenuSwitcher != nullptr)) return;
 	if (!ensure(JoinMenu != nullptr)) return;
 	MenuSwitcher->SetActiveWidget(HostMenu);
-
 }
-
 
 void UMainMenuWidget::HostButtonClicked() 
 {

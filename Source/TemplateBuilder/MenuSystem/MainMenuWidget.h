@@ -20,7 +20,14 @@ public:
 	
 protected:
 	virtual bool Initialize() override;
-	
+
+	UFUNCTION()
+	void SinglePlayerButtonClicked();
+	UFUNCTION()
+	void OptionsButtonClicked();
+	UFUNCTION()
+	void CharacterButtonClicked();
+
 	UFUNCTION()
 	void JoinButtonClicked();
 	UFUNCTION()
@@ -42,13 +49,24 @@ protected:
 	void NumberOnSliderChanged(float Value);
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float GameVersion = 0.01;
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
 	UPROPERTY(meta = (BindWidget))
+	class UButton* SinglePlayerButton;
+	UPROPERTY(meta = (BindWidget))
 	class UButton* HostButton;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* JoinButton;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* CharacterButton;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* OptionsButton;
+
+
+	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SearchServersButton;
 
@@ -72,7 +90,9 @@ private:
 	class USlider* NumberOfPlayersSlider;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* NumberOfPlayersText;
-	
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* GameVersionText;
+
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;
 
