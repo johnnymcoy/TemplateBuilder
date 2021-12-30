@@ -132,22 +132,22 @@ public:
 	bool PrimaryEquiped;
 	bool bIsHolstered;
 
-	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	void HolsterWeapon();
-	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	void NoSecondaryEquip();
-	UFUNCTION(Server, Reliable)
-	void ServerClearWeapon();
+	// UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	// void HolsterWeapon();
+	// UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	// void NoSecondaryEquip();
+	// UFUNCTION(Server, Reliable)
+	// void ServerClearWeapon();
 
 
-	void EquipWeapon(FWeaponData WeaponData);
-	UFUNCTION(Server, Reliable)
-	void ServerEquipWeapon(FWeaponData WeaponData);
+	// void EquipWeapon(FWeaponData WeaponData);
+	// UFUNCTION(Server, Reliable)
+	// void ServerEquipWeapon(FWeaponData WeaponData);
 
 
-	void AddAmmo(FWeaponData WeaponData);
-	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
-	UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
+	// void AddAmmo(FWeaponData WeaponData);
+	// UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
+	// UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
 
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
@@ -156,48 +156,45 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Stats")
     void GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const;	
 
-	UPROPERTY(ReplicatedUsing=OnRep_ClearWeapon, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
-	struct FWeaponData CurrentWeaponData;
+	// UPROPERTY(ReplicatedUsing=OnRep_ClearWeapon, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
+	// struct FWeaponData CurrentWeaponData;
 
 	UFUNCTION()
 	void OnRep_ClearWeapon();
 
-	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	struct FWeaponData PrimaryWeaponData;
-	UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	struct FWeaponData SecondaryWeaponData;
+	// UPROPERTY(BlueprintReadOnly, Category = "Weapons")
+	// struct FWeaponData PrimaryWeaponData;
+	// UPROPERTY(BlueprintReadOnly, Category = "Weapons")
+	// struct FWeaponData SecondaryWeaponData;
 	//less than 1 is Low, 5 Is Very high
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
-	float Accuracy = 1;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
+	// float Accuracy = 1;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void ThrowWeaponEvent(FWeaponData WeaponData);
-	virtual void ThrowWeaponEvent_Implementation(FWeaponData WeaponData);
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	// void ThrowWeaponEvent(FWeaponData WeaponData);
+	// virtual void ThrowWeaponEvent_Implementation(FWeaponData WeaponData);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	void Death();
 	virtual void Death_Implementation();
 
 
-	// void ServerDeath();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	void ShootGun();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	void ShootGunCheck();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	void StopShootGun();
+	// UFUNCTION(BlueprintCallable, Category = "Weapons")
+	// void ShootGun();
+	// UFUNCTION(BlueprintCallable, Category = "Weapons")
+	// void ShootGunCheck();
+	// UFUNCTION(BlueprintCallable, Category = "Weapons")
+	// void StopShootGun();
 protected:
 	UFUNCTION()
  	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	UFUNCTION()
-	void OnHealthChanged(UHealthComponent* HealthComp, float Health, float DefaultHealth, float Shield, float DefaultShield, const class UDamageType* DamageType);
+	void OnHealthChanged(class UHealthComponent* HealthComp, float Health, float DefaultHealth, float Shield, float DefaultShield, const class UDamageType* DamageType);
 
 
 private:
-
-
-	FTimerHandle ShootingTimerHandle;
+	// FTimerHandle ShootingTimerHandle;
 	FTimerHandle HudUpdateHandle;
 
 
@@ -268,5 +265,3 @@ private:
 	//Set to Weapon Base
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AWeaponBase> WeaponClassRef;
-
-};

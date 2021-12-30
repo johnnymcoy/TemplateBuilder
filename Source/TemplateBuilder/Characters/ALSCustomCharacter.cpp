@@ -20,7 +20,6 @@
 
 //TODO: Picking up gun always destroys actor
 
-//Constructor
 AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitializer)
 : AALSCharacter (ObjectInitializer)
 {
@@ -36,6 +35,7 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AALSCustomCharacter::OnHealthChanged);
+	HealthComponent->bHasShield = true;
 	OnTakeAnyDamage.AddDynamic(this, &AALSCustomCharacter::AnyDamageTaken);
 	SetupPhysicalAnimationDefaults();
 	//Defaults in case nothing is set
@@ -178,7 +178,7 @@ void AALSCustomCharacter::ShootGun() //Calculated every bullet
 			//Gun needs a blindfire Function that then goes into GetTraceParams
 			//Gun interface also needs function
 		}
-		//Update Ammo with a slight delay so theirs time for the gun to fire
+		//Update Ammo with a slight delay so there's time for the gun to fire
 		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
 	}
 	else
@@ -804,7 +804,6 @@ void AALSCustomCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	//DOREPLIFETIME(AALSCustomCharacter, CurrentWeapon);
 	DOREPLIFETIME(AALSCustomCharacter, DeathOnce);
 	DOREPLIFETIME_CONDITION(AALSCustomCharacter, CurrentWeaponData, COND_SkipOwner);
-
 }
 
 
