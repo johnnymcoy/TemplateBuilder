@@ -24,6 +24,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class USceneComponent* ThrowPoint;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
+	class UShootingComponent* ShootingComponent;
+
 	virtual void BeginPlay() override;
 
 	UFUNCTION(Server, Reliable)
@@ -45,13 +48,10 @@ protected:
 	bool bIsAiming;
 
 public:
-	// Sets default values for this character's properties
 	AALSCustomCharacter(const FObjectInitializer& ObjectInitializer);
 
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
@@ -132,59 +132,62 @@ public:
 	bool PrimaryEquiped;
 	bool bIsHolstered;
 
-	// UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	// void HolsterWeapon();
-	// UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	// void NoSecondaryEquip();
-	// UFUNCTION(Server, Reliable)
-	// void ServerClearWeapon();
+	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	void HolsterWeapon();
+	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
+	void NoSecondaryEquip();
+	UFUNCTION(Server, Reliable)
+	void ServerClearWeapon();
 
 
-	// void EquipWeapon(FWeaponData WeaponData);
-	// UFUNCTION(Server, Reliable)
-	// void ServerEquipWeapon(FWeaponData WeaponData);
+	void EquipWeapon(FWeaponData WeaponData);
+	UFUNCTION(Server, Reliable)
+	void ServerEquipWeapon(FWeaponData WeaponData);
 
 
-	// void AddAmmo(FWeaponData WeaponData);
-	// UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
-	// UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
+	void AddAmmo(FWeaponData WeaponData);
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
+	UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
 
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
+
+	UFUNCTION()
+	bool IsCrouching() const;
 
 
 	UFUNCTION(BlueprintCallable, Category = "Stats")
     void GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const;	
 
-	// UPROPERTY(ReplicatedUsing=OnRep_ClearWeapon, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
-	// struct FWeaponData CurrentWeaponData;
+	UPROPERTY(ReplicatedUsing=OnRep_ClearWeapon, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
+	struct FWeaponData CurrentWeaponData;
 
 	UFUNCTION()
 	void OnRep_ClearWeapon();
 
-	// UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	// struct FWeaponData PrimaryWeaponData;
-	// UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	// struct FWeaponData SecondaryWeaponData;
-	//less than 1 is Low, 5 Is Very high
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
-	// float Accuracy = 1;
+	 UPROPERTY(BlueprintReadOnly, Category = "Weapons")
+	 struct FWeaponData PrimaryWeaponData;
+	 UPROPERTY(BlueprintReadOnly, Category = "Weapons")
+	 struct FWeaponData SecondaryWeaponData;
+	 // less than 1 is Low, 5 Is Very high
+	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
+	 float Accuracy = 1;
 
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	// void ThrowWeaponEvent(FWeaponData WeaponData);
-	// virtual void ThrowWeaponEvent_Implementation(FWeaponData WeaponData);
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	void ThrowWeaponEvent(FWeaponData WeaponData);
+	virtual void ThrowWeaponEvent_Implementation(FWeaponData WeaponData);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	void Death();
 	virtual void Death_Implementation();
 
 
-	// UFUNCTION(BlueprintCallable, Category = "Weapons")
-	// void ShootGun();
-	// UFUNCTION(BlueprintCallable, Category = "Weapons")
-	// void ShootGunCheck();
-	// UFUNCTION(BlueprintCallable, Category = "Weapons")
-	// void StopShootGun();
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void ShootGun();
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void ShootGunCheck();
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	void StopShootGun();
 protected:
 	UFUNCTION()
  	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -194,7 +197,7 @@ protected:
 
 
 private:
-	// FTimerHandle ShootingTimerHandle;
+	FTimerHandle ShootingTimerHandle;
 	FTimerHandle HudUpdateHandle;
 
 
@@ -216,7 +219,7 @@ private:
 	//Could be Component?
 	//Gun Functions 
 	// void DropWeapon();
-
+	
 	void Reload();
 	void ReloadDelay();
 	void CancelReload();
@@ -229,20 +232,18 @@ private:
 	void ServerStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
-
-	//void MulticastPlayMontageAnimation();
-
+	
 	//Switch Weapon 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	float WeaponSwitchHoldTime = 0.2f;
 
-	/** Last time the camera action button is pressed */
+	/** Last time the weapon action button is pressed */
 	float SwapWeaponActionPressedTime = 0.0f;
 
 	void SwapWeaponPressed();
 	void SwapWeaponReleased();
 	
-	/* Timer to manage camera mode swap action */
+	/* Timer to manage weapon mode swap action */
 	FTimerHandle OnWeaponSwapTimer;
 
 	//Vars
@@ -265,3 +266,4 @@ private:
 	//Set to Weapon Base
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AWeaponBase> WeaponClassRef;
+};

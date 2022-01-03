@@ -161,7 +161,6 @@ void AWeaponBase::FadeUMGOut()
 
 void AWeaponBase::FadeInUMGTimed(float Alpha) 
 {
-	UE_LOG(LogTemp,Warning,TEXT("UMG Alpha = %s"), *FString::SanitizeFloat(UMGAlpha));
 	AmmoWidgetComponent->SetTintColorAndOpacity(FLinearColor(1,1,1,Alpha));
 	if(Alpha >= 0.3 || Alpha <= 0)
 	{

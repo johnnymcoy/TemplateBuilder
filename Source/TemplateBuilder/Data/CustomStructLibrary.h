@@ -51,6 +51,15 @@ struct FWeaponData
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	TSubclassOf<class AWeaponClassIdentifier> WeaponClass;
 
+	bool IsValid()
+	{
+		if(MeshForPickup == nullptr || WeaponClass == nullptr)
+		{
+			return false;
+		}
+		return true;
+	}
+
 };
 
 UENUM(BlueprintType)

@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Net/UnrealNetwork.h"
+#include "TemplateBuilder/Components/ShootingComponent.h"
 
 AALSCustomPlayerCharacter::AALSCustomPlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 : AALSCustomCharacter (ObjectInitializer)
@@ -216,7 +217,7 @@ void AALSCustomPlayerCharacter::ResumeGame()
 
 void AALSCustomPlayerCharacter::ThrowWeaponAction() 
 {
-	ThrowWeaponEvent(CurrentWeaponData);
+	ThrowWeaponEvent(ShootingComponent->GetCurrentWeaponData());
 }
 
 void AALSCustomPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
