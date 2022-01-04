@@ -46,14 +46,13 @@ public:
 
 	void UpdateWeaponHUD();
 	
-	// UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Animation")
-	// UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
-	
 	//Owner Activated Functions
 	void SwitchAutoMode();
 	void Reload(UAnimMontage* ReloadAnimation);
 	void ReloadDelay();
 	void CancelReload();
+
+	void Death();
 
 	//Setters
 	void SetGunChildActor(UChildActorComponent* GunChildActor){GunChildActorReference = GunChildActor;};
@@ -71,11 +70,12 @@ public:
 	//less than 1 is Low, 5 Is Very high
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
 	float Accuracy;
+	
+	bool bIsHolstered;
 protected:
 	bool bWeaponEquiped;
 	//Get rid of Primary
 	bool PrimaryEquiped;
-	bool bIsHolstered;
 
 
 	virtual void BeginPlay() override;

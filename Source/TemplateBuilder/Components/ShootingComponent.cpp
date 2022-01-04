@@ -31,13 +31,15 @@ void UShootingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UShootingComponent::UpdateWeaponHUD()
 {
+	// if(PlayerControlled)
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
 		CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(GunChildActorReference->GetChildActor());
 	}
-	//if PlayerControlled
-	//Todo weapon HUD function 
+	//Todo weapon HUD function
+	//Todo Add hud into component?
+	//Add crosshair functions
 	//Current Weapon Get weapon data
 	//Broadcast like health Component
 }
@@ -77,50 +79,56 @@ void UShootingComponent::MoveUMG(bool bRightShoulder)
 
 void UShootingComponent::ShootGun()
 {
-	//todo Do this is constructor?
-	UE_LOG(LogTemp,Warning,TEXT("Accuracy %f ShootingComponent"), Accuracy);
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		FVector InLocation;
-		FRotator InRotation;
-		//if NPC?
-		//TODO Get Reference to player camera through owner in begin play
-		APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		if(PlayerCamera)
+		if(bIsAiming)
 		{
-			InLocation = PlayerCamera->GetCameraLocation();
-			InRotation = PlayerCamera->GetCameraRotation();
+			FVector InLocation;
+			FRotator InRotation;
+			//if NPC?
+			//GetActorEyesViewPoint(InLocation, inRotation);
+			//TODO Get Reference to player camera through owner in begin play
+			APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+			if(PlayerCamera)
+			{
+				InLocation = PlayerCamera->GetCameraLocation();
+				InRotation = PlayerCamera->GetCameraRotation();
+			}
+			// CalculateAccuracy();
+			//todo:Need to change name so it's more fittting From: GetTraceParams -> TO :ShootGun
+			CurrentWeapon->Execute_GetTraceParams(GunChildActorReference->GetChildActor(), InLocation, InRotation, GetOwner(), Accuracy);
 		}
-		// CalculateAccuracy();
-		CurrentWeapon->Execute_GetTraceParams(GunChildActorReference->GetChildActor(), InLocation, InRotation, GetOwner(), Accuracy);
-		//todo remove
-		Recoil();
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("BlindFire"));
+			//BlindFire Animation
+			//Gun needs a blindfire Function that then goes into GetTraceParams
+			//Gun interface also needs function
+		}
 		if(CurrentWeaponData.CurrentAmmo > 0)
 		{
 			Recoil();
 		}
 		UpdateWeaponHUD();
-		//UpdateHUD
+		//Update Ammo with a slight delay so there's time for the gun to fire
+		// GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
 	}
 }
 
 void UShootingComponent::ValidateShootGun()
 {
-	if(!bIsHolstered)
+	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
+	if(CurrentWeapon)
 	{
-		IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
-		if(CurrentWeapon)
+		if(bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
+		if(CurrentWeapon->Execute_IsInAutoMode(GunChildActorReference->GetChildActor()))
 		{
-			if(bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
-			if(CurrentWeapon->Execute_IsInAutoMode(GunChildActorReference->GetChildActor()))
-			{
-				GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UShootingComponent::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
-			}
-			else
-			{
-				ShootGun();
-			}
+			GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UShootingComponent::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
+		}
+		else
+		{
+			ShootGun();
 		}
 	}
 }
@@ -189,6 +197,7 @@ void UShootingComponent::ReloadDelay()
 		{
 			//todo move this to update hud
 			CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(GunChildActorReference->GetChildActor());
+			//if Player
 			UpdateWeaponHUD();
 		}
 		bIsReloading = false;
@@ -223,13 +232,11 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 		//todo Change to for loop and check all weapons
 		if(CurrentWeaponData.WeaponClass != WeaponToPickup.WeaponClass)
 		{
-			//if we already have a weapon equipped, throw the equip weapon
-			if(CurrentWeaponData.WeaponClass)
+			//if we already have a weapon equipped
+			if(CurrentWeaponData.IsValid())
 			{
-				//ThrowWeaponEvent(CurrentWeaponData);
 				ThrowWeapon(CurrentWeaponData);
 			}
-			//EquipWeapon(WeaponData);
 			EquipWeapon(WeaponToPickup);
 		}
 		//We already have this weapon
@@ -254,7 +261,7 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip)
 	// }
 	AddWeaponToList(WeaponToEquip, true);
 	CurrentWeaponData = WeaponToEquip;
-	UE_LOG(LogTemp, Warning, TEXT("Current Ammo: %f"), WeaponToEquip.CurrentAmmo);
+	UE_LOG(LogTemp, Warning, TEXT("Current Ammo: %i"), WeaponToEquip.CurrentAmmo);
 	GunChildActorReference->SetChildActorClass(CurrentWeaponData.WeaponClass);
 	//SetOverlayState(CurrentWeaponData.OverlayState);
 	FName SocketName;
@@ -341,6 +348,8 @@ void UShootingComponent::SwapWeapon()
 			{
 				// Holstered Secondary
 				UpdateWeaponHUD();
+				//SetOverlayState(EALSOverlayState::Default)
+				//ClearHeldObject
 				GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 			}
 		}
@@ -360,6 +369,8 @@ void UShootingComponent::SwapWeapon()
 			{
 				// Holstered Secondary
 				UpdateWeaponHUD();
+				//SetOverlayState(EALSOverlayState::Default)
+				//ClearHeldObject
 				GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 			}
 		}
@@ -414,7 +425,6 @@ void UShootingComponent::HolsterWeapon()
 		// {
 			// ServerClearWeapon();
 		// }
-		// Gun->SetChildActorClass(WeaponClassRef);
 	}
 }
 
@@ -426,6 +436,7 @@ void UShootingComponent::ThrowWeapon(FWeaponData WeaponToThrow)
 		DropWeapon(WeaponToThrow);
 		ClearWeapon();
 		GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
+		CurrentWeaponData = EmptyWeaponData;
 		//todo from owner
 		//ServerDropGun(CurrentWeaponData, Location, Rotation, ThrowForce);
 		// if(GetLocalRole() < ROLE_Authority)	{ServerClearWeapon();}
@@ -433,7 +444,6 @@ void UShootingComponent::ThrowWeapon(FWeaponData WeaponToThrow)
 		// Gun->SetChildActorClass(WeaponClassRef);
 		// Gun->SetChildActorClass(EmptyWeaponData.WeaponClass);
 		// WeaponDropped();
-		CurrentWeaponData = EmptyWeaponData;
 		// PickupGunWBP(CurrentWeaponData);
 		//SetOverlayState(EALSOverlayState::Default);
 	}
@@ -522,4 +532,18 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData)
 	UpdateWeaponHUD();
 }
 
+void UShootingComponent::Death()
+{
+	if(bHasGun)
+	{
+		//DropGun
+		//ServerDropGun
+		for(int i = 1; i > CurrentWeaponListData.Num(); i++)
+		{
+			ThrowWeapon(CurrentWeaponListData[i]);
+		}
+	}
+	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
+	SetActive(false);
+}
 

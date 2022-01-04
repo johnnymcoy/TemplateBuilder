@@ -18,7 +18,6 @@ class TEMPLATEBUILDER_API IALSCharacterInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	//Add extra Vars into this, so can be used for dismemberment?
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")

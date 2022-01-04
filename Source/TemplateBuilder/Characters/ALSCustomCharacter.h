@@ -28,14 +28,7 @@ protected:
 	class UShootingComponent* ShootingComponent;
 
 	virtual void BeginPlay() override;
-
-	UFUNCTION(Server, Reliable)
-	void ServerDropGun(FWeaponData SpawnWeaponData, FVector Location, FRotator Rotation, FVector ThrowForce);
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastDropGun(FWeaponData SpawnWeaponData, FVector Location, FRotator Rotation, FVector ThrowForce);
-
-	void WeaponDropped();
-	
+		
 	//ALS Overriden Functions
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void AimPressedAction();
@@ -121,31 +114,16 @@ public:
 	UPROPERTY(Replicated)
 	bool DeathOnce = false;
 	
-	UFUNCTION(BlueprintCallable, Category = "Pickup")
-	void PickupWeapon(FWeaponData WeaponData);
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerPickupWeapon(FWeaponData WeaponData);
-	
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void SwapWeapon();
-
 	bool PrimaryEquiped;
 	bool bIsHolstered;
 
 	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
 	void HolsterWeapon();
-	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	void NoSecondaryEquip();
-	UFUNCTION(Server, Reliable)
-	void ServerClearWeapon();
 
 
 	void EquipWeapon(FWeaponData WeaponData);
-	UFUNCTION(Server, Reliable)
-	void ServerEquipWeapon(FWeaponData WeaponData);
 
 
-	void AddAmmo(FWeaponData WeaponData);
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
 	UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
 
@@ -156,14 +134,12 @@ public:
 	bool IsCrouching() const;
 
 
-	UFUNCTION(BlueprintCallable, Category = "Stats")
-    void GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const;	
+	// UFUNCTION(BlueprintCallable, Category = "Stats")
+ //    void GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const;	
 
-	UPROPERTY(ReplicatedUsing=OnRep_ClearWeapon, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
 	struct FWeaponData CurrentWeaponData;
 
-	UFUNCTION()
-	void OnRep_ClearWeapon();
 
 	 UPROPERTY(BlueprintReadOnly, Category = "Weapons")
 	 struct FWeaponData PrimaryWeaponData;
@@ -181,11 +157,8 @@ public:
 	void Death();
 	virtual void Death_Implementation();
 
-
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	void ShootGun();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	void ShootGunCheck();
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	void StopShootGun();
 protected:
@@ -200,9 +173,6 @@ private:
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle HudUpdateHandle;
 
-
-	void Recoil();
-	float RecoilAmount;
 	float DefaultAccuracy;
 	void CalculateAccuracy();
 
@@ -221,8 +191,6 @@ private:
 	// void DropWeapon();
 	
 	void Reload();
-	void ReloadDelay();
-	void CancelReload();
 
 	UFUNCTION(Server, Reliable)
 	void ServerPlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages);

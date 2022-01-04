@@ -112,7 +112,7 @@ void AALSCustomCharacter::SetupPhysicalAnimationDefaults()
 void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) 
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	PlayerInputComponent->BindAction("ShootAction", IE_Pressed, this, &AALSCustomCharacter::ShootGunCheck);
+	PlayerInputComponent->BindAction("ShootAction", IE_Pressed, this, &AALSCustomCharacter::ShootGun);
 	PlayerInputComponent->BindAction("ShootAction", IE_Released, this, &AALSCustomCharacter::StopShootGun);
 	PlayerInputComponent->BindAction("AimAction", IE_Pressed, this, &AALSCustomCharacter::AimPressedAction);
 	PlayerInputComponent->BindAction("AimAction", IE_Released, this, &AALSCustomCharacter::AimReleasedAction);
@@ -122,126 +122,53 @@ void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindAction("SwapWeaponAction", IE_Released, this, &AALSCustomCharacter::SwapWeaponReleased);
 	PlayerInputComponent->BindAction("CameraAction", IE_Pressed, this, &AALSCustomCharacter::CameraButtonPressed);
 }
-
+//////Done
 void AALSCustomCharacter::AimPressedAction() 
 {
 	Super::AimPressedAction();
+	bIsAiming = true;
 	if(ShootingComponent)
 	{
 		ShootingComponent->AimPressed(bRightShoulder);
 	}
-	bIsAiming = true;
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
-	// {
-	// 	CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), !bRightShoulder);
-	// 	CurrentWeapon->Execute_FadeInUMG(Gun->GetChildActor(), bIsAiming);
-	// 	UE_LOG(LogTemp,Warning,TEXT("Fade UMG"));
-	// }
 }
-
+//Done
 void AALSCustomCharacter::AimReleasedAction() 
 {
 	Super::AimReleasedAction();
+	bIsAiming = false;
 	if(ShootingComponent)
 	{
 		ShootingComponent->AimReleased(bRightShoulder);
 	}
-	bIsAiming = false;
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
-	// {
-	// 	CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), !bRightShoulder);
-	// 	CurrentWeapon->Execute_FadeInUMG(Gun->GetChildActor(), bIsAiming);
-	// }
 }
-
+//Done
 void AALSCustomCharacter::CameraButtonPressed() 
 {
 	CameraPressedAction();
-	ShootingComponent->MoveUMG(bRightShoulder);
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon && CurrentWeaponData.MeshForPickup)
-	// {
-	// 	CurrentWeapon->Execute_MoveUMG(Gun->GetChildActor(), bRightShoulder);
-	// }
-}
-
-void AALSCustomCharacter::ShootGun() //Calculated every bullet
-{
-	CalculateAccuracy();
-	ShootingComponent->ShootGun();
-	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	if(CurrentWeapon)
+	if(ShootingComponent)
 	{
-		// FVector InLocation;
-		// FRotator InRotation;
-		// if(!bIsNPC) //If Player get the Camera
-		// {
-		// 	APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-		// 	InLocation = PlayerCamera->GetCameraLocation();
-		// 	InRotation = PlayerCamera->GetCameraRotation();
-		// }
-		// else //If NPC get ViewPoint 
-		// {
-		// 	GetActorEyesViewPoint(InLocation, InRotation);
-		// }
-		// CalculateAccuracy();
-		//Need to change name so it's more fittting From: GetTraceParams -> TO :ShootGun
-		if(bIsAiming)
-		{
-		// 	CurrentWeapon->Execute_GetTraceParams(Gun->GetChildActor(), InLocation, InRotation, this, Accuracy);
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("BlindFire"));
-			//BlindFire Animation
-			//Gun needs a blindfire Function that then goes into GetTraceParams
-			//Gun interface also needs function
-		}
-		//Update Ammo with a slight delay so there's time for the gun to fire
-		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Please Add a Gun Child Class in editor"));
+		ShootingComponent->MoveUMG(bRightShoulder);
 	}
 }
 
 void AALSCustomCharacter::UpdateWBPDelayed() 
 {
-	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-    if (!ensure(CurrentWeapon != nullptr)) return;
-	CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
-	if(CurrentWeaponData.CurrentAmmo > 0)
-	{
-		Recoil();
-	}
-	if(!bIsNPC) UpdateWBP(CurrentWeaponData);
+	UE_LOG(LogTemp,Warning,TEXT("UpdateWBPDelayed"));
+	if(!bIsNPC) UpdateWBP(ShootingComponent->GetCurrentWeaponData());
 }
 
-void AALSCustomCharacter::ShootGunCheck() 
+void AALSCustomCharacter::ShootGun() 
 {
-	CalculateAccuracy();
-	ShootingComponent->ValidateShootGun();
-	if(!bIsHolstered)
+	if(MantleTimeline->IsPlaying()){return;}
+	if(!ShootingComponent->bIsHolstered)
 	{
+		CalculateAccuracy();
+		ShootingComponent->ValidateShootGun();
+		//todo Only Updates on starting fire, as gun does all auto stuff
+		//todo Move Weapon HUD elements to Shootingcomponent?
+		GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
 		// //Still need this here
-		// if(MantleTimeline->IsPlaying()){return;}
-		// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-		// if(CurrentWeapon)
-		// {
-		// 	if(bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
-		// 	if(CurrentWeapon->Execute_IsInAutoMode(Gun->GetChildActor()))
-		// 	{
-		// 		//Not good to have magic number (/200.f)
-		// 		GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &AALSCustomCharacter::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
-		// 	}
-		// 	else
-		// 	{
-		// 		ShootGun();
-		// 	}
-		// }
 	}
 	else
 	{
@@ -255,26 +182,15 @@ void AALSCustomCharacter::ShootGunCheck()
 		// Could have it held down continues to hit? like auto mode on a gun? although why would you not just hold it then.. 
 	}
 }
-
+//Done
 void AALSCustomCharacter::StopShootGun() 
 {
 	if(ShootingComponent)
 	{
 		ShootingComponent->StopShootGun();
 	}
-	// GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
-
-void AALSCustomCharacter::Recoil() 
-{
-	// RecoilAmount = CurrentWeaponData.Recoil;
-	// float RecoilTotal;
-	// if(bIsAiming){RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 4)) / Accuracy);}
-	// else{RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 8)) / Accuracy);} //Recoil Multiplier Magic number needs to be changed
-	// AddControllerPitchInput(RecoilTotal);
-	// AddRecoilWBP(RecoilTotal);
-}
-
+//Still needed
 void AALSCustomCharacter::CalculateAccuracy() 
 {
 	Accuracy = DefaultAccuracy; //Resets each time
@@ -292,16 +208,13 @@ void AALSCustomCharacter::CalculateAccuracy()
 	}
 	ShootingComponent->Accuracy = Accuracy;
 }
-
+//Done
 void AALSCustomCharacter::SwitchAutoMode() 
 {
-	StopShootGun();
-	ShootingComponent->SwitchAutoMode();
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon)
-	// {
-	// 	CurrentWeapon->Execute_SwitchAutoMode(Gun->GetChildActor());
-	// }
+	if(ShootingComponent)
+	{
+		ShootingComponent->SwitchAutoMode();
+	}
 }
 
 void AALSCustomCharacter::RagdollStart() 
@@ -329,21 +242,16 @@ void AALSCustomCharacter::RagdollMeshFix()
 void AALSCustomCharacter::Death_Implementation() 
 {
 	ReplicatedRagdollStart();
+	if(ShootingComponent)
+	{
+		ShootingComponent->Death();
+	}
 	// if(GetLocalRole() < ROLE_Authority)
 	// {
 	// 	ServerClearWeapon();
 	// }
 	//todo Shooting stuff
-	ShootingComponent->ThrowWeapon(ShootingComponent->GetCurrentWeaponData());
-	ShootingComponent->SetActive(false);
-	// Gun->SetChildActorClass(WeaponClassRef);
 	SetReplicatingMovement(true);
-	// FVector Location;
-	// FRotator Rotation;
-	// FVector Scale;
-	// FVector ThrowForce;
-	// GetThrowStats(Location, Rotation, Scale, ThrowForce);
-	// ServerDropGun(CurrentWeaponData, Location, Rotation, ThrowForce);
 	GetMovementComponent()->StopMovementImmediately();
 	//DetachFromControllerPendingDestroy(); 
 	//JUST Player? AI buggy?
@@ -377,28 +285,14 @@ void AALSCustomCharacter::OnHealthChanged(UHealthComponent* HealthComp, float He
 		}
 	}
 }
-
+//Done
 void AALSCustomCharacter::Reload() 
 {
-	// ShootingComponent->bIsReloading = bIsReloading;
-	UAnimMontage* ReloadAnimation = GetReloadAnimation(ShootingComponent->GetCurrentWeaponData().WeaponType);
-	ShootingComponent->Reload(ReloadAnimation);
-	// if(!bIsReloading)
-	// {
-	// 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// 	if(CurrentWeapon)
-	// 	{	
-	// 		if(CurrentWeaponData.CurrentAmmo < CurrentWeaponData.ClipSize && CurrentWeaponData.TotalAmmoCount > 0)
-	// 		{
-	// 			float ReloadTime = MainAnimInstance->Montage_Play(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);
-	// 			if(GetLocalRole() < ROLE_Authority){ServerPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);}
-	// 			else{MulticastPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);}
-	// 			CurrentWeapon->Execute_Reload(Gun->GetChildActor(), ReloadTime);
-	// 			bIsReloading = true;
-	// 			GetWorldTimerManager().SetTimer(ReloadTimer, this, &AALSCustomCharacter::ReloadDelay, (ReloadTime + 0.1f), false); //Offset so that the HUD isn't offset
-	// 		}
-	// 	}
-	// }
+	if(ShootingComponent)
+	{
+		UAnimMontage* ReloadAnimation = GetReloadAnimation(ShootingComponent->GetCurrentWeaponData().WeaponType);
+		ShootingComponent->Reload(ReloadAnimation);
+	}
 }
 
 void AALSCustomCharacter::ServerPlayMontageAnimation_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages) 
@@ -421,36 +315,6 @@ void AALSCustomCharacter::ServerStopMontageAnimation_Implementation(float InBlen
 void AALSCustomCharacter::MulticastStopMontageAnimation_Implementation(float InBlendOutTime, const UAnimMontage* Montage) 
 {
 	MainAnimInstance->Montage_Stop(InBlendOutTime, Montage);
-}
-
-void AALSCustomCharacter::ReloadDelay() 
-{
-	// GetWorldTimerManager().ClearTimer(ReloadTimer);
-	// if(bIsReloading)
-	// {
-	// 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// 	if(CurrentWeapon)
-	// 	{	
-	// 		CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(Gun->GetChildActor());
-		// 	if(!bIsNPC){UpdateWBP(CurrentWeaponData);}
-		// }
-		// bIsReloading = false;
-	// }
-}
-
-void AALSCustomCharacter::CancelReload() 
-{
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon)
-	// {
-	// 	CurrentWeapon->Execute_CancelReload(Gun->GetChildActor());
-	// }
-	// bIsReloading = false;
-	// UE_LOG(LogTemp, Warning, TEXT("Cancel Reload"));
-	// MainAnimInstance->Montage_Stop(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));
-	// if(GetLocalRole() < ROLE_Authority){ServerStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
-	// else{MulticastStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
-	// GetWorldTimerManager().ClearTimer(ReloadTimer);
 }
 
 void AALSCustomCharacter::AnyDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) 
@@ -523,9 +387,11 @@ void AALSCustomCharacter::BulletDamageEvent_Implementation(const float in_Damage
 
 void AALSCustomCharacter::PickupGunEvent_Implementation(const FWeaponData in_WeaponData) 
 {
-	ShootingComponent->PickupWeapon(in_WeaponData);
-	SetOverlayState(in_WeaponData.OverlayState);
-	// PickupWeapon(in_WeaponData);
+	if(ShootingComponent)
+	{
+		ShootingComponent->PickupWeapon(in_WeaponData);
+		SetOverlayState(in_WeaponData.OverlayState);
+	}
 }
 
 void AALSCustomCharacter::UpdateWBP_Implementation(FWeaponData WeaponData) 
@@ -539,222 +405,39 @@ void AALSCustomCharacter::PickupGunWBP_Implementation(FWeaponData WeaponData)
 	//Default
 }
 
-void AALSCustomCharacter::PickupWeapon(FWeaponData WeaponData) 
-{
-	// if(GetLocalRole() < ROLE_Authority)
-	// {
-	// 	ServerPickupWeapon(WeaponData);
-	// }
-	// if(WeaponData.WeaponClass != nullptr) //Weapon is valid check
-	// {
-	// 	if(CurrentWeaponData.WeaponClass != WeaponData.WeaponClass)// && PrimaryWeaponData.WeaponClass != WeaponData.WeaponClass && SecondaryWeaponData.WeaponClass != WeaponData.WeaponClass)	//Don't have this weapon
-	// 	{
-	// 		if(CurrentWeaponData.WeaponClass)
-	// 		{
-	// 			ThrowWeaponEvent(CurrentWeaponData);
-	// 		}
-	// 		EquipWeapon(WeaponData);
-	// 	}
-	// 	else	//We already have this gun
-	// 	{
-	// 		AddAmmo(WeaponData);
-	// 	}	
-	// }
-	// else
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("Invalid Weapon Data"));
-	// }
-}
-
-
-void AALSCustomCharacter::ServerPickupWeapon_Implementation(FWeaponData WeaponData) 
-{
-	// PickupWeapon(WeaponData);
-}
-
-bool AALSCustomCharacter::ServerPickupWeapon_Validate(FWeaponData WeaponData) 
-{
-	return true;
-}
-
-void AALSCustomCharacter::AddAmmo(FWeaponData WeaponData) 
-{
-	//If the total ammo is less than the max ammo && the total ammo + the pickup ammo is less than the max ammo, simply add them together
-	// if(CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) <= CurrentWeaponData.MaxAmmo)
-	// {
-	// 	CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount;
-	// }
-	// else if // If the total ammo is less than max, && the ammount to pickup will end up more than the Max ammo
-	// (CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) > CurrentWeaponData.MaxAmmo)
-	// {
-	// 	CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.MaxAmmo;
-	// 	//TODO::
-	// 	//Should not Destroy Actor
-	// }
-	// else // Should only cover if the ammo is Already Max 
-	// {
-	// 	//TODO::
-	// 	//Should not Destroy actor 
-	// }
-	UpdateWBP(CurrentWeaponData);
-}
-
 // timer function Swap weapon
 void AALSCustomCharacter::SwapWeaponPressed()
 {
-	ShootingComponent->SwapWeaponPressed();
-	// CancelReload();
-	// UWorld* World = GetWorld();
-	// check(World);
-	// SwapWeaponActionPressedTime = World->GetTimeSeconds();
-	// GetWorldTimerManager().SetTimer(OnWeaponSwapTimer, this, &AALSCustomCharacter::HolsterWeapon, WeaponSwitchHoldTime, false);
+	if(ShootingComponent)
+	{
+		ShootingComponent->SwapWeaponPressed();
+	}
 }
 
 void AALSCustomCharacter::SwapWeaponReleased()
 {
-	ShootingComponent->SwapWeaponReleased();
-	// UWorld* World = GetWorld();
-	// check(World);
-	// //If we have only tapped the button (Pressed time is less than hold time)
-	// if (World->GetTimeSeconds() - SwapWeaponActionPressedTime < WeaponSwitchHoldTime)
-	// {
-	// 	SwapWeapon();
-	// 	GetWorldTimerManager().ClearTimer(OnWeaponSwapTimer); //Prevent Holster Weapon
-	// }
+	if(ShootingComponent)
+	{
+		ShootingComponent->SwapWeaponReleased();
+	}
 }
-
-void AALSCustomCharacter::SwapWeapon() 
-{
-	// if(PrimaryEquiped)
-	// {
-	// 	PrimaryEquiped = false;
-	// 	PrimaryWeaponData = CurrentWeaponData;
-	// 	CurrentWeaponData = SecondaryWeaponData;
-	// 	if(!bIsHolstered)
-	// 	{
-	// 		if(CurrentWeaponData.WeaponClass != nullptr)
-	// 		{
-	// 			EquipWeapon(CurrentWeaponData);
-	// 		}
-	// 		else
-	// 		{
-	// 			NoSecondaryEquip(); // Holstered Secondary
-	// 		}
-	// 	}
-	// }
-	// else
-	// {
-	// 	PrimaryEquiped = true;
-	// 	SecondaryWeaponData = CurrentWeaponData;
-	// 	CurrentWeaponData = PrimaryWeaponData;
-	// 	if(!bIsHolstered)
-	// 	{
-	// 		if(CurrentWeaponData.WeaponClass != nullptr)
-	// 		{
-	// 			EquipWeapon(CurrentWeaponData);
-	// 		}
-	// 		else
-	// 		{
-	// 			NoSecondaryEquip(); // Holstered Secondary
-	// 		}
-	// 	}
-	// }
-	// UpdateWBP(CurrentWeaponData);
-}
-
-//Replicated// 
 
 void AALSCustomCharacter::HolsterWeapon() 
 {
-	// GetWorldTimerManager().ClearTimer(OnWeaponSwapTimer);
-	if(bIsHolstered)
+	if(!ShootingComponent->bIsHolstered)
 	{
-	// 	bIsHolstered = false;
-	// 	if(CurrentWeaponData.WeaponClass != nullptr)
-	// 	{
-	// 		EquipWeapon(CurrentWeaponData);
-	// 	}
-	// 	else
-	// 	{
-	// 		UE_LOG(LogTemp,Warning, TEXT("InvalidWeaponDataHolster"));
-	// 		return;
-	// 	}
-	// 	return;
-	}
-	else
-	{
-	// 	UpdateWBP(CurrentWeaponData);
 		SetOverlayState(EALSOverlayState::Default);
-	// 	bIsHolstered = true;
-	// 	ClearHeldObject();
-	// 	if(GetLocalRole() < ROLE_Authority)
-	// 	{
-	// 		ServerClearWeapon();
-	// 	}
-	// 	Gun->SetChildActorClass(WeaponClassRef);
 	}
-}
-
-void AALSCustomCharacter::NoSecondaryEquip() 
-{
-	// UpdateWBP(CurrentWeaponData);
-	// SetOverlayState(EALSOverlayState::Default);
-	// ClearHeldObject();
-	// if(GetLocalRole() < ROLE_Authority)
-	// {
-	// 	ServerClearWeapon();
-	// }
-	// Gun->SetChildActorClass(WeaponClassRef);
-}
-
-void AALSCustomCharacter::ServerClearWeapon_Implementation() 
-{
-	// Gun->SetChildActorClass(WeaponClassRef);
 }
 
 void AALSCustomCharacter::EquipWeapon(FWeaponData WeaponData) 
 {
-	ShootingComponent->EquipWeapon(WeaponData);
-	SetOverlayState(WeaponData.OverlayState);
-	// if(GetLocalRole() < ROLE_Authority)
-	// {
-	// 	ServerEquipWeapon(WeaponData);
-	// }
-	// CurrentWeaponData = WeaponData;
-	//todo get rid of test ammo
-	// int32 CurrentAmmoTest = CurrentWeaponData.CurrentAmmo;
-	// *FString::SanitizeFloat(OverShieldAmount), *GetOwner()->GetName());
-	// UE_LOG(LogTemp,Warning,TEXT("(Player)Current Ammo = %s"), *FString::FromInt(CurrentAmmoTest));
-	// Gun->SetChildActorClass(CurrentWeaponData.WeaponClass);
-	// SetOverlayState(CurrentWeaponData.OverlayState);
-	// FName SocketName;
-	// if(CurrentWeaponData.bIsLeftHand)
-	// {SocketName = TEXT("VB LHS_ik_hand_gun");}
-	// else
-	// {SocketName = TEXT("VB RHS_ik_hand_gun");}
-	// Gun->GetChildActor()->AttachToComponent(GetMesh(),FAttachmentTransformRules::KeepWorldTransform, SocketName);
-	// Gun->GetChildActor()->GetRootComponent()->SetRelativeLocation(CurrentWeaponData.WeaponOffset);
-	// Gun->GetChildActor()->GetRootComponent()->SetRelativeRotation(CurrentWeaponData.RotationOffset);
-	// bIsHolstered = false;
-	// Gun->GetChildActor()->SetOwner(this);
-	ClearHeldObject();	
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(Gun->GetChildActor());
-	// if(CurrentWeapon)
-	// {
-	// 	CurrentWeapon->Execute_SetWeaponData(Gun->GetChildActor(), CurrentWeaponData);
-		//CurrentWeapon->Execute_SetWeaponAmmo(Gun->GetChildActor(), CurrentWeaponData.CurrentAmmo, CurrentWeaponData.TotalAmmoCount); // Set the gun to the players Weapon Data
-	// 	PickupGunWBP(CurrentWeaponData);
-	// }
-}
-
-void AALSCustomCharacter::ServerEquipWeapon_Implementation(FWeaponData WeaponData) 
-{
-	// EquipWeapon(WeaponData);
-}
-
-void AALSCustomCharacter::OnRep_ClearWeapon() 
-{
-	ClearHeldObject(); // For Removing the Standard ALS pistol etc.
+	if(ShootingComponent)
+	{
+		ShootingComponent->EquipWeapon(WeaponData);
+		SetOverlayState(WeaponData.OverlayState);
+		ClearHeldObject();
+	}
 }
 
 bool AALSCustomCharacter::IsDead() const
@@ -771,87 +454,32 @@ bool AALSCustomCharacter::IsCrouching() const
 	return Stance == EALSStance::Crouching;
 }
 
-//todo Remove
-void AALSCustomCharacter::GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const
-{
-	OutLocation = ThrowPoint->GetComponentLocation();
-	OutRotation.Yaw = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
-	OutRotation.Roll = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
-	OutRotation.Pitch = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
-	OutScale = ThrowPoint->GetComponentScale();
-	FRotator Rotation = ThrowPoint->GetComponentRotation();
-	FVector ForwardVector = (FRotationMatrix(Rotation).GetScaledAxis( EAxis::X ));
-	OutThrowForce = ForwardVector * PickupThrowIntensity;
-}
+// //todo Remove
+// void AALSCustomCharacter::GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const
+// {
+// 	OutLocation = ThrowPoint->GetComponentLocation();
+// 	OutRotation.Yaw = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
+// 	OutRotation.Roll = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
+// 	OutRotation.Pitch = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
+// 	OutScale = ThrowPoint->GetComponentScale();
+// 	FRotator Rotation = ThrowPoint->GetComponentRotation();
+// 	FVector ForwardVector = (FRotationMatrix(Rotation).GetScaledAxis( EAxis::X ));
+// 	OutThrowForce = ForwardVector * PickupThrowIntensity;
+// }
 
 void AALSCustomCharacter::ThrowWeaponEvent_Implementation(FWeaponData WeaponData) 
 {
-	CalculateAccuracy();
-	ShootingComponent->ThrowWeapon(WeaponData);
-	SetOverlayState(EALSOverlayState::Default);
-	// if(WeaponData.MeshForPickup == nullptr)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("No weapon to drop"));
-	// 	return;
-	// }
-	// else
-	// {
-	// 	CancelReload();
-	// 	FVector Location;
-	// 	FRotator Rotation;
-	// 	FVector Scale;
-	// 	FVector ThrowForce;
-	// 	GetThrowStats(Location, Rotation, Scale, ThrowForce);
-	// 	ServerDropGun(CurrentWeaponData, Location, Rotation, ThrowForce);
-	// 	if(GetLocalRole() < ROLE_Authority)	{ServerClearWeapon();}
-	// 	Gun->SetChildActorClass(WeaponClassRef);
-	// 	WeaponDropped();
-	// }
-}
-
-void AALSCustomCharacter::ServerDropGun_Implementation(FWeaponData SpawnWeaponData, FVector Location, FRotator Rotation, FVector ThrowForce) 
-{
-	
-	// if(GunToSpawn != nullptr)
-	// {
-	// 	FActorSpawnParameters SpawnParams;
-	// 	AWeaponPickupBase* DroppedWeaponRef = GetWorld()->SpawnActor<AWeaponPickupBase>(GunToSpawn, Location, Rotation, SpawnParams);
-	// 	DroppedWeaponRef->WeaponDroppedEvent(SpawnWeaponData); //Set the pickups weapon stats 
-	// 	DroppedWeaponRef->GunMesh->AddImpulse(ThrowForce, NAME_None, true); // Throw the weapon
-	// }
-	// else
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("GunToSpawn not set"));
-	// }
-	// MulticastDropGun(SpawnWeaponData, Location, Rotation, ThrowForce);
-}
-
-void AALSCustomCharacter::MulticastDropGun_Implementation(FWeaponData SpawnWeaponData, FVector Location, FRotator Rotation, FVector ThrowForce) 
-{
-	// if(GunToSpawn != nullptr)
-	// {
-	// 	FActorSpawnParameters SpawnParams;
-	// 	AWeaponPickupBase* DroppedWeaponRef = GetWorld()->SpawnActor<AWeaponPickupBase>(GunToSpawn, Location, Rotation, SpawnParams);
-	// 	DroppedWeaponRef->WeaponDroppedEvent(SpawnWeaponData); //Set the pickups weapon stats 
-	// 	DroppedWeaponRef->GunMesh->AddImpulse(ThrowForce, NAME_None, true); // Throw the weapon
-	// }
-	// else
-	// {
-	// 	UE_LOG(LogTemp, Error, TEXT("GunToSpawn not set"));
-	// }
-}
-
-void AALSCustomCharacter::WeaponDropped() 
-{
-	// CurrentWeaponData = EmptyWeaponData;
-	// PickupGunWBP(CurrentWeaponData);
-	SetOverlayState(EALSOverlayState::Default);
+	if(ShootingComponent)
+	{
+		CalculateAccuracy();
+		ShootingComponent->ThrowWeapon(WeaponData);
+		SetOverlayState(EALSOverlayState::Default);
+	}
 }
 
 void AALSCustomCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//DOREPLIFETIME(AALSCustomCharacter, CurrentWeapon);
 	DOREPLIFETIME(AALSCustomCharacter, DeathOnce);
 	DOREPLIFETIME_CONDITION(AALSCustomCharacter, CurrentWeaponData, COND_SkipOwner);
 }
