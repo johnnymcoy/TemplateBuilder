@@ -6,9 +6,6 @@
 #include "Components/WidgetComponent.h"
 #include "EnemyWidgetComponent.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class TEMPLATEBUILDER_API UEnemyWidgetComponent : public UWidgetComponent
 {

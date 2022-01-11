@@ -33,7 +33,7 @@ void AALSCustomPlayerCharacter::SetupPlayerInputComponent(class UInputComponent*
 	PlayerInputComponent->BindAction("AimAction", IE_Released, this, &AALSCustomPlayerCharacter::AimReleasedAction);
 	PlayerInputComponent->BindAction("DebugModeAction", IE_Pressed, this, &AALSCustomPlayerCharacter::DebugCurrentWeapon);
 	PlayerInputComponent->BindAction("PauseAction", IE_Pressed, this, &AALSCustomPlayerCharacter::PauseGame);
-	PlayerInputComponent->BindAction("ThrowWeaponAction", IE_Pressed, this, &AALSCustomPlayerCharacter::ThrowWeaponAction);
+	// PlayerInputComponent->BindAction("ThrowWeaponAction", IE_Pressed, this, &AALSCustomPlayerCharacter::ThrowWeaponAction);
 }
 
 void AALSCustomPlayerCharacter::DebugCurrentWeapon() 

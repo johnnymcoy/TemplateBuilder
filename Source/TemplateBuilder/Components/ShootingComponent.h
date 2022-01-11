@@ -9,6 +9,22 @@
 
 //On HUD update event, Sets off blueprint event
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE();
+USTRUCT(BlueprintType)
+struct FPlayerShootingStatus
+{
+	GENERATED_USTRUCT_BODY()    
+	UPROPERTY()
+	bool bPrimaryEquipped;
+	UPROPERTY()
+	bool bSecondaryEquipped;
+	UPROPERTY()
+	bool bIsReloading;
+	UPROPERTY()
+	bool bIsHolstered;
+	UPROPERTY()
+	bool bIsAiming;
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEMPLATEBUILDER_API UShootingComponent : public UActorComponent
@@ -31,11 +47,11 @@ public:
 	void AimPressed(bool bRightShoulder);
 	void AimReleased(bool bRightShoulder);
 	void MoveUMG(bool bRightShoulder);
+	void SetupHUD();
 	
-
 	//Weapon Swaps/Pickups
 	void PickupWeapon(FWeaponData WeaponToPickup);
-	void EquipWeapon(FWeaponData WeaponToEquip);
+	void EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWeapon = true);
 	void SwapWeapon();
 	void SwapWeaponPressed();
 	void SwapWeaponReleased();
@@ -44,39 +60,33 @@ public:
 	void DropWeapon(FWeaponData SpawnWeaponData);
 	void ClearWeapon();
 
-	void UpdateWeaponHUD();
+	//Server Functions//
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerPickupWeapon(FWeaponData WeaponToPickup);
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerEquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWeapon = true);
+
 	
 	//Owner Activated Functions
 	void SwitchAutoMode();
 	void Reload(UAnimMontage* ReloadAnimation);
-	void ReloadDelay();
-	void CancelReload();
 
 	void Death();
-
+	
 	//Setters
 	void SetGunChildActor(UChildActorComponent* GunChildActor){GunChildActorReference = GunChildActor;};
 	void SetThrowPoint(USceneComponent* ThrowPointComponent){ThrowPoint = ThrowPointComponent;};
 	void SetOwnerMesh(USkeletalMeshComponent* SkeletalMesh){OwnerMesh = SkeletalMesh;};
 	void SetAnimInstance(UAnimInstance* AnimationInstance){MainAnimInstance = AnimationInstance;};
-
+	void SetController(APlayerController* Controller){OwnerController = Controller;};
+	void SetAccuracy(float In_Accuracy){Accuracy = In_Accuracy;};
+	// void SetOverlayState();
 	//Getters
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
-
+	bool GetIsHolstered() const{return bIsHolstered;};
+	bool GetIsReloading() const{return bIsReloading;};
 	
-	bool bIsReloading;
-
-	//Stats
-	//less than 1 is Low, 5 Is Very high
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
-	float Accuracy;
-	
-	bool bIsHolstered;
 protected:
-	bool bWeaponEquiped;
-	//Get rid of Primary
-	bool PrimaryEquiped;
-
 
 	virtual void BeginPlay() override;
 
@@ -84,9 +94,17 @@ private:
 	//Already has weapon
 	void AddAmmo(FWeaponData WeaponData);
 
+	void ReloadDelay();
+	void CancelReload();
+
+	void DelayUpdateWeaponHUD();
+	void UpdateWeaponHUD();
+
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle ReloadTimer;
+	FTimerHandle HUDUpdateTimerHandle;
 
+	UPROPERTY()
 	UAnimMontage* LastReloadAnimation;
 
 	//Weapon Activated Functions
@@ -98,13 +116,21 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Stats | Weapon")
 	float PickupThrowIntensity = 500;
-	
 
+	// UPROPERTY(Replicated)
+	bool bPrimaryEquipped;
+	// UPROPERTY(Replicated)
+	bool bSecondaryEquipped;
+	bool bSwapWeaponPressed;
+	bool bIsReloading;
+	UPROPERTY(Replicated)
+	bool bIsHolstered;
 	bool bIsAiming;
-	// bool bIsRealoding;
-	
 
+	
+	float Accuracy = 1;
 	//Weapon
+	UPROPERTY(Replicated)
 	struct FWeaponData CurrentWeaponData;
 	TArray<FWeaponData> CurrentWeaponListData;
 	//Used to swap to, etc. should never change
@@ -130,20 +156,29 @@ private:
 	
 	/* Timer to manage weapon mode swap action */
 	FTimerHandle OnWeaponSwapTimer;
-	UPROPERTY()
+	UPROPERTY(Replicated)
 	UChildActorComponent* GunChildActorReference;
-	
-	USceneComponent* ThrowPoint;
-	UPROPERTY()
-	AActor* GunReference;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
 	TSubclassOf<class AWeaponPickupBase> GunToSpawn;
+	
+	//Weapon HUD
+	UPROPERTY()
+	class UWeaponWidget* WeaponWidget;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> WeaponWidgetClass;
+	
+	//Owner References
+	UPROPERTY()
+	USceneComponent* ThrowPoint;
 	UPROPERTY()
 	USkeletalMeshComponent* OwnerMesh;
 	UPROPERTY()
 	UAnimInstance* MainAnimInstance;
-
+	UPROPERTY()
+	APlayerController* OwnerController;
+	
+	//Animations
 	UPROPERTY(EditAnywhere, Category = "Animation | Reloads")
 	TArray<UAnimMontage*> PistolReload;
 	UPROPERTY(EditAnywhere, Category = "Animation | Reloads")
@@ -156,13 +191,6 @@ private:
 	TArray<UAnimMontage*> SniperReload;
 	UPROPERTY(EditAnywhere, Category = "Animation | Reloads")
 	TArray<UAnimMontage*> SMGReload;
-
-	//Try to get rid of
-	
-	//Set to Weapon Base
-	// UPROPERTY(EditDefaultsOnly)
-	// TSubclassOf<class AWeaponBase> WeaponClassRef;
-
 
 };
 

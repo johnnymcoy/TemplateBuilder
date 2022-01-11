@@ -168,7 +168,6 @@ void AWeaponBase::FadeInUMGTimed(float Alpha)
 	}
 }
 
-
 void AWeaponBase::GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
 {
 	ServerGetTraceParams(in_Location, in_Rotation, ActorToIgnore, in_Accuracy);

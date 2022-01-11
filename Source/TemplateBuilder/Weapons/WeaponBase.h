@@ -66,16 +66,17 @@ public:
 	//Base Functions//
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
 	void Fire();
-	virtual void Fire_Implementation();
+	virtual void Fire_Implementation() override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
 	void Reload(float ReloadTime);
-	void Reload_Implementation(float ReloadTime);
+	virtual void Reload_Implementation(float ReloadTime) override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void CancelReload();
-	void CancelReload_Implementation();
+	virtual void CancelReload_Implementation() override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
 	void SwitchAutoMode();
-	virtual void SwitchAutoMode_Implementation();
+	virtual void SwitchAutoMode_Implementation() override;
+
 	//Multiplayer//
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
@@ -83,34 +84,32 @@ public:
 	void ServerSetReloading(bool bReloading);
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
-
-
-
+	
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerBulletDamage(FHitResult Hit, FVector in_Impulse);
 
+	
 	//Interface
-	FWeaponData GetWeaponData_Implementation();
-	bool IsInAutoMode_Implementation();
-
-	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData);
-
+	virtual FWeaponData GetWeaponData_Implementation() override;
+	virtual bool IsInAutoMode_Implementation() override;
+	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData) override;
 
 
-	virtual void MoveUMG_Implementation(bool bIsRightShoulder);
-	virtual void FadeInUMG_Implementation(bool bIsAiming);
+
+	virtual void MoveUMG_Implementation(bool bIsRightShoulder) override;
+	virtual void FadeInUMG_Implementation(bool bIsAiming) override;
 
 
 	///Interface Functions
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
-	virtual void GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
+	virtual void GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) override;
 
 	UFUNCTION(Server, Reliable)
 	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 
 	//Debug Interface
-	virtual void EnableWeaponDebug_Implementation(bool DebugStatus);
+	virtual void EnableWeaponDebug_Implementation(bool DebugStatus) override;
 
 
 private:

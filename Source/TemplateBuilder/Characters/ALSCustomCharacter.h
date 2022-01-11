@@ -26,6 +26,12 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class UShootingComponent* ShootingComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
+	class UShootingReplicationComponent* ShootingReplication;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	class UHealthComponent* HealthComponent;
 
 	virtual void BeginPlay() override;
 		
@@ -92,13 +98,6 @@ public:
 
 	//Update HUD elements
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
-	void UpdateWBP(FWeaponData WeaponData);
-	virtual void UpdateWBP_Implementation(FWeaponData WeaponData);
-	void UpdateWBPDelayed();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
-	void PickupGunWBP(FWeaponData WeaponData);
-	virtual void PickupGunWBP_Implementation(FWeaponData WeaponData);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
 	void UpdateHealthWBP(float Health, float DefaultHealth, float Shield, float DefaultShield);
 	virtual void UpdateHealthWBP_Implementation(float Health, float DefaultHealth, float Shield, float DefaultShield);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
@@ -106,7 +105,7 @@ public:
 	virtual void AddRecoilWBP_Implementation(float RecoilAmmount);
 
 	//Optimization
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Optimization")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Optimization")
 	bool bHasGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Optimization")
 	bool bIsNPC;
@@ -114,15 +113,7 @@ public:
 	UPROPERTY(Replicated)
 	bool DeathOnce = false;
 	
-	bool PrimaryEquiped;
 	bool bIsHolstered;
-
-	UFUNCTION(BlueprintCallable, Category = "WeaponSwap")
-	void HolsterWeapon();
-
-
-	void EquipWeapon(FWeaponData WeaponData);
-
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "ALS|Gun System")
 	UAnimMontage* GetReloadAnimation(EWeaponName WeaponName);
@@ -132,19 +123,11 @@ public:
 
 	UFUNCTION()
 	bool IsCrouching() const;
-
-
-	// UFUNCTION(BlueprintCallable, Category = "Stats")
- //    void GetThrowStats(FVector &OutLocation, FRotator &OutRotation, FVector &OutScale, FVector &OutThrowForce) const;	
-
+	
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
 	struct FWeaponData CurrentWeaponData;
 
 
-	 UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	 struct FWeaponData PrimaryWeaponData;
-	 UPROPERTY(BlueprintReadOnly, Category = "Weapons")
-	 struct FWeaponData SecondaryWeaponData;
 	 // less than 1 is Low, 5 Is Very high
 	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
 	 float Accuracy = 1;
@@ -159,8 +142,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	void ShootGun();
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	void StopShootGun();
 protected:
 	UFUNCTION()
  	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -170,14 +151,24 @@ protected:
 
 
 private:
+	
+	/////////Input Functions/////////
+	void FireButtonPressed();
+	void FireButtonReleased();
+	void ReloadButtonPressed();
+	
+	void SwapWeaponPressed();
+	void SwapWeaponReleased();
+	
+	void SwitchAutoModePressed();
+	////////////////////////////////
+	
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle HudUpdateHandle;
 
 	float DefaultAccuracy;
 	void CalculateAccuracy();
-
-	void SwitchAutoMode();
-
+	
 	void SetupPhysicalAnimation();
 	void SetupPhysicalAnimationDefaults();
 
@@ -186,12 +177,7 @@ private:
 	// UPROPERTY()
 	// UUserWidget* PauseMenu;
 
-	//Could be Component?
-	//Gun Functions 
-	// void DropWeapon();
-	
-	void Reload();
-
+	//Server//
 	UFUNCTION(Server, Reliable)
 	void ServerPlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages);
 	UFUNCTION(NetMulticast, Reliable)
@@ -207,9 +193,6 @@ private:
 
 	/** Last time the weapon action button is pressed */
 	float SwapWeaponActionPressedTime = 0.0f;
-
-	void SwapWeaponPressed();
-	void SwapWeaponReleased();
 	
 	/* Timer to manage weapon mode swap action */
 	FTimerHandle OnWeaponSwapTimer;
@@ -227,10 +210,7 @@ private:
 	void AnyDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	void HealthDelay();
 	FTimerHandle HealthTimer;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	class UHealthComponent* HealthComponent;
-
+	
 	//Set to Weapon Base
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class AWeaponBase> WeaponClassRef;

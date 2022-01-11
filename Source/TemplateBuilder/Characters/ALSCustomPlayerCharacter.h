@@ -23,8 +23,8 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerTraceForward();
 
-	virtual void AimPressedAction();
-	virtual void AimReleasedAction();
+	virtual void AimPressedAction() override;
+	virtual void AimReleasedAction() override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void StartAiming();

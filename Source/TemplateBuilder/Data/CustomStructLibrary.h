@@ -17,6 +17,7 @@ struct FWeaponData
 	EWeaponName WeaponType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	EALSOverlayState OverlayState;
+	//Delete
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	bool bIsPrimary;
 

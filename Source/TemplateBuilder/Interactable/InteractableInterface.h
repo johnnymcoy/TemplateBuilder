@@ -13,9 +13,7 @@ class UInteractableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
+
 class TEMPLATEBUILDER_API IInteractableInterface
 {
 	GENERATED_BODY()
