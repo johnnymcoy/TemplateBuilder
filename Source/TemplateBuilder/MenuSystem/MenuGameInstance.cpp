@@ -4,6 +4,7 @@
 #include "MenuGameInstance.h"
 #include "UObject/ConstructorHelpers.h"
 #include "MenuWidget.h"
+#include "OptionsMenu.h"
 #include "Blueprint/UserWidget.h"
 #include "OnlineSubsystem.h"
 #include "Online.h"
@@ -18,6 +19,9 @@ UMenuGameInstance::UMenuGameInstance(const FObjectInitializer& ObjectInitializer
 	ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
 	if (!ensure(MainMenuBPClass.Class != nullptr)) return;
 	MenuClass = MainMenuBPClass.Class;
+	ConstructorHelpers::FClassFinder<UUserWidget> OptionsMenuBPClass(TEXT("/Game/MenuSystem/WBP_OptionsMenu"));
+	if (!ensure(OptionsMenuBPClass.Class != nullptr)) return;
+	OptionsMenuClass = OptionsMenuBPClass.Class;
 	ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT("/Game/MenuSystem/WBP_InGameMenu"));
 	if (!ensure(InGameMenuBPClass.Class != nullptr)) return;
 	InGameMenuClass = InGameMenuBPClass.Class;
@@ -80,7 +84,13 @@ void UMenuGameInstance::Character()
 
 void UMenuGameInstance::Options()
 {
-	UE_LOG(LogTemp,Warning, TEXT("Options"));
+	if (!ensure(OptionsMenuClass != nullptr)) return;
+	OptionsMenu = CreateWidget<UOptionsMenu>(GetFirstLocalPlayerController(), OptionsMenuClass);
+	if (!ensure(OptionsMenu != nullptr)) return;
+	OptionsMenu->Setup();
+	// APlayerController* PlayerControllerReference = GetFirstLocalPlayerController();
+	// if (!ensure(PlayerControllerReference != nullptr)) return;
+	// PlayerControllerReference->ConsoleCommand(("Quit"), true);
 }
 
 void UMenuGameInstance::Host(FOnlineSessionSettings HostSessionSettings)

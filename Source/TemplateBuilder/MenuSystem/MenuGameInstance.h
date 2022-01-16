@@ -44,10 +44,12 @@ public:
 
 	private:
 	TSubclassOf<class UUserWidget>	MenuClass;
+	TSubclassOf<class UUserWidget>	OptionsMenuClass;
 	TSubclassOf<class UUserWidget>	InGameMenuClass;
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 	class UMenuWidget* MainMenu;
+	class UOptionsMenu* OptionsMenu;
 	
 	FOnlineSessionSettings SessionSettings;
 

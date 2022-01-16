@@ -18,7 +18,6 @@ struct FHitScanTrace
 {
 	GENERATED_BODY()
 
-public:
 	UPROPERTY()
 	int a;
 	UPROPERTY()
@@ -61,6 +60,9 @@ protected:
 	class USceneComponent* UMG_LeftLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class UWidgetComponent* AmmoWidgetComponent;
+	
+	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widget")
+	// class UUserWidget* WeaponWidget;
 
 public:	
 	//Base Functions//

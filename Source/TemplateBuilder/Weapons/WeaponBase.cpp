@@ -6,11 +6,11 @@
 #include "TemplateBuilder/Characters/ALSCharacterInterface.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "GameFramework/DamageType.h"
 #include "TimerManager.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "TemplateBuilder/HUD/WeaponWidget.h"
 
 // Sets default values
 AWeaponBase::AWeaponBase()
@@ -23,6 +23,7 @@ AWeaponBase::AWeaponBase()
 	AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
 	AmmoWidgetComponent->SetupAttachment(GunMeshComponent);
 	AmmoWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// AmmoWidgetComponent->SetWidget(WeaponWidget);
 	UMG_RightLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGRightLocation"));
 	UMG_RightLocation->SetupAttachment(GunMeshComponent);
 	UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
@@ -308,7 +309,8 @@ void AWeaponBase::Shoot()
 
 void AWeaponBase::ServerShoot_Implementation() 
 {
-	Shoot();
+	Fire();
+	// Shoot();
 }
 
 bool AWeaponBase::ServerShoot_Validate() 
@@ -404,7 +406,7 @@ bool AWeaponBase::CanShoot()
 {
 	if(IsReloading) return false;
 	if(GunWeaponData.CurrentAmmo <= 0) return false; 
-	else return true; 
+	return true; 
 }
 
 

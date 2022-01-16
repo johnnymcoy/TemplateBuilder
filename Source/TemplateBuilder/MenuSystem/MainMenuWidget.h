@@ -50,7 +50,7 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float GameVersion = 0.01;
+	float GameVersion = 0.11;
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
@@ -79,6 +79,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* HostBackButton;
 	UPROPERTY(meta = (BindWidget))
+	class UButton* OptionsBackButton;
+	UPROPERTY(meta = (BindWidget))
+	class UButton* CharacterBackButton;
+	UPROPERTY(meta = (BindWidget))
 	class UButton* QuitButton;
 
 	UPROPERTY(meta = (BindWidget))
@@ -106,6 +110,11 @@ private:
 	class UWidget* JoinIPMenu;
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* HostMenu;
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* OptionsMenu;
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* CharacterMenu;
+
 
 
 	UPROPERTY(meta = (BindWidget))

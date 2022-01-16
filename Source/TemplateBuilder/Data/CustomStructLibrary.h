@@ -17,10 +17,12 @@ struct FWeaponData
 	EWeaponName WeaponType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	EALSOverlayState OverlayState;
-	//Delete
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	bool bIsInAutoMode;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
-	bool bIsPrimary;
-
+	bool bHasAutoMode;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int32 CurrentAmmo;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")

@@ -32,6 +32,8 @@ bool UMainMenuWidget::Initialize()
 	if (!ensure(OptionsButton != nullptr)) return false;
 	if (!ensure(JoinBackButton != nullptr)) return false;
 	if (!ensure(HostBackButton != nullptr)) return false;
+	if (!ensure(OptionsBackButton != nullptr)) return false;
+	if (!ensure(CharacterBackButton != nullptr)) return false;
 	if (!ensure(QuitButton != nullptr)) return false;
 	if (!ensure(JoinMenuButton != nullptr)) return false;
 	if (!ensure(SearchServersButton != nullptr)) return false;
@@ -43,6 +45,8 @@ bool UMainMenuWidget::Initialize()
 	SinglePlayerButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SinglePlayerButtonClicked);
 	JoinBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
 	HostBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	CharacterBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	OptionsBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
 	JoinButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinButtonClicked);
 	CharacterButton->OnClicked.AddDynamic(this, &UMainMenuWidget::CharacterButtonClicked);
 	OptionsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OptionsButtonClicked);
@@ -75,10 +79,12 @@ void UMainMenuWidget::OptionsButtonClicked()
 
 void UMainMenuWidget::CharacterButtonClicked()
 {
-	if(MenuInterface != nullptr)
-	{
-		MenuInterface->Character();
-	}
+	if (!ensure(MenuSwitcher != nullptr)) return;
+	MenuSwitcher->SetActiveWidget(CharacterMenu);
+	// if(MenuInterface != nullptr)
+	// {
+	// 	MenuInterface->Character();
+	// }
 }
 
 void UMainMenuWidget::JoinMenuButtonClicked() 
