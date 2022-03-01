@@ -92,7 +92,7 @@ protected:
 
 private:
 	//Already has weapon
-	void AddAmmo(FWeaponData WeaponData);
+	void AddAmmo(FWeaponData WeaponData, bool bIsPrimary = true);
 
 	void ReloadDelay();
 	void CancelReload();

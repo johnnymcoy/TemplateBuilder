@@ -20,14 +20,16 @@ AWeaponBase::AWeaponBase()
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	Muzzle->SetupAttachment(GunMeshComponent);
 
-	AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
-	AmmoWidgetComponent->SetupAttachment(GunMeshComponent);
-	AmmoWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// AmmoWidgetComponent->SetWidget(WeaponWidget);
-	UMG_RightLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGRightLocation"));
-	UMG_RightLocation->SetupAttachment(GunMeshComponent);
-	UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
-	UMG_LeftLocation->SetupAttachment(GunMeshComponent);
+	
+	// Separate Component?
+	// AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
+	// AmmoWidgetComponent->SetupAttachment(GunMeshComponent);
+	// AmmoWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	// // AmmoWidgetComponent->SetWidget(WeaponWidget);
+	// UMG_RightLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGRightLocation"));
+	// UMG_RightLocation->SetupAttachment(GunMeshComponent);
+	// UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
+	// UMG_LeftLocation->SetupAttachment(GunMeshComponent);
 	
 	bReplicates = true;
 }
@@ -114,59 +116,61 @@ FWeaponData AWeaponBase::GetWeaponData_Implementation()
 	return GunWeaponData;
 }
 
+	//Separate Component
+//////////////////////////////////
 void AWeaponBase::MoveUMG_Implementation(bool bIsRightShoulder) 
 {
-	if(bIsRightShoulder)
-	{
-		AmmoWidgetComponent->SetWorldLocation(UMG_LeftLocation->GetComponentLocation());
-	}
-	else
-	{
-		AmmoWidgetComponent->SetWorldLocation(UMG_RightLocation->GetComponentLocation());
-	}
+	// if(bIsRightShoulder)
+	// {
+	// 	AmmoWidgetComponent->SetWorldLocation(UMG_LeftLocation->GetComponentLocation());
+	// }
+	// else
+	// {
+	// 	AmmoWidgetComponent->SetWorldLocation(UMG_RightLocation->GetComponentLocation());
+	// }
 }
 
 void AWeaponBase::FadeInUMG_Implementation(bool bIsAiming) 
 {
-	if(bIsAiming && UMGAlpha <= 0.3)
-	{
-		GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGIn, 0.08, true, 0.0f);
-	}
-	else
-	{
-		GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGOut, 0.08, true, 0.0f);
-	}
+	// if(bIsAiming && UMGAlpha <= 0.3)
+	// {
+	// 	GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGIn, 0.08, true, 0.0f);
+	// }
+	// else
+	// {
+	// 	GetWorldTimerManager().SetTimer(UMGTimer, this, &AWeaponBase::FadeUMGOut, 0.08, true, 0.0f);
+	// }
 }
 
 void AWeaponBase::FadeUMGIn() 
 {
-	if(UMGAlpha >= 0.3)
-	{
-		GetWorldTimerManager().ClearTimer(UMGTimer);
-		return;
-	}
-	UMGAlpha += 0.04f;
-	FadeInUMGTimed(UMGAlpha);
+	// if(UMGAlpha >= 0.3)
+	// {
+	// 	GetWorldTimerManager().ClearTimer(UMGTimer);
+	// 	return;
+	// }
+	// UMGAlpha += 0.04f;
+	// FadeInUMGTimed(UMGAlpha);
 }
 
 void AWeaponBase::FadeUMGOut() 
 {
-	if(UMGAlpha <= 0) 
-	{
-		GetWorldTimerManager().ClearTimer(UMGTimer);
-		return;
-	}
-	UMGAlpha -= 0.04f;
-	FadeInUMGTimed(UMGAlpha);
+	// if(UMGAlpha <= 0) 
+	// {
+	// 	GetWorldTimerManager().ClearTimer(UMGTimer);
+	// 	return;
+	// }
+	// UMGAlpha -= 0.04f;
+	// FadeInUMGTimed(UMGAlpha);
 }
 
 void AWeaponBase::FadeInUMGTimed(float Alpha) 
 {
-	AmmoWidgetComponent->SetTintColorAndOpacity(FLinearColor(1,1,1,Alpha));
-	if(Alpha >= 0.3 || Alpha <= 0)
-	{
-		GetWorldTimerManager().ClearTimer(UMGTimer);
-	}
+	// AmmoWidgetComponent->SetTintColorAndOpacity(FLinearColor(1,1,1,Alpha));
+	// if(Alpha >= 0.3 || Alpha <= 0)
+	// {
+	// 	GetWorldTimerManager().ClearTimer(UMGTimer);
+	// }
 }
 
 void AWeaponBase::GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
@@ -200,11 +204,11 @@ void AWeaponBase::SetWeaponData_Implementation(const FWeaponData in_WeaponData)
 
 bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection) 
 {
-	FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
+	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
 	FVector NewBulletSpread;
 	CalculateBulletSpread(NewBulletSpread);
 	ShotDirection = -TraceRotation.Vector();
-	FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + NewBulletSpread;
+	const FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + NewBulletSpread;
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	ActorsToIgnore.Add(GetOwner());
@@ -229,10 +233,17 @@ void AWeaponBase::Shoot()
 		//Defaults for Impact effects
 		FVector TracerEndPoint = Hit.TraceEnd;
 		EPhysicalSurface SurfaceType = SurfaceType_Default;
+		int SurfaceIndex = 0;
 		if(bSuccess)
 		{
 			if(HasAuthority())	{UE_LOG(LogTemp,Warning,TEXT("ServerShoot"));}
+			//Old Method todo remove
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+			//New Method
+			SurfaceIndex = (Surfaces.Find(Hit.PhysMaterial.Get()));
+			UE_LOG(LogTemp,Warning, TEXT("Surface index: %i"), SurfaceIndex);
+			UE_LOG(LogTemp,Warning, TEXT("Surface %s"), ToCStr(Hit.PhysMaterial.Get()->GetName()));
+			
 			FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
 			if(Hit.GetActor() != nullptr)
 			{
@@ -291,7 +302,8 @@ void AWeaponBase::Shoot()
 				}
 			}
 			TracerEndPoint = Hit.ImpactPoint;
-			PlayImpactEffects(SurfaceType, TracerEndPoint);
+			//NEW
+			PlayImpactEffects(SurfaceIndex, TracerEndPoint);
 		}
 		else
 		{
@@ -344,33 +356,12 @@ void AWeaponBase::PlayFireEffects(FVector TraceEnd)
 	//Spawn Tracer Round
 }
 
-void AWeaponBase::PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint) 
+void AWeaponBase::PlayImpactEffects(int SurfaceType, FVector ImpactPoint) 
 {
-	UParticleSystem* SelectedParticle = nullptr; 
-	switch(SurfaceType)
-		{
-		case SurfaceType1:
-		case SurfaceType2:
-			SelectedParticle = DefaultImpactParticles;
-			break;
-		case SurfaceType3:
-			SelectedParticle = DefaultImpactParticles;
-			break;
-		case SurfaceType4:
-			SelectedParticle = DefaultImpactParticles;
-			break;
-		default:
-			SelectedParticle = DefaultImpactParticles;
-			break;
-		}
-	if(SelectedParticle)
-	{
-		FVector MuzzleLocation = Muzzle->GetComponentLocation();
-		FVector ShotDirection = ImpactPoint - MuzzleLocation;
-		ShotDirection.Normalize();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SelectedParticle, ImpactPoint, ShotDirection.Rotation());
-	}
-
+	FVector MuzzleLocation = Muzzle->GetComponentLocation();
+	FVector ShotDirection = ImpactPoint - MuzzleLocation;
+	ShotDirection.Normalize();
+	UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ParticleSelector(SurfaceType), ImpactPoint, ShotDirection.Rotation());
 }
 
 void AWeaponBase::OnRep_HitScanTrace() 
@@ -407,6 +398,60 @@ bool AWeaponBase::CanShoot()
 	if(IsReloading) return false;
 	if(GunWeaponData.CurrentAmmo <= 0) return false; 
 	return true; 
+}
+
+UParticleSystem* AWeaponBase::ParticleSelector(const int in_SurfaceType)
+{
+	
+	switch(in_SurfaceType)
+	{
+	case -1: //Default Ground
+		return ImpactEffects.General01;
+	case 0: //Dirt
+		return ImpactEffects.Dirt;
+	case 1: //General 01
+		return ImpactEffects.General01;
+	case 2: //General 02
+		return ImpactEffects.General02;
+	case 3: //Grass
+		return ImpactEffects.Grass;
+	case 4: //Gravel
+		return ImpactEffects.Gravel;
+	case 5: //Ice
+		return ImpactEffects.Ice;
+	case 6: //Leaves
+		return ImpactEffects.Leaves;
+	case 7: //Mud
+		return ImpactEffects.Mud;
+	case 8: //Sand
+		return ImpactEffects.Sand;
+	case 9: //SnowHeavy
+		return ImpactEffects.SnowHeavy;
+	case 10: //SnowLight
+		return ImpactEffects.SnowLight;
+	case 11: //Sparks
+		return ImpactEffects.Sparks;
+	case 12: //SpecialAbility
+		return ImpactEffects.SpecialAbility;
+	case 13: //WaterHeavy
+		return ImpactEffects.WaterHeavy;
+	case 14: //WaterLight
+		return ImpactEffects.WaterLight;
+	case 15: //Carpet
+		return ImpactEffects.Carpet;
+	case 16: //Concrete
+		return ImpactEffects.Concrete;
+	case 17: //Metal
+		return ImpactEffects.Metal;
+	case 18: //Plastic
+		return ImpactEffects.Plastic;
+	case 19: //Wood
+		return ImpactEffects.Wood;
+	case 20: //Flesh
+		return ImpactEffects.Flesh;
+	default:
+		return ImpactEffects.General01;
+	}
 }
 
 

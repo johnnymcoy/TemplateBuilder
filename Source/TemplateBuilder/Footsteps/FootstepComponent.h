@@ -75,6 +75,9 @@ struct FFootstepsVFXStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="VFX")
     class UNiagaraSystem* Wood;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="VFX")
+	class UNiagaraSystem* Flesh;
+
 };
 
 

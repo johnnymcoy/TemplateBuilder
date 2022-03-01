@@ -89,7 +89,7 @@ void AWeaponPickupBase::OnRep_PickedUp()
 void AWeaponPickupBase::ClearMesh_Implementation() 
 {
 	GunMesh->SetSkeletalMesh(nullptr);
-	UE_LOG(LogTemp,Warning,TEXT("ClearMesh"));
+	// UE_LOG(LogTemp,Warning,TEXT("ClearMesh"));
 }
 
 void AWeaponPickupBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

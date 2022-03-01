@@ -187,7 +187,6 @@ void UShootingComponent::Recoil()
 	//AddRecoilWBP(RecoilTotal);
 }
 
-
 void UShootingComponent::SwitchAutoMode()
 {
 	UE_LOG(LogTemp,Warning,TEXT("Swtich Auto Mode - ShootingComponent"));
@@ -212,6 +211,12 @@ void UShootingComponent::Reload(UAnimMontage* ReloadAnimation)
 			{
 				LastReloadAnimation = ReloadAnimation;
 				float ReloadTime = MainAnimInstance->Montage_Play(ReloadAnimation, (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);
+				if(ReloadTime <= 0.5)
+				{
+					ReloadTime = 1.0;
+					UE_LOG(LogTemp,Warning, TEXT("ReloadTime is too slow, set to Default"));
+					//todo: Have check for Server? make sure theres a default
+				}
 				CurrentWeapon->Execute_Reload(GunChildActorReference->GetChildActor(), ReloadTime);
 				bIsReloading = true;
 				GetOwner()->GetWorldTimerManager().SetTimer(ReloadTimer, this, &UShootingComponent::ReloadDelay, (ReloadTime + 0.1f), false); //Offset so that the HUD updates properly
@@ -293,7 +298,6 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 
 	if(GetOwnerRole() == ROLE_Authority)
 	{
-		//is the pickup a valid Weapon?
 		if(!WeaponToPickup.IsValid())
 		{
 			UE_LOG(LogTemp, Error, TEXT("Invalid Pickup Weapon Data"));
@@ -309,13 +313,15 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 		//Already have the weapon as a primary
 		if(PrimaryWeaponData.WeaponClass == WeaponToPickup.WeaponClass)
 		{
-			UE_LOG(LogTemp,Warning, TEXT("Pickup Primary ammo"));
+			AddAmmo(WeaponToPickup);
+			// UE_LOG(LogTemp,Warning, TEXT("Pickup Primary ammo"));
 			return;
 		}
 		///Check if we already have it as Secondary 
 		if(SecondaryWeaponData.WeaponClass == WeaponToPickup.WeaponClass)
 		{
-			UE_LOG(LogTemp,Warning, TEXT("Pickup Secondary ammo"));
+			AddAmmo(WeaponToPickup, false);
+			// UE_LOG(LogTemp,Warning, TEXT("Pickup Secondary ammo"));
 			return;
 		}
 		////We don't have the weapon
@@ -355,10 +361,6 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 	{
 		ServerPickupWeapon(WeaponToPickup);
 	}
-	
-	
-
-	
 		// if(CurrentWeaponData.WeaponClass != WeaponToPickup.WeaponClass)
 		// {
 		// 	//if we already have a weapon equipped
@@ -434,6 +436,7 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWea
 		// PickupGunWBP(CurrentWeaponData);
 	}
 }
+
 void UShootingComponent::ServerEquipWeapon_Implementation(FWeaponData WeaponToEquip, bool bPrimaryWeapon)
 {
 	EquipWeapon(WeaponToEquip, bPrimaryEquipped);
@@ -692,25 +695,39 @@ void UShootingComponent::ClearWeapon()
 	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 }
 
-void UShootingComponent::AddAmmo(FWeaponData WeaponData)
+void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
 {
-	if(WeaponData.WeaponClass == PrimaryWeaponData.WeaponClass)
+	FWeaponData TempWeaponData;
+	if(bIsPrimary)
 	{
+		TempWeaponData = PrimaryWeaponData;
+		//Primary = WeaponData
+		if(bPrimaryEquipped)
+		{
+			//Add to current Weapon
+		}
 		UE_LOG(LogTemp,Warning, TEXT("Add Primary Ammo"));
 	}
-	if(WeaponData.WeaponClass == SecondaryWeaponData.WeaponClass)
+	else
 	{
+		TempWeaponData = SecondaryWeaponData;
+		//Secondary = ammo
+		if(!bPrimaryEquipped)
+		{
+			//Add to current?
+			//Double Check with some logs
+		}
 		UE_LOG(LogTemp,Warning, TEXT("Add Secondary Ammo"));
 	}
 	//If the total ammo is less than the max ammo && the total ammo + the pickup ammo is less than the max ammo, simply add them together
-	if(CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) <= CurrentWeaponData.MaxAmmo)
+	if(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) <= TempWeaponData.MaxAmmo)
 	{
-		CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount;
+		TempWeaponData.TotalAmmoCount = TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount;
 	}
 	else if // If the total ammo is less than max, && the amount to pickup will end up more than the Max ammo
-	(CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) > CurrentWeaponData.MaxAmmo)
+	(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) > TempWeaponData.MaxAmmo)
 	{
-		CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.MaxAmmo;
+		TempWeaponData.TotalAmmoCount = TempWeaponData.MaxAmmo;
 		//TODO::
 		//Should not Destroy Actor
 	}
@@ -719,6 +736,44 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData)
 		//TODO::
 		//Should not Destroy actor 
 	}
+	
+	if(bIsPrimary)
+	{
+		PrimaryWeaponData = TempWeaponData;
+		if(bPrimaryEquipped)
+		{
+			CurrentWeaponData = PrimaryWeaponData;
+		}
+	}
+	else
+	{
+		SecondaryWeaponData = TempWeaponData;
+		if(!bPrimaryEquipped)
+		{
+			CurrentWeaponData = SecondaryWeaponData;
+		}
+	}
+	//Need to add in when picking up secondary ammo with primary equiped and vice 
+	
+	// ///Logic
+	// //If the total ammo is less than the max ammo && the total ammo + the pickup ammo is less than the max ammo, simply add them together
+	// if(CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) <= CurrentWeaponData.MaxAmmo)
+	// {
+	// 	CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount;
+	// }
+	// else if // If the total ammo is less than max, && the amount to pickup will end up more than the Max ammo
+	// (CurrentWeaponData.TotalAmmoCount < CurrentWeaponData.MaxAmmo && (CurrentWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) > CurrentWeaponData.MaxAmmo)
+	// {
+	// 	CurrentWeaponData.TotalAmmoCount = CurrentWeaponData.MaxAmmo;
+	// 	//TODO::
+	// 	//Should not Destroy Actor
+	// }
+	// else // Should only cover if the ammo is Already Max 
+	// {
+	// 	//TODO::
+	// 	//Should not Destroy actor 
+	// }
+	
 	//	UpdateWBP(CurrentWeaponData);
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)

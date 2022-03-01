@@ -27,17 +27,17 @@ protected:
 
 public:	
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void OnInteract(AActor* Caller);
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	// void OnInteract(AActor* Caller);
 	virtual void OnInteract_Implementation(AActor* Caller) override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void OnPickUp(AActor* Caller);
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	// void OnPickUp(AActor* Caller);
 	virtual void OnPickUp_Implementation(AActor* Caller) override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void StartFocus();
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	// void StartFocus();
 	virtual void StartFocus_Implementation() override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	void EndFocus();
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
+	// void EndFocus();
 	virtual void EndFocus_Implementation() override;
 
 	virtual void Death_Implementation() override;

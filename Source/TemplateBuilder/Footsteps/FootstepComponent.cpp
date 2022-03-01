@@ -164,6 +164,11 @@ void UFootstepComponent::FootstepVFXSelector(const int in_FloorType,const float 
 	case 19: //Wood
 		out_FootstepParticle = VFX.Wood;
 		break;
+	case 20: //Flesh todo Add flesh FootstepFX
+		out_FootstepParticle = VFX.Wood;
+		break;
+	default: out_FootstepParticle = VFX.General01;
+		break;
 	}
 
 }

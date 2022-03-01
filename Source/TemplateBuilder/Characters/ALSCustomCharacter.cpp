@@ -234,6 +234,14 @@ void AALSCustomCharacter::SwapWeaponPressed()
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponPressed();
+		if(ShootingComponent->GetIsHolstered())
+		{
+			SetOverlayState(EALSOverlayState::Default);
+		}
+		else
+		{
+			SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
+		}
 	}
 }
 
@@ -242,7 +250,14 @@ void AALSCustomCharacter::SwapWeaponReleased()
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponReleased();
-		SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
+		if(ShootingComponent->GetIsHolstered())
+		{
+			SetOverlayState(EALSOverlayState::Default);
+		}
+		else
+		{
+			SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
+		}
 	}
 }
 

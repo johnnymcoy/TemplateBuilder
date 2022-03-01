@@ -6,7 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TemplateBuilder/GameModes/TemplateGameModeBase.h"
 #include "TimerManager.h"
-
+#include "TemplateBuilder/Health/HealthComponent.h"
 
 
 AALSCustomAICharacter::AALSCustomAICharacter(const FObjectInitializer& ObjectInitializer) 
@@ -17,17 +17,19 @@ AALSCustomAICharacter::AALSCustomAICharacter(const FObjectInitializer& ObjectIni
 	HealthBar->SetupAttachment(GetMesh());
 	GetMesh()->OnComponentHit.AddDynamic(this, &AALSCustomAICharacter::OnHit);
 	bIsNPC = true;
+	HealthComponent->bHasShield = false;
 }
 
 void AALSCustomAICharacter::BeginPlay() 
 {
     Super::BeginPlay();
+	SetDesiredGait(EALSGait::Walking);
 }
 
 
 void AALSCustomAICharacter::OnInteract_Implementation(AActor* Caller) 
 {
-    
+    UE_LOG(LogTemp,Warning, TEXT("Interact with AI"));
 }
 
 void AALSCustomAICharacter::OnPickUp_Implementation(AActor* Caller) 

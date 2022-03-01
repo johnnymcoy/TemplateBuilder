@@ -8,6 +8,7 @@
 #include "TemplateBuilder/Data/CustomStructLibrary.h"
 #include "WeaponInterface.h"
 #include "TemplateBuilder/Debug/DebugInterface.h"
+#include "PhysicalMaterials/PhysicalMaterial.h"
 #include "WeaponBase.generated.h"
 
 //Weapon Interface 
@@ -24,6 +25,77 @@ struct FHitScanTrace
 	TEnumAsByte<EPhysicalSurface> SurfaceType;
 	UPROPERTY()
 	FVector_NetQuantize TraceTo;
+};
+
+//TO USE COMPLEX COLLISION MUST BE SET TO SIMPLE 
+USTRUCT(BlueprintType)
+struct FImpactEffect
+{
+	GENERATED_USTRUCT_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Dirt;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* General01;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* General02;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Grass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Gravel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Ice;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Leaves;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Mud;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Sand;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* SnowHeavy;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* SnowLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Sparks;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* SpecialAbility;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* WaterHeavy;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* WaterLight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Carpet;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Concrete;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Metal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Plastic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Wood;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
+	class UParticleSystem* Flesh;
+	
 };
 
 
@@ -45,7 +117,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	void PlayFireEffects(FVector TraceEnd);
-	void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+	// void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
+	void PlayImpactEffects(int SurfaceType, FVector ImpactPoint);
 
 	//Server Playing the Effects
 	UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
@@ -137,7 +210,9 @@ private:
 	FVector TraceLocation;
 	FRotator TraceRotation;
 	float AccuracyMultiplier;
-	const class AActor* TraceActorToIgnore; 
+	const class AActor* TraceActorToIgnore;
+
+	UParticleSystem* ParticleSelector(const int in_SurfaceType);
 
 	//Muzzle Flash//
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
@@ -233,6 +308,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
 	FVector DecalSize;
 	//Impacts
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
+	FImpactEffect ImpactEffects;
+	
+	//Put Materials here //
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+	TArray<class UPhysicalMaterial*> Surfaces;
+
+	//todo Remove
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")
 	class UParticleSystem*	DefaultImpactParticles;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effects")

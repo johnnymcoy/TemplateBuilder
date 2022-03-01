@@ -35,16 +35,16 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void OnInteract(AActor* Caller);
-	virtual void OnInteract_Implementation(AActor* Caller);
+	virtual void OnInteract_Implementation(AActor* Caller) override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void OnPickUp(AActor* Caller);
-	virtual void OnPickUp_Implementation(AActor* Caller);
+	virtual void OnPickUp_Implementation(AActor* Caller) override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void StartFocus();
-	virtual void StartFocus_Implementation();
+	virtual void StartFocus_Implementation() override;
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
 	void EndFocus();
-	virtual void EndFocus_Implementation();
+	virtual void EndFocus_Implementation() override;
 
 protected:
 	virtual void BeginPlay() override;
