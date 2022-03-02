@@ -23,6 +23,8 @@ struct FPlayerShootingStatus
 	bool bIsHolstered;
 	UPROPERTY()
 	bool bIsAiming;
+	UPROPERTY()
+	bool bHasGun;
 };
 
 
@@ -85,12 +87,20 @@ public:
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
 	bool GetIsHolstered() const{return bIsHolstered;};
 	bool GetIsReloading() const{return bIsReloading;};
+
+	UFUNCTION(BlueprintCallable)
+	bool GetHasGun() const{return bHasGun;};
+	
+	UFUNCTION(BlueprintCallable)
+	FPlayerShootingStatus GetPlayerShootingStatus() const {return PlayerShootingStatus;};
 	
 protected:
 
 	virtual void BeginPlay() override;
 
 private:
+	//todo: Fill playershooting status instead of 100 getters 
+	FPlayerShootingStatus PlayerShootingStatus;
 	//Already has weapon
 	void AddAmmo(FWeaponData WeaponData, bool bIsPrimary = true);
 

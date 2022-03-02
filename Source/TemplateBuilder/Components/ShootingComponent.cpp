@@ -25,6 +25,10 @@ void UShootingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	//Only Tick if owner has a weapon
+	if(PlayerShootingStatus.bHasGun)
+	{
+		
+	}
 	if(bHasGun)
 	{
 		
@@ -304,6 +308,7 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 			return;
 		}
 		//If we don't have any weapon
+		//todo if(!PlayerShootingStatus.bHasGun)
 		if(!bHasGun)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("First Pickup"));
@@ -400,6 +405,7 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWea
 	// {
 		// ServerEquipWeapon(WeaponData);
 	// }
+	PlayerShootingStatus.bHasGun = true;
 	bHasGun = true;
 	if(bPrimaryWeapon)
 	{
@@ -457,6 +463,7 @@ void UShootingComponent::AddWeaponToList(FWeaponData SelectedWeapon, bool bAddWe
 	CurrentWeaponListData.Add(SelectedWeapon);
 	if(CurrentWeaponListData.Num() > 0)
 	{
+		PlayerShootingStatus.bHasGun = true;
 		bHasGun = true;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("List: %i"), CurrentWeaponListData.Num());
@@ -482,6 +489,7 @@ void UShootingComponent::SwapWeaponPressed()
 void UShootingComponent::SwapWeapon()
 {
 	bSwapWeaponPressed = false;
+	// todo if(!PlayerShootingStatus.bHasGun){return;};
 	if(!bHasGun){return;}
 	// if(SecondaryWeaponData.WeaponClass == EmptyWeaponData.WeaponClass)
 	// {
@@ -786,6 +794,10 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
 
 void UShootingComponent::Death()
 {
+	if(PlayerShootingStatus.bHasGun)
+	{
+		
+	}
 	if(bHasGun)
 	{
 		// //DropGun

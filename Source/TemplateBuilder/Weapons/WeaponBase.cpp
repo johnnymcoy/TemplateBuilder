@@ -256,12 +256,16 @@ void AWeaponBase::Shoot()
 					HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunImpulse), Hit.BoneName, GunImpulse);
 					//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
 				}
-				// else
-				// {
-				// 	//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Purple, true);
-				// }
+				else
+				{
+					DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Purple, true);
+				}
+				//todo: pointdamage change
+				//Direction Is what dictates the Impulse
+				ShotDirection *= -1;
+				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DefaultDamage, ShotDirection, Hit,TraceActorToIgnore->GetInstigatorController(), this, DamageType);
 			}
-			// needs more work
+			// todo: needs more work
 			FVector MuzzleLocation = Muzzle->GetComponentLocation();
 			FVector NormalVector = (Hit.Location - MuzzleLocation);
 			NormalVector.Normalize(0.0001);
