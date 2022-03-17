@@ -101,9 +101,10 @@ void UShootingComponent::MoveUMG(bool bRightShoulder)
 
 void UShootingComponent::SetupHUD()
 {
+	if(bIsNPC){return;};
 	if(WeaponWidgetClass != nullptr)
 	{
-		WeaponWidget = CreateWidget<UWeaponWidget>(OwnerController, WeaponWidgetClass);
+		WeaponWidget = CreateWidget<UWeaponWidget>(OwnerPlayerController, WeaponWidgetClass);
 		if(WeaponWidget)
 		{
 			WeaponWidget->AddToViewport();
@@ -124,14 +125,19 @@ void UShootingComponent::ShootGun()
 		{
 			FVector InLocation;
 			FRotator InRotation;
-			//if NPC?
-			//GetActorEyesViewPoint(InLocation, inRotation);
-			//TODO Get Reference to player camera through owner in begin play
-			APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
-			if(PlayerCamera)
+			if(bIsNPC)
 			{
-				InLocation = PlayerCamera->GetCameraLocation();
-				InRotation = PlayerCamera->GetCameraRotation();
+				GetOwner()->GetActorEyesViewPoint(InLocation, InRotation);
+			}
+			else
+			{
+				//TODO Get Reference to player camera through owner in begin play
+				APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+				if(PlayerCamera)
+				{
+					InLocation = PlayerCamera->GetCameraLocation();
+					InRotation = PlayerCamera->GetCameraRotation();
+				}
 			}
 			//todo:Need to change name so it's more fittting From: GetTraceParams -> TO :ShootGun
 			CurrentWeapon->Execute_GetTraceParams(GunChildActorReference->GetChildActor(), InLocation, InRotation, GetOwner(), Accuracy);
@@ -810,6 +816,18 @@ void UShootingComponent::Death()
 	}
 	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 	SetActive(false);
+}
+
+void UShootingComponent::SetController(AController* Controller)
+{
+	if(bIsNPC)
+	{
+		OwnerAIController = Cast<AAIController>(OwnerController);
+	}
+	else
+	{
+		OwnerPlayerController = Cast<APlayerController>(OwnerController);
+	}
 }
 
 void UShootingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

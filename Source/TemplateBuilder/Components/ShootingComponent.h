@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AIController.h"
 #include "Components/ActorComponent.h"
 #include "TemplateBuilder/Data/CustomStructLibrary.h"
 #include "ShootingComponent.generated.h"
@@ -80,8 +81,9 @@ public:
 	void SetThrowPoint(USceneComponent* ThrowPointComponent){ThrowPoint = ThrowPointComponent;};
 	void SetOwnerMesh(USkeletalMeshComponent* SkeletalMesh){OwnerMesh = SkeletalMesh;};
 	void SetAnimInstance(UAnimInstance* AnimationInstance){MainAnimInstance = AnimationInstance;};
-	void SetController(APlayerController* Controller){OwnerController = Controller;};
+	void SetController(AController* Controller);
 	void SetAccuracy(float In_Accuracy){Accuracy = In_Accuracy;};
+	void SetIsNPC(bool in_bIsNPC){bIsNPC = in_bIsNPC;};
 	// void SetOverlayState();
 	//Getters
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
@@ -137,6 +139,8 @@ private:
 	bool bIsHolstered;
 	bool bIsAiming;
 
+	bool bIsNPC;
+
 	
 	float Accuracy = 1;
 	//Weapon
@@ -185,9 +189,14 @@ private:
 	USkeletalMeshComponent* OwnerMesh;
 	UPROPERTY()
 	UAnimInstance* MainAnimInstance;
-	UPROPERTY()
-	APlayerController* OwnerController;
 	
+	UPROPERTY()
+	AController* OwnerController;
+	UPROPERTY()
+	APlayerController* OwnerPlayerController;
+	UPROPERTY()
+	AAIController* OwnerAIController;
+
 	//Animations
 	UPROPERTY(EditAnywhere, Category = "Animation | Reloads")
 	TArray<UAnimMontage*> PistolReload;

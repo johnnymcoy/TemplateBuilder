@@ -2,6 +2,8 @@
 
 
 #include "ALSCustomCharacter.h"
+
+#include "AIController.h"
 #include "TemplateBuilder/Interactable/InteractableInterface.h"
 #include "TemplateBuilder/Interactable/WeaponPickupBase.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
@@ -53,12 +55,16 @@ void AALSCustomCharacter::BeginPlay()
 	DefaultAccuracy = Accuracy;
 
 	//ShootingComponent setters
+	ShootingComponent->SetIsNPC(bIsNPC);
 	ShootingComponent->SetGunChildActor(Gun);
 	ShootingComponent->SetThrowPoint(ThrowPoint);
 	ShootingComponent->SetOwnerMesh(GetMesh());
 	ShootingComponent->SetAnimInstance(MainAnimInstance);
-	ShootingComponent->SetController(Cast<APlayerController>(GetController()));
-	ShootingComponent->SetupHUD();
+	if(!bIsNPC)
+	{
+		ShootingComponent->SetupHUD();
+	}
+	ShootingComponent->SetController(GetController());
 	if(CurrentWeaponData.MeshForPickup == nullptr){bIsHolstered = true;}
 }
 
@@ -216,6 +222,10 @@ void AALSCustomCharacter::CalculateAccuracy()
 	if(!bIsAiming) // BlindFire 
 	{
 		Accuracy = (Accuracy * 0.5f);
+	}
+	if(bIsNPC)
+	{
+		Accuracy = (Accuracy * 0.25f);
 	}
 	ShootingComponent->SetAccuracy(Accuracy);
 }

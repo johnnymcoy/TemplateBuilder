@@ -212,6 +212,7 @@ bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection)
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	ActorsToIgnore.Add(GetOwner());
+	bDebuggingMode = true;
 	if(bDebuggingMode)
 	{return UKismetSystemLibrary::LineTraceSingle(this, TraceLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
 	true, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}

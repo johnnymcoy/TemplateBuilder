@@ -45,8 +45,15 @@ public:
 	void MulticastDeath();
 	bool DeathOnce = false;
 
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void TraceForward();
 
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void PickupNearbyWeapon();
 
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float PickupReach;
 private:
 	UFUNCTION()    
     void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);

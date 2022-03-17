@@ -7,7 +7,7 @@
 #include "HealthComponent.generated.h"
 
 //On Health Changed event, Sets off a Blueprint event when health is changed
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature, UHealthComponent*, HealthComp, float, Health, float, DefaultHealth, float, Shield, float, DefaultShield, const class UDamageType*, DamageType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthChangedSignature,class UHealthComponent*, HealthComp, float, Health, float, DefaultHealth, float, Shield, float, DefaultShield, const class UDamageType*, DamageType);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class TEMPLATEBUILDER_API UHealthComponent : public UActorComponent
