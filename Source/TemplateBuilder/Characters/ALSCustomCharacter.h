@@ -66,20 +66,26 @@ public:
 	/////////////////////////////INTERFACE EVENTS///////////////////////////////////////////////
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")
 	void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
-	virtual void AddImpulseEvent_Implementation(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
+	virtual void AddImpulseEvent_Implementation(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
     TSubclassOf<class UDamageType> in_DamageType);
 	virtual void BulletDamageEvent_Implementation(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
-    TSubclassOf<class UDamageType> in_DamageType);
+    TSubclassOf<class UDamageType> in_DamageType) override;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
 	void PickupGunEvent(const FWeaponData in_WeaponData);
-	virtual void PickupGunEvent_Implementation(const FWeaponData in_WeaponData);
+	virtual void PickupGunEvent_Implementation(const FWeaponData in_WeaponData) override;
+	
+	UFUNCTION(Server, Reliable)
+	virtual void DestroyActor(AActor* ActorToDestroy) override;
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override; 
 
 	///////////////////////////////////////////////////////////////////////////
 
+	
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Reaction | Injured")
 	EALSInjuredState InjuredState;
@@ -161,10 +167,17 @@ private:
 	void SwapWeaponReleased();
 	
 	void SwitchAutoModePressed();
+	void ThrowWeaponPressed();
 	////////////////////////////////
 	
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle HudUpdateHandle;
+
+	UPROPERTY(VisibleAnywhere)
+	float ShieldTimeToRegen;
+	FTimerHandle ShieldTimeToRegenHandle;
+	void ShieldRegen();
+
 
 	float DefaultAccuracy;
 	void CalculateAccuracy();
@@ -186,26 +199,27 @@ private:
 	void ServerStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
+
 	
-	//Switch Weapon 
+	//Switch Weapons
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	float WeaponSwitchHoldTime = 0.2f;
-
 	/** Last time the weapon action button is pressed */
 	float SwapWeaponActionPressedTime = 0.0f;
-	
 	/* Timer to manage weapon mode swap action */
 	FTimerHandle OnWeaponSwapTimer;
 
-	//Vars
+	//Reloading
 	bool bIsReloading;
-
 	FTimerHandle ReloadTimer;
 
+	//
+	virtual void NotifyHit(class UPrimitiveComponent * MyComp, AActor * Other,class UPrimitiveComponent * OtherComp,	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse,const FHitResult & Hit) override;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapons")
 	struct FWeaponData EmptyWeaponData;
 
-
+	//Health
 	UFUNCTION()
 	void AnyDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser);
 	void HealthDelay();

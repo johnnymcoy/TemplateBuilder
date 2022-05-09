@@ -21,13 +21,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	FWeaponData WeaponPickupData;
-
-	//Bool Can be picked up?
-	// UFUNCTION(Server, Reliable)
-	// void ServerInteract(AActor* Caller);
-	// UFUNCTION(NetMulticast, Reliable)
-	// void MulticastInteract(AActor* Caller);
-
+	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void WeaponDroppedEvent(FWeaponData DroppedWeaponData);
 
@@ -49,16 +43,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-
 private:
 	void SetMesh();
-	UPROPERTY(ReplicatedUsing=OnRep_PickedUp)
-	bool bPickedup;
-	UFUNCTION()
-	void OnRep_PickedUp();
-	UFUNCTION(Server, Reliable)
-	void ClearMesh();
-
-	
 
 };

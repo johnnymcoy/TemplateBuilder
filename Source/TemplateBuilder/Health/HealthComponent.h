@@ -60,7 +60,11 @@ public:
 
 	UFUNCTION()
 	void LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, TSubclassOf<class UDamageType> in_DamageType);
+	UFUNCTION()
+	void ShieldRegen();
+	float AmountToRecharge = 0.1f;
 
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -71,6 +75,12 @@ protected:
 	void OnRep_Health();
 	UFUNCTION()
 	void OnRep_Shield();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	const UDamageType* ShieldDamageType;
+
+	//TODO: fix Damage types
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	// TSubclassOf<class UDamageType> ShieldDamageType;
 
 
 private:	
@@ -80,13 +90,14 @@ private:
 
 	void SetupSyntySkeleton();
 
+	void HealthDamage(float Damage);
 
+	void ShieldDamage(float Damage);
+	
 	//Hit Counters on each limb
 	float HeadHitCounter;
 	float RightArmHitCounter;
 	float LeftArmHitCounter;
 	float RightLegHitCounter;
 	float LeftLegHitCounter;
-
-		
 };

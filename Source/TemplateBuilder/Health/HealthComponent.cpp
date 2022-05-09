@@ -2,7 +2,9 @@
 
 
 #include "HealthComponent.h"
+#include "TimerManager.h"
 #include "Net/UnrealNetwork.h"
+#include "TemplateBuilder/DamageTypes/ShieldRegen.h"
 
 static int32 DebugHealthStats = 0;
 FAutoConsoleVariableRef CVARDebugHealthStats(TEXT("CustomDebugs.DebugHealthStats"), DebugHealthStats, TEXT("Debugs for HealthComponents"), ECVF_Cheat);
@@ -16,6 +18,8 @@ UHealthComponent::UHealthComponent()
 	DefaultShieldHealth = 100;
 	ShieldHealth = DefaultShieldHealth;
 	BodyIndex.Init(0,7);
+	//todo newObjkecT? 
+	ShieldDamageType = NewObject<UShieldRegen>();
 	if(bSyntySkeleton){SetupSyntySkeleton();}
 }
 
@@ -46,22 +50,33 @@ void UHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, const UDam
 {
 	if(bHasShield)
 	{
-		if(ShieldHealth > 0)
+		if(ShieldHealth > 0 && Damage > 0)
 		{
-			ShieldHealth = FMath::Clamp(ShieldHealth - Damage, 0.0f, DefaultShieldHealth);
+			ShieldDamage(Damage);
 		}
 		else
 		{
-			Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
+			HealthDamage(Damage);
 		}
 	}
 	else
 	{
-		Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
+		HealthDamage(Damage);
 	}
 	if(DebugHealthStats){UE_LOG(LogTemp,Warning, TEXT("Health of %s is: %s"),*FString::SanitizeFloat(Health), *GetOwner()->GetName());}
 	OnHealthChanged.Broadcast(this, Health, DefaultHealth, ShieldHealth, DefaultShieldHealth, DamageType);
 }
+
+void UHealthComponent::ShieldDamage(float Damage)
+{
+	ShieldHealth = FMath::Clamp(ShieldHealth - Damage, 0.0f, DefaultShieldHealth);
+}
+
+void UHealthComponent::HealthDamage(float Damage)
+{
+	Health = FMath::Clamp(Health - Damage, 0.0f, DefaultHealth);
+}
+
 
 void UHealthComponent::SetupSyntySkeleton() 
 {
@@ -105,6 +120,7 @@ void UHealthComponent::SetupSyntySkeleton()
 	RightHandBones.Add(FName("finger_01_r"));
 	RightHandBones.Add(FName("finger_02_r"));
 }
+
 
 void UHealthComponent::LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, TSubclassOf<class UDamageType> in_DamageType) 
 {
@@ -164,6 +180,12 @@ void UHealthComponent::LimbDamage(const float in_Damage, const float in_HeadMult
 			// UE_LOG(LogTemp, Warning, TEXT("LeftHandBones: %f"), BodyIndex[6]);
 		}
 	}
+}
+
+void UHealthComponent::ShieldRegen()
+{
+	ShieldHealth = FMath::Clamp(ShieldHealth + AmountToRecharge, 0.0f, DefaultShieldHealth);
+	OnHealthChanged.Broadcast(this, Health, DefaultHealth, ShieldHealth, DefaultShieldHealth, ShieldDamageType);
 }
 
 void UHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

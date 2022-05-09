@@ -30,5 +30,10 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
 	void PickupGunEvent(const FWeaponData in_WeaponData);
 
+	UFUNCTION(Server, Reliable)
+	virtual void DestroyActor(AActor* ActorToDestroy);
+
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void DestroyActorOnClient(AActor* ActorToDestroy); 
 
 };

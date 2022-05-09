@@ -18,6 +18,7 @@
 #include "ALSCustomController.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "TemplateBuilder/DamageTypes/ShieldRegen.h"
 
 //TODO: Picking up gun always destroys actor
 
@@ -43,7 +44,7 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	SetupPhysicalAnimationDefaults();
 	//Defaults in case nothing is set
 	PickupThrowIntensity = 500;
-
+	ShieldTimeToRegen = 5.0f;
 }
 
 void AALSCustomCharacter::BeginPlay() 
@@ -114,7 +115,6 @@ void AALSCustomCharacter::SetupPhysicalAnimationDefaults()
 	ArmData.MaxAngularForce = 3000.0f;
 }
 
-
 void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) 
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -126,8 +126,11 @@ void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindAction("AutoModeAction", IE_Pressed, this, &AALSCustomCharacter::SwitchAutoModePressed);
 	PlayerInputComponent->BindAction("SwapWeaponAction", IE_Pressed, this, &AALSCustomCharacter::SwapWeaponPressed);
 	PlayerInputComponent->BindAction("SwapWeaponAction", IE_Released, this, &AALSCustomCharacter::SwapWeaponReleased);
+	PlayerInputComponent->BindAction("ThrowWeaponAction", IE_Pressed, this, &AALSCustomCharacter::ThrowWeaponPressed);
+
 	PlayerInputComponent->BindAction("CameraAction", IE_Pressed, this, &AALSCustomCharacter::CameraButtonPressed);
 }
+
 //////Done
 void AALSCustomCharacter::AimPressedAction() 
 {
@@ -152,7 +155,7 @@ void AALSCustomCharacter::AimReleasedAction()
 void AALSCustomCharacter::FireButtonPressed()
 {
 	if(MantleTimeline->IsPlaying()){return;}
-	if(ShootingComponent && !ShootingComponent->GetIsHolstered())
+	if(ShootingComponent && !ShootingComponent->GetPlayerShootingStatus().bIsHolstered)
 	{
 		ShootGun();
 	}
@@ -167,8 +170,6 @@ void AALSCustomCharacter::FireButtonPressed()
 		//set timer so can't double press, or check before the animation finishes 
 		// Could have it held down continues to hit? like auto mode on a gun? although why would you not just hold it then.. 
 	}
-    
-
 }
 
 void AALSCustomCharacter::FireButtonReleased()
@@ -197,6 +198,18 @@ void AALSCustomCharacter::CameraButtonPressed()
 		ShootingComponent->MoveUMG(bRightShoulder);
 	}
 }
+
+//TODO fix throw weapon (check character_BP) 
+void AALSCustomCharacter::ThrowWeaponPressed()
+{
+	if(ShootingComponent)
+	{
+		CalculateAccuracy();
+		ShootingComponent->ThrowWeapon(CurrentWeaponData);
+		SetOverlayState(EALSOverlayState::Default);
+	}
+}
+
 
 void AALSCustomCharacter::ShootGun() 
 {
@@ -244,7 +257,7 @@ void AALSCustomCharacter::SwapWeaponPressed()
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponPressed();
-		if(ShootingComponent->GetIsHolstered())
+		if(ShootingComponent->GetPlayerShootingStatus().bIsHolstered)
 		{
 			SetOverlayState(EALSOverlayState::Default);
 		}
@@ -260,7 +273,7 @@ void AALSCustomCharacter::SwapWeaponReleased()
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponReleased();
-		if(ShootingComponent->GetIsHolstered())
+		if(ShootingComponent->GetPlayerShootingStatus().bIsHolstered)
 		{
 			SetOverlayState(EALSOverlayState::Default);
 		}
@@ -280,6 +293,20 @@ void AALSCustomCharacter::PickupGunEvent_Implementation(const FWeaponData in_Wea
 		// ServerSetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
 	}
 }
+
+void AALSCustomCharacter::DestroyActor_Implementation(AActor* ActorToDestroy)
+{
+	DestroyActorOnClient(ActorToDestroy);
+}
+
+void AALSCustomCharacter::DestroyActorOnClient_Implementation(AActor* ActorToDestroy)
+{
+	if(ActorToDestroy != nullptr)
+	{
+		ActorToDestroy->Destroy();
+	}
+}
+
 
 void AALSCustomCharacter::ThrowWeaponEvent_Implementation(FWeaponData WeaponData) 
 {
@@ -382,9 +409,35 @@ void AALSCustomCharacter::MulticastStopMontageAnimation_Implementation(float InB
 	MainAnimInstance->Montage_Stop(InBlendOutTime, Montage);
 }
 
+	////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+	//////////////////////////		HEALTH		HEALTH		HEALTH		  //////////////////////////
+	////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
 void AALSCustomCharacter::AnyDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) 
 {
 	GetWorldTimerManager().SetTimer(HealthTimer, this, &AALSCustomCharacter::HealthDelay, 0.001f, false);
+
+	GetWorldTimerManager().ClearTimer(ShieldTimeToRegenHandle);
+	GetWorldTimerManager().SetTimer(ShieldTimeToRegenHandle, this, &AALSCustomCharacter::ShieldRegen, 0.01f, true, ShieldTimeToRegen);
+	
+	//GetWorldTimerManager
+	//Clear Old Timer in case more damager
+	//Set Timer
+	//heal sheild function,
+	//Set timer 0.1 + 1 shield
+}
+
+void AALSCustomCharacter::ShieldRegen()
+{
+	if(HealthComponent->ShieldHealth < HealthComponent->DefaultShieldHealth)
+	{
+		HealthComponent->ShieldRegen();
+		UE_LOG(LogTemp,Warning,TEXT("Heal"));
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(ShieldTimeToRegenHandle);
+	}
 }
 
 void AALSCustomCharacter::HealthDelay() 
@@ -396,6 +449,7 @@ void AALSCustomCharacter::UpdateHealthWBP_Implementation(float Health, float Def
 {
 	GetWorldTimerManager().ClearTimer(HealthTimer);
 }
+
 
 void AALSCustomCharacter::AddRecoilWBP_Implementation(float RecoilAmmount) 
 {
@@ -448,6 +502,36 @@ void AALSCustomCharacter::BulletDamageEvent_Implementation(const float in_Damage
 	{
 		UE_LOG(LogTemp, Warning, TEXT("InjuredState"));
 	}
+}
+
+//
+//Character Pushing
+// V0.4 Not completely working, can levitate player, screws up feet, etc.
+void AALSCustomCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp,
+	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	// UE_LOG(LogTemp, Warning, TEXT("HIT"));
+	// //Needs something to prevent from casting 10000 times per second
+	// //Check Speed? + Inpulse? 
+	// ACharacter* OtherCharacter = Cast<ACharacter>(Other);
+	// if(OtherCharacter)
+	// {
+	// 	//Get Opposite Direction
+	// 	FRotator RotationX = UKismetMathLibrary::MakeRotFromX(HitNormal);
+	// 	FRotator RotatorFlip = UKismetMathLibrary::MakeRotator(0.0f,0.0f,(RotationX.Yaw - 180.0f));
+	// 	FVector ForwardVector = (FRotationMatrix(RotatorFlip).GetScaledAxis(EAxis::X));
+	// 	//Speed 
+	// 	float ClampedFloat = FMath::Clamp(GetVelocity().Size(), 50.0f, 500.0f);
+	// 	FVector2D RangeA = {50.0f, 500.0f};
+	// 	FVector2D RangeB = {50.0f, 130.0f};
+	// 	float ClampedRange = FMath::GetMappedRangeValueClamped(RangeA,RangeB, ClampedFloat);
+	// 	
+	// 	float ClampedSmall = FMath::Clamp((ClampedRange * 0.45f), 0.0f, 10.0f);
+	// 	FVector AddedVector = UKismetMathLibrary::MakeVector(0,0,ClampedSmall);
+	// 	FVector LaunchVelocity = (ForwardVector * ClampedRange) + AddedVector;
+	// 	OtherCharacter->LaunchCharacter(LaunchVelocity, false, false);
+	// }
 }
 
 bool AALSCustomCharacter::IsDead() const

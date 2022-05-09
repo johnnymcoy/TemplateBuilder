@@ -8,6 +8,7 @@
 #include "DrawDebugHelpers.h"
 #include "Net/UnrealNetwork.h"
 #include "TemplateBuilder/Components/ShootingComponent.h"
+#include "TemplateBuilder/MenuSystem/MenuGameInstance.h"
 
 AALSCustomPlayerCharacter::AALSCustomPlayerCharacter(const FObjectInitializer& ObjectInitializer) 
 : AALSCustomCharacter (ObjectInitializer)
@@ -202,10 +203,14 @@ void AALSCustomPlayerCharacter::ServerUse_Implementation()
 
 void AALSCustomPlayerCharacter::PauseGame_Implementation() 
 {
-	UGameplayStatics::SetGamePaused(this, true);
-	//GetController()->bShowMouseCursor = true;
-	UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor = true;
-	UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
+	UMenuGameInstance* GameInstance = Cast<UMenuGameInstance>(GetGameInstance());
+	if(GameInstance && IsLocallyControlled())
+	{
+		GameInstance->LaunchInGameMenu();
+	}
+	// UGameplayStatics::SetGamePaused(this, true);
+	// UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor = true;
+	// UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
 }
 
 void AALSCustomPlayerCharacter::ResumeGame() 

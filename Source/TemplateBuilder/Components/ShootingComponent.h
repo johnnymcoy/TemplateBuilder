@@ -36,9 +36,7 @@ class TEMPLATEBUILDER_API UShootingComponent : public UActorComponent
 
 public:	
 	UShootingComponent();
-
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 	//todo Add in Scene components for Weapon Positions
 	
 	//Weapon Fire
@@ -101,7 +99,8 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	//todo: Fill playershooting status instead of 100 getters 
+	//todo: Fill playershooting status instead of 100 getters
+	UPROPERTY(Replicated)
 	FPlayerShootingStatus PlayerShootingStatus;
 	//Already has weapon
 	void AddAmmo(FWeaponData WeaponData, bool bIsPrimary = true);

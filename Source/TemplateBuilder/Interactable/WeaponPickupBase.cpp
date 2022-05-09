@@ -17,8 +17,8 @@ AWeaponPickupBase::AWeaponPickupBase()
 	GunMesh->SetSimulatePhysics(true);
 	GunMesh->SetRenderCustomDepth(true);
 	//GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-	bPickedup = false;
 	RootComponent = GunMesh;
+	bReplicates = true;
 }
 
 void AWeaponPickupBase::BeginPlay()
@@ -49,10 +49,7 @@ void AWeaponPickupBase::OnInteract_Implementation(AActor* Caller)
 		{
 			SetOwner(Caller);
 			CharacterRef->Execute_PickupGunEvent(Caller, WeaponPickupData);
-			bPickedup = true;
-			OnRep_PickedUp();
-			ClearMesh();
-			GunMesh->SetSkeletalMesh(nullptr);
+			CharacterRef->DestroyActor(this);
 		}
 	}
 }
@@ -78,22 +75,4 @@ void AWeaponPickupBase::SetMesh()
 	{
 		GunMesh->SetSkeletalMesh(WeaponPickupData.MeshForPickup);
 	}
-}
-
-void AWeaponPickupBase::OnRep_PickedUp() 
-{
-	GunMesh->SetSkeletalMesh(nullptr);
-	ClearMesh();
-}
-
-void AWeaponPickupBase::ClearMesh_Implementation() 
-{
-	GunMesh->SetSkeletalMesh(nullptr);
-	// UE_LOG(LogTemp,Warning,TEXT("ClearMesh"));
-}
-
-void AWeaponPickupBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
- 	DOREPLIFETIME(AWeaponPickupBase, bPickedup);
 }
