@@ -95,7 +95,6 @@ struct FImpactEffect
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Impact")
 	class UParticleSystem* Flesh;
-	
 };
 
 
@@ -117,6 +116,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void PlayFireEffects(FVector TraceEnd);
+	//todo change to footstep way of getting surface
 	// void PlayImpactEffects(EPhysicalSurface SurfaceType, FVector ImpactPoint);
 	void PlayImpactEffects(int SurfaceType, FVector ImpactPoint);
 
@@ -160,20 +160,16 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 	
-	UFUNCTION(Server, Reliable, WithValidation)
-	void ServerBulletDamage(FHitResult Hit, FVector in_Impulse);
-
-	
 	//Interface
-	virtual FWeaponData GetWeaponData_Implementation() override;
-	virtual bool IsInAutoMode_Implementation() override;
-	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData) override;
+	virtual FWeaponData GetWeaponData_Implementation() override {return GunWeaponData;};
+	virtual bool IsInAutoMode_Implementation() override {return GunWeaponData.bIsInAutoMode;};
+	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData) override {GunWeaponData = in_WeaponData;};
 
-
-
+	//Debug Interface
+	virtual void EnableWeaponDebug_Implementation(bool DebugStatus) override {bDebuggingMode = DebugStatus;};
+	
 	virtual void MoveUMG_Implementation(bool bIsRightShoulder) override;
 	virtual void FadeInUMG_Implementation(bool bIsAiming) override;
-
 
 	///Interface Functions
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
@@ -183,18 +179,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 
-	//Debug Interface
-	virtual void EnableWeaponDebug_Implementation(bool DebugStatus) override;
-
-
 private:
-
 	void Shoot();
-
 	UFUNCTION()
 	bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
-	
 	void CalculateBulletSpread(FVector& NewBulletSpread);
+
+	
 	void FadeInUMGTimed(float Alpha);
 	void FadeUMGIn();
 	void FadeUMGOut();
@@ -203,7 +194,7 @@ private:
 	FTimerHandle UMGTimer;
 
 	bool CanShoot();
-	bool IsReloading;
+	bool bIsReloading;
 	FTimerHandle ReloadTimer;
 	float GunRange = 200000.0f;
 	UPROPERTY(Replicated)
@@ -221,65 +212,57 @@ private:
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	// class UPointLightComponent* PointLight;
 
-
 	///////Debug///////
 	bool bDebuggingMode;
 
+	void BlindFireWeapon();
+
 public:
 	//New Var for All Weapon Stats
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "WeaponData")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Weapon Data")
 	FWeaponData GunWeaponData;
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Weapon Stats")
+	FWeaponStats GunWeaponStats;
+
+	//IN NEW STRUCT -> WEAPON STATS
+	//todo Check All values are working
 	//Base Variables//
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	float BulletSpread;
-
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	// float BulletSpread;
 	//Weapon Damage 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	float DefaultDamage;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	// float DefaultDamage;
+
 	float Damage;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	float HeadMultiplier;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	float GunImpulse;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
-	TSubclassOf<class UDamageType> DamageType;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	// float HeadMultiplier;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	// float GunImpulse;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	// TSubclassOf<class UDamageType> DamageType;
 
+	//WEAPON DATA
 	//Ammo
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int CurrentAmmoCount;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int TotalAmmoCount;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int ClipSize;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
-	int MaxAmmo;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	// int CurrentAmmoCount;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	// int TotalAmmoCount;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	// int ClipSize;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
+	// int MaxAmmo;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Recoil")
+	// float Recoil;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Recoil")
-	float Recoil;
-
-	// Can change // to int? or from Weapon Name? 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	bool IsPrimary;
-
-	// for changing the Bullet spread // 
-	//and for linetrace//
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	bool PlayerOwns;
-
-	//Weapon Name (Display Name)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	EWeaponName WeaponName;
-
-	//Overlay (Animation Pose i.e. Shotgun, 2 Handed Pistol, Rifle)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
-	EALSOverlayState OverlayState;
-
+	
 	//for Automatic Weapons
-	UPROPERTY()
-	bool InAutoMode;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode")
-	bool HasAutoMode;
+	// UPROPERTY()
+	// bool InAutoMode;
+	
+	//todo remove
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode")
+	// bool HasAutoMode;
 	//1 = Very Fast, 250 Slow i.e. Sniper// 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode", meta = (ClampMin = "1", ClampMax = "250", UIMin = "1", UIMax = "250"))
 	float FireRate = 1;
@@ -295,10 +278,8 @@ public:
 	class UAnimMontage* FireAnimation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	class UAnimMontage* GunReloadAnimation;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
 	FVector WeaponOffset;
-
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	TSubclassOf<UCameraShakeBase> FireCameraShake;
@@ -335,10 +316,7 @@ public:
 	// float MuzzleFlashIntensity;
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Muzzle")
 	// class UMaterialInterface* MuzzleMaterial;
-
-	//Linetraced
-	// AActor* ActorHit;
-
+	
 	//Attachments?
 	//class UStaticMeshComponent AttachmentSlot1; 
 };

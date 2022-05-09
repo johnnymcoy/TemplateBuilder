@@ -43,10 +43,10 @@ void UShootingReplicationComponent::ServerPickupWeapon_Implementation(FWeaponDat
 {
 	CurrentWeaponData = WeaponToPickup;
 	ShootingComponent->PickupWeapon(WeaponToPickup);
-	if(GetIsHolstered())
-	{
-		UE_LOG(LogTemp,Warning,TEXT("Holstered"));
-	}
+	// if(GetIsHolstered())
+	// {
+	// 	UE_LOG(LogTemp,Warning,TEXT("Holstered"));
+	// }
 	
 }
 

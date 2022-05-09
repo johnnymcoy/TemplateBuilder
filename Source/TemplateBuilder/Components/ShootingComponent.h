@@ -14,17 +14,17 @@ USTRUCT(BlueprintType)
 struct FPlayerShootingStatus
 {
 	GENERATED_USTRUCT_BODY()    
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bPrimaryEquipped;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bSecondaryEquipped;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsReloading;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsHolstered;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bIsAiming;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	bool bHasGun;
 };
 
@@ -83,14 +83,9 @@ public:
 	void SetAccuracy(float In_Accuracy){Accuracy = In_Accuracy;};
 	void SetIsNPC(bool in_bIsNPC){bIsNPC = in_bIsNPC;};
 	// void SetOverlayState();
+	
 	//Getters
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
-	bool GetIsHolstered() const{return bIsHolstered;};
-	bool GetIsReloading() const{return bIsReloading;};
-
-	UFUNCTION(BlueprintCallable)
-	bool GetHasGun() const{return bHasGun;};
-	
 	UFUNCTION(BlueprintCallable)
 	FPlayerShootingStatus GetPlayerShootingStatus() const {return PlayerShootingStatus;};
 	
@@ -99,7 +94,6 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	//todo: Fill playershooting status instead of 100 getters
 	UPROPERTY(Replicated)
 	FPlayerShootingStatus PlayerShootingStatus;
 	//Already has weapon
@@ -133,14 +127,9 @@ private:
 	// UPROPERTY(Replicated)
 	bool bSecondaryEquipped;
 	bool bSwapWeaponPressed;
-	bool bIsReloading;
-	UPROPERTY(Replicated)
-	bool bIsHolstered;
-	bool bIsAiming;
-
+		
 	bool bIsNPC;
 
-	
 	float Accuracy = 1;
 	//Weapon
 	UPROPERTY(Replicated)

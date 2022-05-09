@@ -19,7 +19,6 @@ AWeaponBase::AWeaponBase()
 	RootComponent = GunMeshComponent;
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	Muzzle->SetupAttachment(GunMeshComponent);
-
 	
 	// Separate Component?
 	// AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
@@ -30,16 +29,16 @@ AWeaponBase::AWeaponBase()
 	// UMG_RightLocation->SetupAttachment(GunMeshComponent);
 	// UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
 	// UMG_LeftLocation->SetupAttachment(GunMeshComponent);
-	
 	bReplicates = true;
 }
 
 void AWeaponBase::BeginPlay()
 {
-	Super::BeginPlay();	
+	Super::BeginPlay();
+	if(GunWeaponData.bHasAutoMode)	{GunWeaponData.bIsInAutoMode = true;}
 	// Normalise the fire rate to an easier number//
-	FireRate = (FireRate / 200.f); 
-	if(HasAutoMode)	{InAutoMode = true;}
+	GunWeaponStats.FireRate = (GunWeaponStats.FireRate / 200.0f);
+	// FireRate = (FireRate / 200.f); 
 }
 
 void AWeaponBase::Fire_Implementation() 
@@ -51,18 +50,17 @@ void AWeaponBase::Fire_Implementation()
 	else
 	{
 		UGameplayStatics::PlaySoundAtLocation(this, DryFireSound, GetActorLocation());
-	}	
+	}
 }
 
 void AWeaponBase::Reload_Implementation(float ReloadTime) 
 {
 	if(GunWeaponData.CurrentAmmo < GunWeaponData.ClipSize && GunWeaponData.TotalAmmoCount > 0)
 	{
-		if(!IsReloading)
+		if(!bIsReloading)
 		{
 			ServerSetReloading(true);
 			GetWorldTimerManager().SetTimer(ReloadTimer, this, &AWeaponBase::ServerReload, ReloadTime, false);
-			//Update Ammo UMG
 		}
 	} 
 }
@@ -74,12 +72,12 @@ void AWeaponBase::CancelReload_Implementation()
 
 void AWeaponBase::ServerSetReloading_Implementation(bool bReloading) 
 {
-	IsReloading = bReloading;
+	bIsReloading = bReloading;
 }
 
 void AWeaponBase::ServerReload_Implementation() 
 {
-	if(IsReloading)
+	if(bIsReloading)
 	{
 		if(GunWeaponData.TotalAmmoCount + GunWeaponData.CurrentAmmo > GunWeaponData.ClipSize)
 		{
@@ -98,25 +96,20 @@ void AWeaponBase::ServerReload_Implementation()
 
 void AWeaponBase::SwitchAutoMode_Implementation() 
 {
-	if(HasAutoMode)
+	if(GunWeaponData.bHasAutoMode)
 	{
-		if(InAutoMode)
+		if(GunWeaponData.bIsInAutoMode)
 		{
-			InAutoMode = false;
+			GunWeaponData.bIsInAutoMode = false;
 		}
 		else
 		{
-			InAutoMode = true;
+			GunWeaponData.bIsInAutoMode = true;
 		}
 	}
 }
 
-FWeaponData AWeaponBase::GetWeaponData_Implementation() 
-{
-	return GunWeaponData;
-}
-
-	//Separate Component
+//Separate Component
 //////////////////////////////////
 void AWeaponBase::MoveUMG_Implementation(bool bIsRightShoulder) 
 {
@@ -187,21 +180,6 @@ void AWeaponBase::ServerGetTraceParams_Implementation(const FVector in_Location,
 	ServerShoot();
 }
 
-void AWeaponBase::EnableWeaponDebug_Implementation(bool DebugStatus) 
-{
-	bDebuggingMode = DebugStatus;
-}
-
-bool AWeaponBase::IsInAutoMode_Implementation() 
-{
-	return InAutoMode;
-}
-
-void AWeaponBase::SetWeaponData_Implementation(const FWeaponData in_WeaponData) 
-{
-	GunWeaponData = in_WeaponData;
-}
-
 bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection) 
 {
 	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
@@ -212,7 +190,6 @@ bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection)
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(this);
 	ActorsToIgnore.Add(GetOwner());
-	bDebuggingMode = true;
 	if(bDebuggingMode)
 	{return UKismetSystemLibrary::LineTraceSingle(this, TraceLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
 	true, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
@@ -237,50 +214,23 @@ void AWeaponBase::Shoot()
 		int SurfaceIndex = 0;
 		if(bSuccess)
 		{
-			if(HasAuthority())	{UE_LOG(LogTemp,Warning,TEXT("ServerShoot"));}
-			//Old Method todo remove
+			//Old Surface Method todo remove
 			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 			//New Method
 			SurfaceIndex = (Surfaces.Find(Hit.PhysMaterial.Get()));
 			UE_LOG(LogTemp,Warning, TEXT("Surface index: %i"), SurfaceIndex);
 			UE_LOG(LogTemp,Warning, TEXT("Surface %s"), ToCStr(Hit.PhysMaterial.Get()->GetName()));
-			
-			FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
-			if(Hit.GetActor() != nullptr)
-			{
-				IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(Hit.GetActor());
-				if(HitCharacterInterface != nullptr)
-				{
-					//Hit a Player
-					// ServerBulletDamage(Hit, (ForwardVector * GunImpulse));
-					HitCharacterInterface->Execute_BulletDamageEvent(Hit.GetActor(), DefaultDamage, HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, DamageType);
-					HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunImpulse), Hit.BoneName, GunImpulse);
-					//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
-				}
-				else
-				{
-					DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Purple, true);
-				}
-				//todo: pointdamage change
-				//Direction Is what dictates the Impulse
-				ShotDirection *= -1;
-				UGameplayStatics::ApplyPointDamage(Hit.GetActor(), DefaultDamage, ShotDirection, Hit,TraceActorToIgnore->GetInstigatorController(), this, DamageType);
-			}
-			// todo: needs more work
+
+			// Check how close the gun is to the hit location
 			FVector MuzzleLocation = Muzzle->GetComponentLocation();
-			FVector NormalVector = (Hit.Location - MuzzleLocation);
+			FVector NormalVector = (MuzzleLocation - Hit.Location);
 			NormalVector.Normalize(0.0001);
+			FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
 			float VectorDistance = UKismetMathLibrary::Dot_VectorVector(NormalVector,(ForwardVector * -1));
 			if(VectorDistance < 0.1)
 			{
 				//If the gun is too close to the Hit location
-				FHitResult BlindFireHit;
-				FCollisionQueryParams Params;
-				Params.AddIgnoredActor(this);
-				Params.AddIgnoredActor(GetOwner());
-				Params.AddIgnoredActor(TraceActorToIgnore);
-				GetWorld()->LineTraceSingleByChannel(BlindFireHit, MuzzleLocation, Hit.TraceEnd, ECollisionChannel::ECC_GameTraceChannel4, Params);
-				if(bDebuggingMode){DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Red, true);}
+				BlindFireWeapon();
 			}
 			else
 			{
@@ -292,22 +242,41 @@ void AWeaponBase::Shoot()
 				Params.AddIgnoredActor(GetOwner());
 				Params.AddIgnoredActor(Hit.Actor.Get());
 				Params.AddIgnoredActor(TraceActorToIgnore);
-
 				if(GetWorld()->LineTraceSingleByChannel(HitCheck, Hit.Location, MuzzleLocation, ECollisionChannel::ECC_GameTraceChannel4, Params))
 				{
-					//There's something in the way 
+					BlindFireWeapon();
+					//There's something in the way (from the camera to where to shoot)
 					// Blindfire from the gun instead					
-					if(bDebuggingMode){DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);}
-
-
+					if(bDebuggingMode){DrawDebugPoint(GetWorld(), HitCheck.Location, 20, FColor::Green, true);}
 				}
 				else
 				{
+					//Nothing in the way
+					if(Hit.GetActor() != nullptr)
+					{
+						//todo Remove BulletDamageEvent + Add impulseEvent 
+						//todo: pointdamage change
+						IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(Hit.GetActor());
+						if(HitCharacterInterface != nullptr)
+						{
+							//Hit a Player
+							HitCharacterInterface->Execute_BulletDamageEvent(Hit.GetActor(), GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
+							HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
+							//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
+						}
+						else
+						{
+							//Direction Is what dictates the Impulse
+							ShotDirection *= -1;
+							UGameplayStatics::ApplyPointDamage(Hit.GetActor(), GunWeaponStats.DefaultDamage, ShotDirection, Hit,TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
+							DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Purple, true);
+						}
+					}
 					if(bDebuggingMode){DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Blue, true);}
 				}
 			}
+			//todo New function 
 			TracerEndPoint = Hit.ImpactPoint;
-			//NEW
 			PlayImpactEffects(SurfaceIndex, TracerEndPoint);
 		}
 		else
@@ -324,30 +293,52 @@ void AWeaponBase::Shoot()
 	}
 }
 
+void AWeaponBase::BlindFireWeapon()
+{
+	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
+	FVector NewBulletSpread;
+	CalculateBulletSpread(NewBulletSpread);
+	const FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + NewBulletSpread;
+	FVector ShotDirection = -TraceRotation.Vector();
+
+	FVector MuzzleLocation = Muzzle->GetComponentLocation();
+	FHitResult BlindFireHit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+	Params.AddIgnoredActor(TraceActorToIgnore);
+	GetWorld()->LineTraceSingleByChannel(BlindFireHit, MuzzleLocation, LineEnd, ECollisionChannel::ECC_GameTraceChannel4, Params);
+	if(bDebuggingMode){DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Yellow, true);}
+	if(BlindFireHit.GetActor() != nullptr)
+	{
+		//todo Remove BulletDamageEvent + Add impulseEvent 
+		//todo: pointdamage change
+		IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(BlindFireHit.GetActor());
+		if(HitCharacterInterface != nullptr)
+		{
+			//Hit a Player
+			HitCharacterInterface->Execute_BulletDamageEvent(BlindFireHit.GetActor(), GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, BlindFireHit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
+			HitCharacterInterface->Execute_AddImpulseEvent(BlindFireHit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), BlindFireHit.BoneName, GunWeaponStats.GunImpulse);
+			//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
+		}
+		else
+		{
+			//Direction Is what dictates the Impulse
+			ShotDirection *= -1;
+			UGameplayStatics::ApplyPointDamage(BlindFireHit.GetActor(), GunWeaponStats.DefaultDamage, ShotDirection, BlindFireHit,TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
+			DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Purple, true);
+		}
+	}
+
+	
+}
+
 void AWeaponBase::ServerShoot_Implementation() 
 {
 	Fire();
-	// Shoot();
 }
 
 bool AWeaponBase::ServerShoot_Validate() 
-{
-	return true;
-}
-
-void AWeaponBase::ServerBulletDamage_Implementation(FHitResult Hit, FVector in_Impulse) 
-{
-	UGameplayStatics::ApplyDamage(Hit.GetActor(), DefaultDamage, TraceActorToIgnore->GetInstigatorController(), this, DamageType);
-	// IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(Hit.GetActor());
-	// if(HitCharacterInterface != nullptr)
-	// {
-	// 	// HitCharacterInterface->Execute_BulletDamageEvent(Hit.GetActor(), DefaultDamage, HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, DamageType);
-	// 	// HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), in_Impulse, Hit.BoneName, GunImpulse);
-	// 	UE_LOG(LogTemp,Warning, TEXT("HitPlayerServer"));
-	// }
-}
-
-bool AWeaponBase::ServerBulletDamage_Validate(FHitResult Hit, FVector in_Impulse) 
 {
 	return true;
 }
@@ -375,39 +366,37 @@ void AWeaponBase::OnRep_HitScanTrace()
 	PlayImpactEffects(HitScanTrace.SurfaceType, HitScanTrace.TraceTo);
 }
 
-
 void AWeaponBase::CalculateBulletSpread(FVector& NewBulletSpread)
 {
 	float OwnerSpeed = GetOwner()->GetVelocity().Size();
 	if(OwnerSpeed < 10) //Still
 	{
-		if(HasAutoMode && !InAutoMode)	{OwnerSpeed = 0.75f;}
+		if(GunWeaponData.bHasAutoMode && !GunWeaponData.bIsInAutoMode)	{OwnerSpeed = 0.75f;}
 		else							{OwnerSpeed = 1.0f;	}
 	}
 	else				//Moving
 	{
-		if(HasAutoMode && !InAutoMode)	{OwnerSpeed = 1.5f;}
+		if(GunWeaponData.bHasAutoMode && !GunWeaponData.bIsInAutoMode)	{OwnerSpeed = 1.5f;}
 		else							{OwnerSpeed = 1.75f;}
 	}
 	OwnerSpeed = (OwnerSpeed / AccuracyMultiplier);
 	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Owner Speed Multiplier: %f"), OwnerSpeed);}
 	//Adds some random Variation to both X and Y axis
-	float BulletX = FMath::RandRange((BulletSpread * -1 * OwnerSpeed), (BulletSpread * OwnerSpeed));
-	float BulletY = FMath::RandRange((BulletSpread * -1 * OwnerSpeed), (BulletSpread * OwnerSpeed));
-	float BulletZ = FMath::RandRange((BulletSpread * -1 * OwnerSpeed), (BulletSpread * OwnerSpeed));
+	float BulletX = FMath::RandRange((GunWeaponStats.BulletSpread * -1 * OwnerSpeed), (GunWeaponStats.BulletSpread * OwnerSpeed));
+	float BulletY = FMath::RandRange((GunWeaponStats.BulletSpread * -1 * OwnerSpeed), (GunWeaponStats.BulletSpread * OwnerSpeed));
+	float BulletZ = FMath::RandRange((GunWeaponStats.BulletSpread * -1 * OwnerSpeed), (GunWeaponStats.BulletSpread * OwnerSpeed));
 	NewBulletSpread = FVector(BulletX, BulletY, BulletZ);
 }
 
 bool AWeaponBase::CanShoot() 
 {
-	if(IsReloading) return false;
+	if(bIsReloading) return false;
 	if(GunWeaponData.CurrentAmmo <= 0) return false; 
 	return true; 
 }
 
 UParticleSystem* AWeaponBase::ParticleSelector(const int in_SurfaceType)
 {
-	
 	switch(in_SurfaceType)
 	{
 	case -1: //Default Ground
@@ -466,4 +455,5 @@ void AWeaponBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
  	DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
 	DOREPLIFETIME(AWeaponBase, TraceLocation);
 	DOREPLIFETIME(AWeaponBase, GunWeaponData);
+	DOREPLIFETIME(AWeaponBase, GunWeaponStats);
 }

@@ -23,9 +23,7 @@ public:
 	void ServerPickupWeapon(FWeaponData WeaponToPickup);
 	UFUNCTION(Server, WithValidation, Reliable)
 	void ServerValidateShootGun();
-
-	bool GetIsHolstered(){return ShootingComponent->GetIsHolstered();};
-
+	
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
 
 protected:

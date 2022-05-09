@@ -21,7 +21,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	FWeaponData WeaponPickupData;
-	
+
+		
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void WeaponDroppedEvent(FWeaponData DroppedWeaponData);
 

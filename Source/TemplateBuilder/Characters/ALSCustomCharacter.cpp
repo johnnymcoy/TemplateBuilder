@@ -432,7 +432,6 @@ void AALSCustomCharacter::ShieldRegen()
 	if(HealthComponent->ShieldHealth < HealthComponent->DefaultShieldHealth)
 	{
 		HealthComponent->ShieldRegen();
-		UE_LOG(LogTemp,Warning,TEXT("Heal"));
 	}
 	else
 	{

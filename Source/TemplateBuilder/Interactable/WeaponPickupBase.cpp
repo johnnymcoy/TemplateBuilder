@@ -24,6 +24,7 @@ AWeaponPickupBase::AWeaponPickupBase()
 void AWeaponPickupBase::BeginPlay()
 {
 	Super::BeginPlay();
+	if(WeaponPickupData.bHasAutoMode){WeaponPickupData.bIsInAutoMode = true;}
 	SetMesh();
 }
 

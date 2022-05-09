@@ -50,10 +50,6 @@ public:
 	void PauseGame();
 	virtual void PauseGame_Implementation();
 	
-	UFUNCTION(BlueprintCallable, Category = "Menu")
-	void ResumeGame();
-
-
 
 private:
 	//Interaction

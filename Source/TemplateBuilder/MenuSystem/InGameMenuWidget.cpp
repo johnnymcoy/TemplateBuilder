@@ -25,7 +25,7 @@ void UInGameMenuWidget::MainMenuButtonClicked()
 	if(World->IsServer()) 
 	{
 		AGameModeBase* GameMode = World->GetAuthGameMode<AGameModeBase>();
-		if(GameMode) 
+		if(GameMode)
 		{
 			GameMode->ReturnToMainMenuHost();
 		}

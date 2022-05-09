@@ -141,6 +141,9 @@ void UMenuGameInstance::LaunchInGameMenu()
 	if (!ensure(InGameMenuClass != nullptr)) return;
 	UMenuWidget* InGameMenu = CreateWidget<UMenuWidget>(GetFirstLocalPlayerController(), InGameMenuClass);
 	if (!ensure(InGameMenu != nullptr)) return;
+	//todo:
+	//if(multiplayer Game)
+	//UGameplayStaticics::PauseGame
 	InGameMenu->Setup();
 	InGameMenu->SetMenuInterface(this);
 }

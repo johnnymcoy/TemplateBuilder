@@ -22,7 +22,7 @@ void UShootingComponent::BeginPlay()
 	{
 		//Todo remove all old bools 
 		PlayerShootingStatus.bIsHolstered = true;
-		bIsHolstered = true;
+		// bIsHolstered = true;
 	}
 }
 
@@ -65,7 +65,7 @@ void UShootingComponent::AimPressed(bool bRightShoulder)
 	if(CurrentWeapon && CurrentWeaponData.IsValid())
 	{
 		CurrentWeapon->Execute_MoveUMG(GunChildActorReference->GetChildActor(), !bRightShoulder);
-		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), bIsAiming);
+		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), PlayerShootingStatus.bIsAiming);
 		UE_LOG(LogTemp, Warning, TEXT("Fade UMG - ShootingComponent"));
 	}
 }
@@ -77,7 +77,7 @@ void UShootingComponent::AimReleased(bool bRightShoulder)
 	if(CurrentWeapon && CurrentWeaponData.IsValid())
 	{
 		CurrentWeapon->Execute_MoveUMG(GunChildActorReference->GetChildActor(), !bRightShoulder);
-		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), bIsAiming);
+		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), PlayerShootingStatus.bIsAiming);
 	}
 }
 
@@ -825,7 +825,7 @@ void UShootingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UShootingComponent, GunChildActorReference);
-	DOREPLIFETIME(UShootingComponent, bIsHolstered);
+	// DOREPLIFETIME(UShootingComponent, bIsHolstered);
 	DOREPLIFETIME(UShootingComponent, CurrentWeaponData);
 	DOREPLIFETIME(UShootingComponent,PlayerShootingStatus);
 

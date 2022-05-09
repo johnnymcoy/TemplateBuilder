@@ -15,6 +15,7 @@ struct FWeaponData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	EWeaponName WeaponType;
+	//Overlay (Animation Pose i.e. Shotgun, 2 Handed Pistol, Rifle)
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	EALSOverlayState OverlayState;
 	
@@ -62,8 +63,30 @@ struct FWeaponData
 		}
 		return true;
 	}
-
 };
+
+USTRUCT(BlueprintType)
+struct FWeaponStats
+{
+	GENERATED_USTRUCT_BODY()    
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
+	float BulletSpread = 2000;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float DefaultDamage = 20;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float HeadMultiplier = 2;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float GunImpulse = 25;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	TSubclassOf<class UDamageType> DamageType;
+	
+	//1 = Very Fast, 250 Slow i.e. Sniper// 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode", meta = (ClampMin = "1", ClampMax = "250", UIMin = "1", UIMax = "250"))
+	float FireRate = 1;
+	
+};
+
 
 UENUM(BlueprintType)
 enum class EALSInjuredState : uint8

@@ -208,16 +208,6 @@ void AALSCustomPlayerCharacter::PauseGame_Implementation()
 	{
 		GameInstance->LaunchInGameMenu();
 	}
-	// UGameplayStatics::SetGamePaused(this, true);
-	// UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor = true;
-	// UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
-}
-
-void AALSCustomPlayerCharacter::ResumeGame() 
-{
-	UGameplayStatics::SetGamePaused(this, false);
-	UGameplayStatics::GetPlayerController(this, 0)->bShowMouseCursor = false;
-	UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
 }
 
 void AALSCustomPlayerCharacter::ThrowWeaponAction() 
