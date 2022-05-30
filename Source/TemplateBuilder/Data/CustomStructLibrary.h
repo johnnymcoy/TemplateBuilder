@@ -7,6 +7,15 @@
 #include "TemplateBuilder/Weapons/WeaponClassIdentifier.h"
 #include "CustomStructLibrary.generated.h"
 
+UENUM()
+enum class EWeaponAttachment : uint8
+{
+	Flashlight,
+	Laserpointer,
+	Scope,
+	
+};
+
 
 USTRUCT(BlueprintType)
 struct FWeaponData
@@ -23,6 +32,9 @@ struct FWeaponData
 	bool bIsInAutoMode;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	bool bHasAutoMode;
+	//todo Array of what attachments are on the weapon	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attachments")
+	bool bFlashlightOn;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ammo")
 	int32 CurrentAmmo;
@@ -52,6 +64,7 @@ struct FWeaponData
 	class UTexture2D* GunThumbnail;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	class USkeletalMesh* MeshForPickup;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	TSubclassOf<class AWeaponClassIdentifier> WeaponClass;
 
@@ -86,7 +99,6 @@ struct FWeaponStats
 	float FireRate = 1;
 	
 };
-
 
 UENUM(BlueprintType)
 enum class EALSInjuredState : uint8

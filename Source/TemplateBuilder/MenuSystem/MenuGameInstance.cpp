@@ -136,16 +136,16 @@ void UMenuGameInstance::StartSession()
 	}
 }
 
-void UMenuGameInstance::LaunchInGameMenu()
+void UMenuGameInstance::LaunchInGameMenu(bool bIsDead)
 {
 	if (!ensure(InGameMenuClass != nullptr)) return;
 	UMenuWidget* InGameMenu = CreateWidget<UMenuWidget>(GetFirstLocalPlayerController(), InGameMenuClass);
 	if (!ensure(InGameMenu != nullptr)) return;
-	//todo:
-	//if(multiplayer Game)
+	//todo: if(multiplayer Game)
 	//UGameplayStaticics::PauseGame
 	InGameMenu->Setup();
 	InGameMenu->SetMenuInterface(this);
+	InGameMenu->SetPlayerIsDead(bIsDead);
 }
 
 void UMenuGameInstance::OnFindSessionsComplete(bool bSuccess)

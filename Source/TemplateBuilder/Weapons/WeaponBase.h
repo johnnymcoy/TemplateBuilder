@@ -7,6 +7,7 @@
 #include "ALSV4_CPP/Public/Library/ALSCharacterEnumLibrary.h"
 #include "TemplateBuilder/Data/CustomStructLibrary.h"
 #include "WeaponInterface.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "TemplateBuilder/Debug/DebugInterface.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "WeaponBase.generated.h"
@@ -128,11 +129,28 @@ protected:
 
 	//Ammo UMG Counter 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
-	class USceneComponent* UMG_RightLocation;
+	USceneComponent* UMG_RightLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
-	class USceneComponent* UMG_LeftLocation;
+	USceneComponent* UMG_LeftLocation;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	class UWidgetComponent* AmmoWidgetComponent;
+
+	//todo Add attachments and locations for each 
+	// Attachments
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	UStaticMeshComponent* FlashlightAttachment; 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	UStaticMeshComponent* AttachmentSlot01; 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	UStaticMeshComponent* AttachmentSlot02; 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	UStaticMeshComponent* AttachmentSlot03; 
+
+	//Locations for attachments
+	
 	
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widget")
 	// class UUserWidget* WeaponWidget;
@@ -151,6 +169,12 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
 	void SwitchAutoMode();
 	virtual void SwitchAutoMode_Implementation() override;
+
+	virtual void BlindFireWeapon() override;
+
+	//Extra Functions
+	virtual void ToggleFlashlight() override;
+
 
 	//Multiplayer//
 	UFUNCTION(Server, Reliable, WithValidation)
@@ -202,6 +226,8 @@ private:
 	FRotator TraceRotation;
 	float AccuracyMultiplier;
 	const class AActor* TraceActorToIgnore;
+	UPROPERTY()
+	TArray<AActor*> ActorsToIgnore;
 
 	UParticleSystem* ParticleSelector(const int in_SurfaceType);
 
@@ -214,8 +240,8 @@ private:
 
 	///////Debug///////
 	bool bDebuggingMode;
-
-	void BlindFireWeapon();
+	EDrawDebugTrace::Type DrawDebugType;
+	void ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection);
 
 public:
 	//New Var for All Weapon Stats
@@ -316,7 +342,4 @@ public:
 	// float MuzzleFlashIntensity;
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Muzzle")
 	// class UMaterialInterface* MuzzleMaterial;
-	
-	//Attachments?
-	//class UStaticMeshComponent AttachmentSlot1; 
 };

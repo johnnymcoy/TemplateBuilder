@@ -24,7 +24,7 @@ public:
 	UFUNCTION(Exec, BlueprintCallable)
 	void LoadMenu();
 	UFUNCTION(Exec, BlueprintCallable)
-	virtual void LaunchInGameMenu();
+	virtual void LaunchInGameMenu(bool bIsDead = false);
 	
 	virtual void Host(FOnlineSessionSettings HostSessionSettings) override;
 	virtual void SinglePlayer() override;

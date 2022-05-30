@@ -2,7 +2,6 @@
 
 
 #include "ShootingComponent.h"
-
 #include "TemplateBuilder/Interactable/WeaponPickupBase.h"
 #include "TemplateBuilder/Weapons/WeaponInterface.h"
 #include "TemplateBuilder/HUD/WeaponWidget.h"
@@ -20,20 +19,29 @@ void UShootingComponent::BeginPlay()
 	Super::BeginPlay();
 	if(!CurrentWeaponData.IsValid())
 	{
-		//Todo remove all old bools 
 		PlayerShootingStatus.bIsHolstered = true;
-		// bIsHolstered = true;
 	}
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					HUD for weapons			  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+void UShootingComponent::SetupHUD()
+{
+	if(bIsNPC){return;};
+	if(WeaponWidgetClass == nullptr){UE_LOG(LogTemp, Error, TEXT("Add WeaponWidgetClass"))return;}
+	if(OwnerPlayerController == nullptr){UE_LOG(LogTemp, Error, TEXT("Player Controller Failed")) return;}
+	WeaponWidget = CreateWidget<UWeaponWidget>(OwnerPlayerController, WeaponWidgetClass);
+	if(WeaponWidget == nullptr){UE_LOG(LogTemp, Error, TEXT("WeaponWidget FAILED"))return;}
+	WeaponWidget->AddToViewport();
+}
+//Update Ammo with a slight delay so there's time for the gun to fire
 void UShootingComponent::UpdateWeaponHUD()
 {
 	GetOwner()->GetWorldTimerManager().SetTimer(HUDUpdateTimerHandle, this, &UShootingComponent::DelayUpdateWeaponHUD, 0.001f, false);
 }
-
 void UShootingComponent::DelayUpdateWeaponHUD()
 {
-	// if(PlayerControlled)
 	GetOwner()->GetWorldTimerManager().ClearTimer(HUDUpdateTimerHandle);
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
@@ -50,14 +58,14 @@ void UShootingComponent::DelayUpdateWeaponHUD()
 	}
 	if(WeaponWidget != nullptr)
 	{
-		WeaponWidget->SetWeaponData(PrimaryWeaponData, SecondaryWeaponData, bPrimaryEquipped, bSecondaryEquipped);
+		WeaponWidget->SetWeaponData(PrimaryWeaponData, SecondaryWeaponData, PlayerShootingStatus.bPrimaryEquipped, PlayerShootingStatus.bSecondaryEquipped, PlayerShootingStatus.bIsHolstered);
 	}
-	//Todo Add hud into component?
 	//Add crosshair functions
-	//Current Weapon Get weapon data
-	//Broadcast like health Component
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Ammo UMG				  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 void UShootingComponent::AimPressed(bool bRightShoulder)
 {
 	PlayerShootingStatus.bIsAiming = true;
@@ -69,7 +77,6 @@ void UShootingComponent::AimPressed(bool bRightShoulder)
 		UE_LOG(LogTemp, Warning, TEXT("Fade UMG - ShootingComponent"));
 	}
 }
-
 void UShootingComponent::AimReleased(bool bRightShoulder)
 {
 	PlayerShootingStatus.bIsAiming = false;
@@ -80,7 +87,6 @@ void UShootingComponent::AimReleased(bool bRightShoulder)
 		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), PlayerShootingStatus.bIsAiming);
 	}
 }
-
 void UShootingComponent::MoveUMG(bool bRightShoulder)
 {
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
@@ -90,24 +96,32 @@ void UShootingComponent::MoveUMG(bool bRightShoulder)
 	}
 }
 
-void UShootingComponent::SetupHUD()
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Shooting				  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+void UShootingComponent::ValidateShootGun()
 {
-	if(bIsNPC){return;};
-	if(WeaponWidgetClass != nullptr)
+	if(CurrentWeaponData.CurrentAmmo <= 0){return;};
+	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
+	if(CurrentWeapon)
 	{
-		WeaponWidget = CreateWidget<UWeaponWidget>(OwnerPlayerController, WeaponWidgetClass);
-		if(WeaponWidget)
+		if(PlayerShootingStatus.bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
+		if(CurrentWeapon->Execute_IsInAutoMode(GunChildActorReference->GetChildActor()))
 		{
-			WeaponWidget->AddToViewport();
+			//todo remove firerate / 200.0f
+			GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UShootingComponent::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
 		}
-	}else{UE_LOG(LogTemp, Error, TEXT("Add WeaponWidgetClass"));}
+		else
+		{
+			ShootGun();
+		}
+	}
 }
 
 void UShootingComponent::ShootGun()
 {
 	if(CurrentWeaponData.CurrentAmmo <= 0){return;};
 	//todo Accuracy in auto is same as first bullet
-	//Accuracy sent from CustomCharacter;
 	UE_LOG(LogTemp, Warning, TEXT("Accuracy: %f"), Accuracy);
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
@@ -135,36 +149,15 @@ void UShootingComponent::ShootGun()
 		}
 		else
 		{
+			CurrentWeapon->BlindFireWeapon();
 			UE_LOG(LogTemp, Warning, TEXT("BlindFire"));
 			//BlindFire Animation
 			//Gun needs a blindfire Function that then goes into GetTraceParams
 			//Gun interface also needs function
 		}
-		if(CurrentWeaponData.CurrentAmmo > 0)
-		{
-			Recoil();
-		}
+		Recoil();
 		UpdateWeaponHUD();
-		//Update Ammo with a slight delay so there's time for the gun to fire
-		// GetWorldTimerManager().SetTimer(HudUpdateHandle, this, &AALSCustomCharacter::UpdateWBPDelayed, 0.05f, false);
-	}
-}
-
-void UShootingComponent::ValidateShootGun()
-{
-	if(CurrentWeaponData.CurrentAmmo <= 0){return;};
-	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
-	if(CurrentWeapon)
-	{
-		if(PlayerShootingStatus.bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
-		if(CurrentWeapon->Execute_IsInAutoMode(GunChildActorReference->GetChildActor()))
-		{
-			GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UShootingComponent::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
-		}
-		else
-		{
-			ShootGun();
-		}
+		//todo Accuracy in auto is same as first bullet
 	}
 }
 
@@ -175,31 +168,29 @@ void UShootingComponent::StopShootGun()
 
 void UShootingComponent::Recoil()
 {
-	//todo need weaponData
 	RecoilAmount = CurrentWeaponData.Recoil;
-	// RecoilAmount = 0.5f;
 	float RecoilTotal;
 	//TODO Get rid of Magic number (4 and 8 multiplyer)
 	if(PlayerShootingStatus.bIsAiming){RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 4)) / Accuracy);}
 	else{RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 8)) / Accuracy);}
-	UE_LOG(LogTemp, Warning, TEXT("Recoil %f - ShootingComponent"), RecoilTotal);
-	//TODO Add pitchinput and recoilwbp
-	//AddControllerPitchInput(RecoilTotal);
-	//AddRecoilWBP(RecoilTotal);
+	OnBulletShot.Broadcast(RecoilTotal);
 }
 
 void UShootingComponent::SwitchAutoMode()
 {
-	UE_LOG(LogTemp,Warning,TEXT("Swtich Auto Mode - ShootingComponent"));
+	if(!CurrentWeaponData.bHasAutoMode){return;}
 	StopShootGun();
-	//todo add HasAutoMode to weapondata
-	//if hasautomode
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
 		CurrentWeapon->Execute_SwitchAutoMode(GunChildActorReference->GetChildActor());
+		UpdateWeaponHUD();
 	}
 }
+
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Reload					  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
 void UShootingComponent::Reload(UAnimMontage* ReloadAnimation)
 {
@@ -259,14 +250,12 @@ void UShootingComponent::CancelReload()
 	GetOwner()->GetWorldTimerManager().ClearTimer(ReloadTimer);
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Pickup					  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
 void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 {
-	{
-		// if(GetOwnerRole() < ROLE_Authority)
-		// {
-		//ServerPickupWeapon(WeaponData)
-		// }
-	}
 	//todo Multiple Weapon Slots
 	{
 		//Don't have any weapons
@@ -295,17 +284,19 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 		// 	}
 		// }
 	}
-	//todo if we have full ammo
-
-	if(GetOwnerRole() == ROLE_Authority)
+	if(!WeaponToPickup.IsValid())
 	{
-		if(!WeaponToPickup.IsValid())
-		{
-			UE_LOG(LogTemp, Error, TEXT("Invalid Pickup Weapon Data"));
-			return;
-		}
+		UE_LOG(LogTemp, Error, TEXT("Invalid Pickup Weapon Data"));
+		return;
+	}
+	//todo if we have full ammo
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		ServerPickupWeapon(WeaponToPickup);
+	}
+	else
+	{
 		//If we don't have any weapon
-		//todo if(!PlayerShootingStatus.bHasGun)
 		if(!PlayerShootingStatus.bHasGun)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("First Pickup"));
@@ -316,14 +307,14 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 		if(PrimaryWeaponData.WeaponClass == WeaponToPickup.WeaponClass)
 		{
 			AddAmmo(WeaponToPickup);
-			// UE_LOG(LogTemp,Warning, TEXT("Pickup Primary ammo"));
+			UE_LOG(LogTemp,Warning, TEXT("Pickup Primary ammo"));
 			return;
 		}
 		///Check if we already have it as Secondary 
 		if(SecondaryWeaponData.WeaponClass == WeaponToPickup.WeaponClass)
 		{
 			AddAmmo(WeaponToPickup, false);
-			// UE_LOG(LogTemp,Warning, TEXT("Pickup Secondary ammo"));
+			UE_LOG(LogTemp,Warning, TEXT("Pickup Secondary ammo"));
 			return;
 		}
 		////We don't have the weapon
@@ -359,10 +350,7 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 			}
 		}
 	}
-	else
-	{
-		ServerPickupWeapon(WeaponToPickup);
-	}
+
 		// if(CurrentWeaponData.WeaponClass != WeaponToPickup.WeaponClass)
 		// {
 		// 	//if we already have a weapon equipped
@@ -382,7 +370,6 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 		// {
 		// 	AddAmmo(WeaponToPickup);
 		// }
-	
 }
 
 void UShootingComponent::ServerPickupWeapon_Implementation(FWeaponData WeaponToPickup)
@@ -403,7 +390,7 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWea
 		// ServerEquipWeapon(WeaponData);
 	// }
 	PlayerShootingStatus.bHasGun = true;
-	bHasGun = true;
+	// bHasGun = true;
 	if(bPrimaryWeapon)
 	{
 		PrimaryWeaponData = WeaponToEquip;
@@ -435,8 +422,8 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWea
 	if(CurrentWeapon)
 	{
 		CurrentWeapon->Execute_SetWeaponData(GunChildActorReference->GetChildActor(), CurrentWeaponData);
+		OnStateChange.Broadcast(CurrentWeaponData.OverlayState);
 		UpdateWeaponHUD();
-		// PickupGunWBP(CurrentWeaponData);
 	}
 }
 
@@ -450,21 +437,23 @@ bool UShootingComponent::ServerEquipWeapon_Validate(FWeaponData WeaponToEquip, b
 	return true;
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////				Multiple Weapons WIP		  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
 void UShootingComponent::AddWeaponToList(FWeaponData SelectedWeapon, bool bAddWeapon)
 {
 	//for currentWeaponListData
 	// Check if CurrentWeaponListData.WeaponClass == WeaponToAdd.WeaponClass
 	// if bAddWeapon .add
 	// else .Remove
-	
 	CurrentWeaponListData.Add(SelectedWeapon);
 	if(CurrentWeaponListData.Num() > 0)
 	{
 		PlayerShootingStatus.bHasGun = true;
-		bHasGun = true;
+		// bHasGun = true;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("List: %i"), CurrentWeaponListData.Num());
-
 }
 
 void UShootingComponent::SwapWeaponPressed()
@@ -486,13 +475,7 @@ void UShootingComponent::SwapWeaponPressed()
 void UShootingComponent::SwapWeapon()
 {
 	bSwapWeaponPressed = false;
-	// todo if(!PlayerShootingStatus.bHasGun){return;};
 	if(!PlayerShootingStatus.bHasGun){return;}
-	// if(SecondaryWeaponData.WeaponClass == EmptyWeaponData.WeaponClass)
-	// {
-	// 	//holster?
-	// 	//or just return;
-	// }
 	//todo Fix all swap weapon with new weapon array
 	{
 		// //if we only have 1 weapon
@@ -561,7 +544,6 @@ void UShootingComponent::SwapWeaponReleased()
 			//Prevent Weapon Holster function
 			GetOwner()->GetWorldTimerManager().ClearTimer(OnWeaponSwapTimer);
 		}
-
 	}
 	else{UE_LOG(LogTemp,Error, TEXT("World Invalid on ShootingComponent %s"), *GetOwner()->GetName());}
 }
@@ -574,8 +556,7 @@ void UShootingComponent::HolsterWeapon()
 	{
 		PlayerShootingStatus.bIsHolstered = true;
 		UpdateWeaponHUD();
-		//todo Setoverlay state
-		// SetOverlayState(EALSOverlayState::Default);
+		OnStateChange.Broadcast(EALSOverlayState::Default);
 		GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 		// ClearHeldObject();
 		// if(GetOwnerRole() < ROLE_Authority)
@@ -589,12 +570,9 @@ void UShootingComponent::HolsterWeapon()
 		PlayerShootingStatus.bIsHolstered = false;
 		if(CurrentWeaponData.IsValid())
 		{
-			EquipWeapon(CurrentWeaponData, bPrimaryEquipped);
+			EquipWeapon(CurrentWeaponData, PlayerShootingStatus.bPrimaryEquipped);
 		}
-		else
-		{
-			UE_LOG(LogTemp,Warning, TEXT("InvalidWeaponData (Holster)"));
-		}
+		else{UE_LOG(LogTemp,Warning, TEXT("InvalidWeaponData (Holster)"));}
 	}
 }
 
@@ -615,35 +593,18 @@ void UShootingComponent::ThrowWeapon(FWeaponData WeaponToThrow)
 		SecondaryWeaponData = EmptyWeaponData;
 		PlayerShootingStatus.bSecondaryEquipped = false;
 	}
-	// if(bPrimaryEquipped)
-	// {
-	// 	bPrimaryEquipped = false;
-	// 	PrimaryWeaponData = WeaponToThrow;
-	// };
-	// if(bSecondaryEquipped)
-	// {
-	// 	bSecondaryEquipped = false;
-	// 	SecondaryWeaponData = WeaponToThrow;
-	// 	PrimaryWeaponData = SecondaryWeaponData;
-	// };
 	CancelReload();
 	DropWeapon(WeaponToThrow);
 	ClearWeapon();
 	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 	CurrentWeaponData = EmptyWeaponData;
 	UpdateWeaponHUD();
-	// if(bPrimaryEquipped){bPrimaryEquipped = false;};
-	// if(bSecondaryEquipped){bSecondaryEquipped = false;};
+	OnStateChange.Broadcast(EALSOverlayState::Default);
 	//todo from owner
 	//ServerDropGun(CurrentWeaponData, Location, Rotation, ThrowForce);
 	// if(GetLocalRole() < ROLE_Authority)	{ServerClearWeapon();}
 	// if(GetOwnerRole() < ROLE_Authority){ClearWeapon();}
-	// Gun->SetChildActorClass(WeaponClassRef);
-	// Gun->SetChildActorClass(EmptyWeaponData.WeaponClass);
 	// WeaponDropped();
-	// PickupGunWBP(CurrentWeaponData);
-	//SetOverlayState(EALSOverlayState::Default);
-	
 }
 
 void UShootingComponent::GetThrowStats(FTransform& OutTransform, FVector& OutThrowForce) const
@@ -664,7 +625,6 @@ void UShootingComponent::GetThrowStats(FTransform& OutTransform, FVector& OutThr
 	//Added in Accuracy to have greater control of throw and velocity for some momentum
 	FVector FullThrowForce = ForwardVector * (PickupThrowIntensity / Accuracy + OwnerVelocity);
 	OutThrowForce = FullThrowForce;
-	UE_LOG(LogTemp,Warning, TEXT("Throw Force: %f , Velocity: %f"), OutThrowForce.Size(), GetOwner()->GetVelocity().Size());
 }
 
 //WeaponDropped
@@ -686,6 +646,7 @@ void UShootingComponent::DropWeapon(FWeaponData SpawnWeaponData)
 		AWeaponPickupBase* DroppedWeaponRef = GetWorld()->SpawnActor<AWeaponPickupBase>(GunToSpawn, Transform.GetLocation(), Transform.GetRotation().Rotator(), SpawnParams);
 		DroppedWeaponRef->WeaponDroppedEvent(SpawnWeaponData); //Set The pickup weapon stats
 		DroppedWeaponRef->GunMesh->AddImpulse(ThrowForce, NAME_None, true);
+		OnStateChange.Broadcast(EALSOverlayState::Default);
 	}
 	else
 	{
@@ -700,10 +661,23 @@ void UShootingComponent::ClearWeapon()
 	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 }
 
-void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
+
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Pickup Ammo				  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
+
+//v2.0
+//go through Full weapon list
+//for(WeaponsList)
+// if Weapon picking up is == to a weapon in the list
+// Add ammos together 
+
+
+void UShootingComponent::AddAmmo(const FWeaponData in_WeaponData, const bool in_bIsPrimary)
 {
 	FWeaponData TempWeaponData;
-	if(bIsPrimary)
+	if(in_bIsPrimary)
 	{
 		TempWeaponData = PrimaryWeaponData;
 		//Primary = WeaponData
@@ -724,13 +698,14 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
 		}
 		UE_LOG(LogTemp,Warning, TEXT("Add Secondary Ammo"));
 	}
+	
 	//If the total ammo is less than the max ammo && the total ammo + the pickup ammo is less than the max ammo, simply add them together
-	if(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) <= TempWeaponData.MaxAmmo)
+	if(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + in_WeaponData.TotalAmmoCount) <= TempWeaponData.MaxAmmo)
 	{
-		TempWeaponData.TotalAmmoCount = TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount;
+		TempWeaponData.TotalAmmoCount = TempWeaponData.TotalAmmoCount + in_WeaponData.TotalAmmoCount;
 	}
 	else if // If the total ammo is less than max, && the amount to pickup will end up more than the Max ammo
-	(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + WeaponData.TotalAmmoCount) > TempWeaponData.MaxAmmo)
+	(TempWeaponData.TotalAmmoCount < TempWeaponData.MaxAmmo && (TempWeaponData.TotalAmmoCount + in_WeaponData.TotalAmmoCount) > TempWeaponData.MaxAmmo)
 	{
 		TempWeaponData.TotalAmmoCount = TempWeaponData.MaxAmmo;
 		//TODO::
@@ -742,7 +717,7 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
 		//Should not Destroy actor 
 	}
 	
-	if(bIsPrimary)
+	if(in_bIsPrimary)
 	{
 		PrimaryWeaponData = TempWeaponData;
 		if(PlayerShootingStatus.bPrimaryEquipped)
@@ -789,21 +764,16 @@ void UShootingComponent::AddAmmo(FWeaponData WeaponData, bool bIsPrimary)
 	}
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////					Death					  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
+
 void UShootingComponent::Death()
 {
 	if(PlayerShootingStatus.bHasGun)
 	{
 		ThrowWeapon(CurrentWeaponData);
-	// }
-	// if(bHasGun)
-	// {
-		// //DropGun
-		// //ServerDropGun
-		// for(int i = 1; i > CurrentWeaponListData.Num(); i++)
-		// {
-		// 	ThrowWeapon(CurrentWeaponListData[i]);
-		// }
-		// ThrowWeapon(CurrentWeaponData);
 	}
 	GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
 	SetActive(false);
@@ -811,13 +781,14 @@ void UShootingComponent::Death()
 
 void UShootingComponent::SetController(AController* Controller)
 {
+	OwnerController = Controller;
 	if(bIsNPC)
 	{
-		OwnerAIController = Cast<AAIController>(OwnerController);
+		OwnerAIController = Cast<AAIController>(Controller);
 	}
 	else
 	{
-		OwnerPlayerController = Cast<APlayerController>(OwnerController);
+		OwnerPlayerController = Cast<APlayerController>(Controller);
 	}
 }
 
@@ -825,8 +796,6 @@ void UShootingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UShootingComponent, GunChildActorReference);
-	// DOREPLIFETIME(UShootingComponent, bIsHolstered);
 	DOREPLIFETIME(UShootingComponent, CurrentWeaponData);
-	DOREPLIFETIME(UShootingComponent,PlayerShootingStatus);
-
+	DOREPLIFETIME(UShootingComponent, PlayerShootingStatus);
 }

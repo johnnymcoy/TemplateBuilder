@@ -2,6 +2,8 @@
 
 
 #include "AIControllerBase.h"
+
+#include "BrainComponent.h"
 #include "TemplateBuilder/Characters/ALSCustomAICharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -19,6 +21,12 @@ void AAIControllerBase::BeginPlay()
 void AAIControllerBase::Tick(float DeltaSeconds) 
 {
     Super::Tick(DeltaSeconds);
+    
+}
+
+void AAIControllerBase::Death()
+{
+    GetBrainComponent()->Cleanup();
 }
 
 bool AAIControllerBase::IsDead() const

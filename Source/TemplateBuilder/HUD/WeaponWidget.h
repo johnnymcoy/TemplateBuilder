@@ -18,13 +18,13 @@ public:
 	void Setup();
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void SetWeaponData(const FWeaponData& PrimaryWeapon, const FWeaponData& SecondaryWeapon, const bool bPrimaryEquipped,const bool bSecondaryEquipped);
+	void SetWeaponData(const FWeaponData& PrimaryWeapon, const FWeaponData& SecondaryWeapon, const bool bPrimaryEquipped,const bool bSecondaryEquipped, const bool bIsHolstered);
 	
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FWeaponData PrimaryWeaponData;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	FWeaponData SecondaryWeaponData;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	// FWeaponData PrimaryWeaponData;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	// FWeaponData SecondaryWeaponData;
 	
 private:
 

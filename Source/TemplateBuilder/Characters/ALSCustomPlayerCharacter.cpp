@@ -17,6 +17,12 @@ AALSCustomPlayerCharacter::AALSCustomPlayerCharacter(const FObjectInitializer& O
 	UseLength = 5000.0f;
 }
 
+void AALSCustomPlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+}
+
+
 void AALSCustomPlayerCharacter::Tick(float DeltaTime) 
 {
     Super::Tick(DeltaTime);
@@ -210,6 +216,23 @@ void AALSCustomPlayerCharacter::PauseGame_Implementation()
 	}
 }
 
+void AALSCustomPlayerCharacter::Death_Implementation()
+{
+	Super::Death_Implementation();
+	if(OwnerPlayerController != nullptr)
+	{
+		FInputModeUIOnly InputModeData;
+		OwnerPlayerController->bShowMouseCursor = true;
+		OwnerPlayerController->SetInputMode(InputModeData);
+		UMenuGameInstance* GameInstance = Cast<UMenuGameInstance>(GetGameInstance());
+		if(GameInstance && IsLocallyControlled())
+		{
+			GameInstance->LaunchInGameMenu(true);
+		}
+	}
+}
+
+//todo Disabled due to bugs 
 void AALSCustomPlayerCharacter::ThrowWeaponAction() 
 {
 	ThrowWeaponEvent(ShootingComponent->GetCurrentWeaponData());
@@ -220,5 +243,6 @@ void AALSCustomPlayerCharacter::GetLifetimeReplicatedProps(TArray<FLifetimePrope
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AALSCustomPlayerCharacter, FocusedActor);
 }
+
 
 

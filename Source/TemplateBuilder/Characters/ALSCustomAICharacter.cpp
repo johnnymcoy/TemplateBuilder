@@ -11,6 +11,7 @@
 
 #include "Kismet/KismetSystemLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "TemplateBuilder/AI/AIControllerBase.h"
 
 
 AALSCustomAICharacter::AALSCustomAICharacter(const FObjectInitializer& ObjectInitializer) 
@@ -59,23 +60,7 @@ void AALSCustomAICharacter::EndFocus_Implementation()
 	}
 }
 
-void AALSCustomAICharacter::Death_Implementation() 
-{
-	Super::Death_Implementation();
-	if(!DeathOnce)
-	{
-		DeathOnce = true;
-		MulticastDeath();
-	}
-}
 
-void AALSCustomAICharacter::MulticastDeath_Implementation() 
-{
-	if(HealthBar)
-	{
-		HealthBar->DestroyComponent();
-	}
-}
 
 void AALSCustomAICharacter::TraceForward()
 {
@@ -100,12 +85,12 @@ void AALSCustomAICharacter::TraceForward()
 	{
 		for(int i = 1; i < OutHits.Num(); i++)
 		{
-			UE_LOG(LogTemp,Warning,TEXT("AI TRACE HIT %i"), i);
-			UE_LOG(LogTemp,Warning,TEXT("%s"), *OutHits[i].Actor->GetName());
+			// UE_LOG(LogTemp,Warning,TEXT("AI TRACE HIT %i"), i);
+			// UE_LOG(LogTemp,Warning,TEXT("%s"), *OutHits[i].Actor->GetName());
 			IInteractableInterface* InteractableActor = Cast<IInteractableInterface>(OutHits[i].Actor);
 			if(InteractableActor)
 			{
-				UE_LOG(LogTemp,Warning,TEXT("Interactable actor"));
+				// UE_LOG(LogTemp,Warning,TEXT("Interactable actor"));
 			}
 			DrawDebugBox(GetWorld(), OutHits[i].ImpactPoint, FVector(1,1,1), FColor::Orange, false, 1.0f);
 		}
@@ -134,16 +119,16 @@ void AALSCustomAICharacter::PickupNearbyWeapon()
 			if(InteractableActor)
 			{
 				Crouch();
-				UE_LOG(LogTemp,Warning,TEXT("Interactable actor %s"), *OutHits[i].Actor->GetName());
+				// UE_LOG(LogTemp,Warning,TEXT("Interactable actor %s"), *OutHits[i].Actor->GetName());
 				AWeaponPickupBase* WeaponPickup = Cast<AWeaponPickupBase>(OutHits[i].GetActor());
 				if(WeaponPickup)
 				{
-					UE_LOG(LogTemp,Warning,TEXT("Weapon Pickup"));
+					// UE_LOG(LogTemp,Warning,TEXT("Weapon Pickup"));
 					InteractableActor->Execute_OnInteract(OutHits[i].GetActor(), this);
 				}
 				else
 				{
-					UE_LOG(LogTemp,Warning,TEXT("Not Weapon"));
+					// UE_LOG(LogTemp,Warning,TEXT("Not Weapon"));
 				}
 			}
 		}
@@ -173,5 +158,29 @@ void AALSCustomAICharacter::FaceHealthBarToPlayer()
 		FVector HealthLocation = HealthBar->GetComponentLocation();
 		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(HealthLocation, CameraLocation);
 		HealthBar->SetWorldRotation(NewRotation);
+	}
+}
+
+void AALSCustomAICharacter::Death_Implementation() 
+{
+	Super::Death_Implementation();
+	if(!DeathOnce)
+	{
+		DeathOnce = true;
+		AAIControllerBase* AIController = Cast<AAIControllerBase>(GetController());
+		if(AIController)
+		{
+			AIController->Death();
+			// AIController->UnPossess();
+		}
+		MulticastDeath();
+	}
+}
+
+void AALSCustomAICharacter::MulticastDeath_Implementation() 
+{
+	if(HealthBar)
+	{
+		HealthBar->DestroyComponent();
 	}
 }

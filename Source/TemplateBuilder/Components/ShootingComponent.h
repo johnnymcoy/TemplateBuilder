@@ -9,6 +9,9 @@
 #include "ShootingComponent.generated.h"
 
 //On HUD update event, Sets off blueprint event
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnStateChangeSignature, EALSOverlayState, OverlayState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBulletShotSignature, float, RecoilAmount);
+
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE();
 USTRUCT(BlueprintType)
 struct FPlayerShootingStatus
@@ -36,6 +39,12 @@ class TEMPLATEBUILDER_API UShootingComponent : public UActorComponent
 
 public:	
 	UShootingComponent();
+	
+	UPROPERTY(BlueprintAssignable, Category = "Shooting")
+	FOnStateChangeSignature OnStateChange;
+	//Recalculating Accuracy when needed 
+	UPROPERTY(BlueprintAssignable, Category = "Shooting")
+	FOnBulletShotSignature OnBulletShot;
 	
 	//todo Add in Scene components for Weapon Positions
 	
@@ -82,7 +91,6 @@ public:
 	void SetController(AController* Controller);
 	void SetAccuracy(float In_Accuracy){Accuracy = In_Accuracy;};
 	void SetIsNPC(bool in_bIsNPC){bIsNPC = in_bIsNPC;};
-	// void SetOverlayState();
 	
 	//Getters
 	FWeaponData GetCurrentWeaponData() const{return CurrentWeaponData;};
@@ -93,11 +101,16 @@ protected:
 
 	virtual void BeginPlay() override;
 
+	//Weapon
+	UPROPERTY(Replicated, BlueprintReadOnly)
+	struct FWeaponData CurrentWeaponData;
+	TArray<FWeaponData> CurrentWeaponListData;
+	
 private:
 	UPROPERTY(Replicated)
 	FPlayerShootingStatus PlayerShootingStatus;
 	//Already has weapon
-	void AddAmmo(FWeaponData WeaponData, bool bIsPrimary = true);
+	void AddAmmo(const FWeaponData in_WeaponData, const bool in_bIsPrimary = true);
 
 	void ReloadDelay();
 	void CancelReload();
@@ -122,19 +135,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Stats | Weapon")
 	float PickupThrowIntensity = 500;
 
-	// UPROPERTY(Replicated)
-	bool bPrimaryEquipped;
-	// UPROPERTY(Replicated)
-	bool bSecondaryEquipped;
+	// bool bPrimaryEquipped;
+	// bool bSecondaryEquipped;
+
 	bool bSwapWeaponPressed;
-		
 	bool bIsNPC;
 
+	//Default
 	float Accuracy = 1;
-	//Weapon
-	UPROPERTY(Replicated)
-	struct FWeaponData CurrentWeaponData;
-	TArray<FWeaponData> CurrentWeaponListData;
+	
 	//Used to swap to, etc. should never change
 	const struct FWeaponData EmptyWeaponData;
 	
@@ -145,8 +154,8 @@ private:
 	void AddWeaponToList(FWeaponData SelectedWeapon, bool bAddWeapon);
 
 	//When changed on Owner Activate Component
-	UPROPERTY(VisibleAnywhere)
-	bool bHasGun;
+	// UPROPERTY(VisibleAnywhere)
+	// bool bHasGun;
 	
 	//Owner Stats
 	float RecoilAmount;
@@ -167,6 +176,8 @@ private:
 	//Weapon HUD
 	UPROPERTY()
 	class UWeaponWidget* WeaponWidget;
+	// UPROPERTY()
+	// class UUserWidget* WeaponWidget;
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UUserWidget> WeaponWidgetClass;
 	

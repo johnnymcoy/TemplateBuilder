@@ -15,7 +15,6 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "ALSCustomController.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
 #include "TemplateBuilder/DamageTypes/ShieldRegen.h"
@@ -31,7 +30,9 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	Gun->SetIsReplicated(true);
 	
 	ShootingComponent = CreateDefaultSubobject<UShootingComponent>("ShootingComponent");
-	
+	ShootingComponent->OnStateChange.AddDynamic(this, &AALSCustomCharacter::OnStateChanged);
+	ShootingComponent->OnBulletShot.AddDynamic(this, &AALSCustomCharacter::AddRecoil);
+
 	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
 	ThrowPoint->SetupAttachment(GetMesh(), TEXT("head"));
 	
@@ -61,12 +62,18 @@ void AALSCustomCharacter::BeginPlay()
 	ShootingComponent->SetThrowPoint(ThrowPoint);
 	ShootingComponent->SetOwnerMesh(GetMesh());
 	ShootingComponent->SetAnimInstance(MainAnimInstance);
+	ShootingComponent->SetController(GetController());
 	if(!bIsNPC)
 	{
 		ShootingComponent->SetupHUD();
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+		if(PlayerController != nullptr)
+		{
+			OwnerPlayerController = PlayerController;
+		}
 	}
-	ShootingComponent->SetController(GetController());
-	if(CurrentWeaponData.MeshForPickup == nullptr){bIsHolstered = true;}
+	//todo Shooting Component 
+	// if(CurrentWeaponData.MeshForPickup == nullptr){bIsHolstered = true;}
 }
 
 void AALSCustomCharacter::Tick(float DeltaTime) 
@@ -126,8 +133,6 @@ void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* Playe
 	PlayerInputComponent->BindAction("AutoModeAction", IE_Pressed, this, &AALSCustomCharacter::SwitchAutoModePressed);
 	PlayerInputComponent->BindAction("SwapWeaponAction", IE_Pressed, this, &AALSCustomCharacter::SwapWeaponPressed);
 	PlayerInputComponent->BindAction("SwapWeaponAction", IE_Released, this, &AALSCustomCharacter::SwapWeaponReleased);
-	PlayerInputComponent->BindAction("ThrowWeaponAction", IE_Pressed, this, &AALSCustomCharacter::ThrowWeaponPressed);
-
 	PlayerInputComponent->BindAction("CameraAction", IE_Pressed, this, &AALSCustomCharacter::CameraButtonPressed);
 }
 
@@ -198,18 +203,16 @@ void AALSCustomCharacter::CameraButtonPressed()
 		ShootingComponent->MoveUMG(bRightShoulder);
 	}
 }
-
-//TODO fix throw weapon (check character_BP) 
-void AALSCustomCharacter::ThrowWeaponPressed()
-{
-	if(ShootingComponent)
-	{
-		CalculateAccuracy();
-		ShootingComponent->ThrowWeapon(CurrentWeaponData);
-		SetOverlayState(EALSOverlayState::Default);
-	}
-}
-
+//
+// //TODO fix throw weapon (check character_BP) 
+// void AALSCustomCharacter::ThrowWeaponPressed()
+// {
+// 	if(ShootingComponent)
+// 	{
+// 		CalculateAccuracy();
+// 		ShootingComponent->ThrowWeapon(ShootingComponent->GetCurrentWeaponData());
+// 	}
+// }
 
 void AALSCustomCharacter::ShootGun() 
 {
@@ -242,6 +245,19 @@ void AALSCustomCharacter::CalculateAccuracy()
 	}
 	ShootingComponent->SetAccuracy(Accuracy);
 }
+
+//todo not working... NPC works? ? ? ?
+void AALSCustomCharacter::AddRecoil(float RecoilAmount)
+{
+	UE_LOG(LogTemp,Warning,TEXT("Calculate Accuracy + Add Recoil"));
+	//AddControllerPitchInput(RecoilTotal);
+}
+
+void AALSCustomCharacter::OnStateChanged(EALSOverlayState NewOverlayState)
+{
+	SetOverlayState(NewOverlayState);
+}
+
 //Done
 void AALSCustomCharacter::SwitchAutoModePressed() 
 {
@@ -251,20 +267,11 @@ void AALSCustomCharacter::SwitchAutoModePressed()
 	}
 }
 
-// timer function Swap weapon
 void AALSCustomCharacter::SwapWeaponPressed()
 {
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponPressed();
-		if(ShootingComponent->GetPlayerShootingStatus().bIsHolstered)
-		{
-			SetOverlayState(EALSOverlayState::Default);
-		}
-		else
-		{
-			SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
-		}
 	}
 }
 
@@ -273,14 +280,6 @@ void AALSCustomCharacter::SwapWeaponReleased()
 	if(ShootingComponent)
 	{
 		ShootingComponent->SwapWeaponReleased();
-		if(ShootingComponent->GetPlayerShootingStatus().bIsHolstered)
-		{
-			SetOverlayState(EALSOverlayState::Default);
-		}
-		else
-		{
-			SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
-		}
 	}
 }
 
@@ -289,8 +288,6 @@ void AALSCustomCharacter::PickupGunEvent_Implementation(const FWeaponData in_Wea
 	if(ShootingComponent)
 	{
 		ShootingComponent->PickupWeapon(in_WeaponData);
-		SetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
-		// ServerSetOverlayState(ShootingComponent->GetCurrentWeaponData().OverlayState);
 	}
 }
 
@@ -307,14 +304,12 @@ void AALSCustomCharacter::DestroyActorOnClient_Implementation(AActor* ActorToDes
 	}
 }
 
-
 void AALSCustomCharacter::ThrowWeaponEvent_Implementation(FWeaponData WeaponData) 
 {
 	if(ShootingComponent)
 	{
 		CalculateAccuracy();
 		ShootingComponent->ThrowWeapon(WeaponData);
-		SetOverlayState(EALSOverlayState::Default);
 	}
 }
 
@@ -354,15 +349,6 @@ void AALSCustomCharacter::Death_Implementation()
 	//todo Shooting stuff
 	SetReplicatingMovement(true);
 	GetMovementComponent()->StopMovementImmediately();
-	//DetachFromControllerPendingDestroy(); 
-	//JUST Player? AI buggy?
-	//TEMP:
-	AALSCustomController* PlayerControllerRef = Cast<AALSCustomController>(GetController());
-	if(PlayerControllerRef)
-	{
-		PlayerControllerRef->Disable();
-	}
-	//Set input 
 } 
 
 void AALSCustomCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) 
@@ -387,6 +373,11 @@ void AALSCustomCharacter::OnHealthChanged(UHealthComponent* HealthComp, float He
 	}
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////		Play Animations on Server			  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
+
 void AALSCustomCharacter::ServerPlayMontageAnimation_Implementation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages) 
 {
 	MainAnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
@@ -409,9 +400,9 @@ void AALSCustomCharacter::MulticastStopMontageAnimation_Implementation(float InB
 	MainAnimInstance->Montage_Stop(InBlendOutTime, Montage);
 }
 
-	////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-	//////////////////////////		HEALTH		HEALTH		HEALTH		  //////////////////////////
-	////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////		HEALTH		HEALTH		HEALTH		  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
 void AALSCustomCharacter::AnyDamageTaken(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) 
 {
@@ -419,17 +410,11 @@ void AALSCustomCharacter::AnyDamageTaken(AActor* DamagedActor, float Damage, con
 
 	GetWorldTimerManager().ClearTimer(ShieldTimeToRegenHandle);
 	GetWorldTimerManager().SetTimer(ShieldTimeToRegenHandle, this, &AALSCustomCharacter::ShieldRegen, 0.01f, true, ShieldTimeToRegen);
-	
-	//GetWorldTimerManager
-	//Clear Old Timer in case more damager
-	//Set Timer
-	//heal sheild function,
-	//Set timer 0.1 + 1 shield
 }
 
 void AALSCustomCharacter::ShieldRegen()
 {
-	if(HealthComponent->ShieldHealth < HealthComponent->DefaultShieldHealth)
+	if(HealthComponent->ShieldHealth < HealthComponent->DefaultShieldHealth && !IsDead())
 	{
 		HealthComponent->ShieldRegen();
 	}
@@ -449,8 +434,12 @@ void AALSCustomCharacter::UpdateHealthWBP_Implementation(float Health, float Def
 	GetWorldTimerManager().ClearTimer(HealthTimer);
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////											  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
-void AALSCustomCharacter::AddRecoilWBP_Implementation(float RecoilAmmount) 
+
+void AALSCustomCharacter::AddRecoilWBP_Implementation(float RecoilAmount) 
 {
 	//Default
 }
@@ -533,6 +522,11 @@ void AALSCustomCharacter::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, 
 	// }
 }
 
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////				Pure Functions				  //////////////////////////
+////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
+
 bool AALSCustomCharacter::IsDead() const
 {
 	if(HealthComponent->Health > 0) 
@@ -551,7 +545,7 @@ void AALSCustomCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(AALSCustomCharacter, DeathOnce);
-	DOREPLIFETIME_CONDITION(AALSCustomCharacter, CurrentWeaponData, COND_SkipOwner);
+	// DOREPLIFETIME_CONDITION(AALSCustomCharacter, CurrentWeaponData, COND_SkipOwner);
 }
 
 

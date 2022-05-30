@@ -31,6 +31,7 @@ public:
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 
 	virtual void SetServerList(TArray<FServerRowData> ServerInfo);
+	virtual void SetPlayerIsDead(bool bIsPlayerDead);
 	
 protected:
 	IMenuInterface* MenuInterface;

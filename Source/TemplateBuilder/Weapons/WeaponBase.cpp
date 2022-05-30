@@ -19,7 +19,9 @@ AWeaponBase::AWeaponBase()
 	RootComponent = GunMeshComponent;
 	Muzzle = CreateDefaultSubobject<USceneComponent>(TEXT("Muzzle"));
 	Muzzle->SetupAttachment(GunMeshComponent);
-	
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(GetOwner());
+
 	// Separate Component?
 	// AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
 	// AmmoWidgetComponent->SetupAttachment(GunMeshComponent);
@@ -29,6 +31,31 @@ AWeaponBase::AWeaponBase()
 	// UMG_RightLocation->SetupAttachment(GunMeshComponent);
 	// UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));
 	// UMG_LeftLocation->SetupAttachment(GunMeshComponent);
+
+
+	//todo Weapon Attachments
+
+	FlashlightAttachment = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Flashlight"));
+	FlashlightAttachment->SetupAttachment(GunMeshComponent);
+	FlashlightAttachment->SetVisibility(false);
+	FlashlightAttachment->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	AttachmentSlot01 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachmentShot01"));
+	AttachmentSlot01->SetupAttachment(GunMeshComponent);
+	AttachmentSlot01->SetVisibility(false);
+	AttachmentSlot01->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	AttachmentSlot02 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachmentShot02"));
+	AttachmentSlot02->SetupAttachment(GunMeshComponent);
+	AttachmentSlot02->SetVisibility(false);
+	AttachmentSlot02->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	AttachmentSlot03 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AttachmentShot03"));
+	AttachmentSlot03->SetupAttachment(GunMeshComponent);
+	AttachmentSlot03->SetVisibility(false);
+	AttachmentSlot03->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	DrawDebugType = EDrawDebugTrace::None;
 	bReplicates = true;
 }
 
@@ -187,15 +214,9 @@ bool AWeaponBase::LineTrace(FHitResult& Hit, FVector& ShotDirection)
 	CalculateBulletSpread(NewBulletSpread);
 	ShotDirection = -TraceRotation.Vector();
 	const FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + NewBulletSpread;
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
-	ActorsToIgnore.Add(GetOwner());
-	if(bDebuggingMode)
-	{return UKismetSystemLibrary::LineTraceSingle(this, TraceLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-	true, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
-	else
-	{return 	UKismetSystemLibrary::LineTraceSingle(this, TraceLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-	true, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);}
+	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
+	return UKismetSystemLibrary::LineTraceSingle(this, TraceLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
+	true, ActorsToIgnore, DrawDebugType, Hit, true, FLinearColor::Red, FLinearColor::Red, 1.0f);
 }
 
 //TraceParams Already calls Server shoot
@@ -210,17 +231,8 @@ void AWeaponBase::Shoot()
 		bool bSuccess = LineTrace(Hit, ShotDirection);
 		//Defaults for Impact effects
 		FVector TracerEndPoint = Hit.TraceEnd;
-		EPhysicalSurface SurfaceType = SurfaceType_Default;
-		int SurfaceIndex = 0;
 		if(bSuccess)
 		{
-			//Old Surface Method todo remove
-			SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
-			//New Method
-			SurfaceIndex = (Surfaces.Find(Hit.PhysMaterial.Get()));
-			UE_LOG(LogTemp,Warning, TEXT("Surface index: %i"), SurfaceIndex);
-			UE_LOG(LogTemp,Warning, TEXT("Surface %s"), ToCStr(Hit.PhysMaterial.Get()->GetName()));
-
 			// Check how close the gun is to the hit location
 			FVector MuzzleLocation = Muzzle->GetComponentLocation();
 			FVector NormalVector = (MuzzleLocation - Hit.Location);
@@ -237,52 +249,32 @@ void AWeaponBase::Shoot()
 				//Check if Anything is between the player and where they should be shooting //
 				//i.e. can see someone around the corner but gun is pointed at the wall //
 				FHitResult HitCheck;
-				FCollisionQueryParams Params;
-				Params.AddIgnoredActor(this);
-				Params.AddIgnoredActor(GetOwner());
-				Params.AddIgnoredActor(Hit.Actor.Get());
-				Params.AddIgnoredActor(TraceActorToIgnore);
-				if(GetWorld()->LineTraceSingleByChannel(HitCheck, Hit.Location, MuzzleLocation, ECollisionChannel::ECC_GameTraceChannel4, Params))
+				ActorsToIgnore.Add(Hit.Actor.Get());
+				if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
+				if(UKismetSystemLibrary::LineTraceSingle(this, Hit.Location, MuzzleLocation, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
+							true, ActorsToIgnore, DrawDebugType, HitCheck, true, FLinearColor::Blue, FLinearColor::Blue, 1.0f))
 				{
 					BlindFireWeapon();
-					//There's something in the way (from the camera to where to shoot)
-					// Blindfire from the gun instead					
-					if(bDebuggingMode){DrawDebugPoint(GetWorld(), HitCheck.Location, 20, FColor::Green, true);}
 				}
 				else
 				{
 					//Nothing in the way
 					if(Hit.GetActor() != nullptr)
 					{
-						//todo Remove BulletDamageEvent + Add impulseEvent 
-						//todo: pointdamage change
-						IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(Hit.GetActor());
-						if(HitCharacterInterface != nullptr)
-						{
-							//Hit a Player
-							HitCharacterInterface->Execute_BulletDamageEvent(Hit.GetActor(), GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-							HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
-							//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
-						}
-						else
-						{
-							//Direction Is what dictates the Impulse
-							ShotDirection *= -1;
-							UGameplayStatics::ApplyPointDamage(Hit.GetActor(), GunWeaponStats.DefaultDamage, ShotDirection, Hit,TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-							DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Purple, true);
-						}
+						ApplyDamageToActor(Hit, ShotDirection);
 					}
-					if(bDebuggingMode){DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Blue, true);}
 				}
+				ActorsToIgnore.Remove(Hit.Actor.Get()); //Remove as the var is kept
 			}
-			//todo New function 
-			TracerEndPoint = Hit.ImpactPoint;
-			PlayImpactEffects(SurfaceIndex, TracerEndPoint);
 		}
 		else
 		{
 			UE_LOG(LogTemp,Warning,TEXT("Error in Linetrace"));
 		}
+		//todo temp
+		EPhysicalSurface SurfaceType = SurfaceType_Default;
+		SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+
 		PlayFireEffects(TracerEndPoint);
 		if(HasAuthority())
 		{
@@ -300,37 +292,63 @@ void AWeaponBase::BlindFireWeapon()
 	CalculateBulletSpread(NewBulletSpread);
 	const FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + NewBulletSpread;
 	FVector ShotDirection = -TraceRotation.Vector();
-
 	FVector MuzzleLocation = Muzzle->GetComponentLocation();
 	FHitResult BlindFireHit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
-	Params.AddIgnoredActor(TraceActorToIgnore);
-	GetWorld()->LineTraceSingleByChannel(BlindFireHit, MuzzleLocation, LineEnd, ECollisionChannel::ECC_GameTraceChannel4, Params);
-	if(bDebuggingMode){DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Yellow, true);}
+	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
+	UKismetSystemLibrary::LineTraceSingle(this, MuzzleLocation, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
+					true, ActorsToIgnore, DrawDebugType, BlindFireHit, true, FLinearColor::Green, FLinearColor::Green, 1.0f);
 	if(BlindFireHit.GetActor() != nullptr)
 	{
-		//todo Remove BulletDamageEvent + Add impulseEvent 
+		ApplyDamageToActor(BlindFireHit, ShotDirection);
+	}
+}
+
+void AWeaponBase::ToggleFlashlight()
+{
+	UE_LOG(LogTemp,Warning,TEXT("Flashlight toggle"));
+}
+
+void AWeaponBase::ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection)
+{
+	FVector TracerEndPoint = Hit.TraceEnd;
+	EPhysicalSurface SurfaceType = SurfaceType_Default;
+	int SurfaceIndex = 0;
+	//Old Surface Method todo remove
+	SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
+	//New Method
+	SurfaceIndex = (Surfaces.Find(Hit.PhysMaterial.Get()));
+	// if(bDebuggingMode)
+	// {
+	// 	UE_LOG(LogTemp,Warning, TEXT("Surface index: %i"), SurfaceIndex);
+	// 	UE_LOG(LogTemp,Warning, TEXT("Surface %s"), ToCStr(Hit.PhysMaterial.Get()->GetName()));
+	// }
+	// if(HasAuthority())
+	// {
+	// 	HitScanTrace.TraceTo = TracerEndPoint;
+	// 	HitScanTrace.SurfaceType = SurfaceType;
+	// 	HitScanTrace.a++;
+	// }
+
+	TracerEndPoint = Hit.ImpactPoint;
+	PlayImpactEffects(SurfaceIndex, TracerEndPoint);
+
+	FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
+	if(Hit.GetActor() != nullptr)
+	{
 		//todo: pointdamage change
-		IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(BlindFireHit.GetActor());
+		IALSCharacterInterface* HitCharacterInterface = Cast<IALSCharacterInterface>(Hit.GetActor());
 		if(HitCharacterInterface != nullptr)
 		{
 			//Hit a Player
-			HitCharacterInterface->Execute_BulletDamageEvent(BlindFireHit.GetActor(), GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, BlindFireHit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-			HitCharacterInterface->Execute_AddImpulseEvent(BlindFireHit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), BlindFireHit.BoneName, GunWeaponStats.GunImpulse);
-			//DrawDebugPoint(GetWorld(), Hit.Location, 20, FColor::Green, true);
+			HitCharacterInterface->Execute_BulletDamageEvent(Hit.GetActor(), GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
+			HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
 		}
 		else
 		{
-			//Direction Is what dictates the Impulse
 			ShotDirection *= -1;
-			UGameplayStatics::ApplyPointDamage(BlindFireHit.GetActor(), GunWeaponStats.DefaultDamage, ShotDirection, BlindFireHit,TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-			DrawDebugPoint(GetWorld(), BlindFireHit.Location, 20, FColor::Purple, true);
+			UGameplayStatics::ApplyPointDamage(Hit.GetActor(), GunWeaponStats.DefaultDamage, ShotDirection, Hit,TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
 		}
 	}
-
-	
 }
 
 void AWeaponBase::ServerShoot_Implementation() 

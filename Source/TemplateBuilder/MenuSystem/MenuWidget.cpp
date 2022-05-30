@@ -40,3 +40,8 @@ void UMenuWidget::SetServerList(TArray<FServerRowData> ServerInfo)
 {
 	
 }
+
+void UMenuWidget::SetPlayerIsDead(bool bIsPlayerDead)
+{
+	
+}

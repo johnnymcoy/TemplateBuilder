@@ -34,12 +34,12 @@ protected:
 	class UHealthComponent* HealthComponent;
 
 	virtual void BeginPlay() override;
-		
+	
 	//ALS Overriden Functions
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void AimPressedAction();
+	virtual void AimPressedAction() override;
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void AimReleasedAction();
+	virtual void AimReleasedAction() override;
 
 	void CameraButtonPressed();
 
@@ -107,14 +107,16 @@ public:
 	void UpdateHealthWBP(float Health, float DefaultHealth, float Shield, float DefaultShield);
 	virtual void UpdateHealthWBP_Implementation(float Health, float DefaultHealth, float Shield, float DefaultShield);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "UI")
-	void AddRecoilWBP(float RecoilAmmount);
-	virtual void AddRecoilWBP_Implementation(float RecoilAmmount);
+	void AddRecoilWBP(float RecoilAmount);
+	virtual void AddRecoilWBP_Implementation(float RecoilAmount);
 
 	//Optimization
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Optimization")
 	bool bHasGun;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Optimization")
 	bool bIsNPC;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Optimization")
+	APlayerController* OwnerPlayerController;
 	bool DoOnce = false;
 	UPROPERTY(Replicated)
 	bool DeathOnce = false;
@@ -130,8 +132,8 @@ public:
 	UFUNCTION()
 	bool IsCrouching() const;
 	
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
-	struct FWeaponData CurrentWeaponData;
+	// UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
+	// struct FWeaponData CurrentWeaponData;
 
 
 	 // less than 1 is Low, 5 Is Very high
@@ -155,6 +157,8 @@ protected:
 	UFUNCTION()
 	void OnHealthChanged(class UHealthComponent* HealthComp, float Health, float DefaultHealth, float Shield, float DefaultShield, const class UDamageType* DamageType);
 
+	UFUNCTION()
+	void OnStateChanged(EALSOverlayState NewOverlayState);
 
 private:
 	
@@ -181,6 +185,8 @@ private:
 
 	float DefaultAccuracy;
 	void CalculateAccuracy();
+	UFUNCTION()
+	void AddRecoil(float RecoilAmount);
 	
 	void SetupPhysicalAnimation();
 	void SetupPhysicalAnimationDefaults();

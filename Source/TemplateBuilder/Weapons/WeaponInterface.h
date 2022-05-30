@@ -22,9 +22,8 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void SetWeaponData(const FWeaponData in_WeaponData);
-
+	/// Interface Functions ///
+	// Shooting
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void Fire();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
@@ -33,25 +32,26 @@ public:
 	void CancelReload();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void SwitchAutoMode();
+	UFUNCTION(Category = "Weapons")
+	virtual void BlindFireWeapon() = 0;
+
+	//Extra Functions
+	UFUNCTION(Category = "Weapons")
+	virtual void ToggleFlashlight() = 0;
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void MoveUMG(bool bIsRightShoulder);
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	void FadeInUMG(bool bIsAiming);
-
+	
 	//Get Weapon infos
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	FWeaponData GetWeaponData();
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
 	bool IsInAutoMode();
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	void SetWeaponData(const FWeaponData in_WeaponData);
 
-
-	//TO Remove
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickup")
-	// void GetWeaponInfo();
-
-
-	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	//void InitaizeWeaponStats();
-
+	///////////////
+	
 };

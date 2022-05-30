@@ -28,8 +28,7 @@ enum class EWeaponName : uint8
 	Sniper,
 	SniperPlasma,
 	SyringeGun
-	//Add more
-
+	//todo Add more
 };
 
 UCLASS()

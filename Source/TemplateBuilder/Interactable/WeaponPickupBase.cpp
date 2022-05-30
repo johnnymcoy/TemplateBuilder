@@ -4,7 +4,6 @@
 #include "WeaponPickupBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "TemplateBuilder/Characters/ALSCharacterInterface.h"
-#include "Net/UnrealNetwork.h"
 
 // Sets default values
 AWeaponPickupBase::AWeaponPickupBase()
@@ -18,7 +17,6 @@ AWeaponPickupBase::AWeaponPickupBase()
 	GunMesh->SetRenderCustomDepth(true);
 	//GunMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	RootComponent = GunMesh;
-	bReplicates = true;
 }
 
 void AWeaponPickupBase::BeginPlay()

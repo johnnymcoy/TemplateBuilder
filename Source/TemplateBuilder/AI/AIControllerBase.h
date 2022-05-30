@@ -17,7 +17,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaSeconds) override;
-
+	void Death();
 	bool IsDead() const;
 
 private:

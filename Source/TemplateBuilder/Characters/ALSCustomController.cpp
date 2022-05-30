@@ -65,9 +65,4 @@ void AALSCustomController::EnableControllerDebug_Implementation(bool DebugStatus
 void AALSCustomController::Disable() 
 {
     UE_LOG(LogTemp, Warning, TEXT("PlayerController Disable Function"));
-    UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(this);
-    bShowMouseCursor = true;
-    //SetInputMode(FInputModeUIOnly);
-    // DisableInput(Cast<APlayerController>(this));
-    // DisableInput(this);
 }

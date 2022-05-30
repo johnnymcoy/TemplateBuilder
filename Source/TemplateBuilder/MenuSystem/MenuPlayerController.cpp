@@ -3,3 +3,9 @@
 
 #include "MenuPlayerController.h"
 
+void AMenuPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	FInputModeUIOnly InputMode;
+	SetInputMode(InputMode);
+}

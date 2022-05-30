@@ -83,7 +83,7 @@ protected:
 	// TSubclassOf<class UDamageType> ShieldDamageType;
 
 
-private:	
+private:
 	//Limb counter?
 	UPROPERTY(VisibleAnywhere)
 	TArray<float> BodyIndex;

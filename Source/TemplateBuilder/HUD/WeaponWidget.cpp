@@ -8,8 +8,8 @@ void UWeaponWidget::Setup()
 	
 }
 
-void UWeaponWidget::SetWeaponData_Implementation(const FWeaponData& PrimaryWeapon, const FWeaponData& SecondaryWeapon, const bool bPrimaryEquipped,const bool bSecondaryEquipped)
+void UWeaponWidget::SetWeaponData_Implementation(const FWeaponData& PrimaryWeapon, const FWeaponData& SecondaryWeapon, const bool bPrimaryEquipped,const bool bSecondaryEquipped, const bool bIsHolstered)
 {
-	PrimaryWeaponData = PrimaryWeapon;
-	SecondaryWeaponData = SecondaryWeapon;
+	// PrimaryWeaponData = PrimaryWeapon;
+	// SecondaryWeaponData = SecondaryWeapon;
 }

@@ -11,7 +11,11 @@ class TEMPLATEBUILDER_API AALSCustomPlayerCharacter : public AALSCustomCharacter
 {
 	GENERATED_BODY()
 
-protected: 
+protected:
+	virtual void BeginPlay() override;
+
+
+	
 	////Interaction////
 	void Use();
 	UFUNCTION(Server, Reliable)
@@ -50,6 +54,7 @@ public:
 	void PauseGame();
 	virtual void PauseGame_Implementation();
 	
+	virtual void Death_Implementation() override;
 
 private:
 	//Interaction
