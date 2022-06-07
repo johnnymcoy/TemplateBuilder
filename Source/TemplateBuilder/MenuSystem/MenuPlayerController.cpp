@@ -6,6 +6,6 @@
 void AMenuPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	FInputModeUIOnly InputMode;
+	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
 }

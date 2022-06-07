@@ -20,7 +20,8 @@ public:
 	
 protected:
 	virtual bool Initialize() override;
-
+	UFUNCTION()
+	void StartScreenButtonClicked();
 	UFUNCTION()
 	void SinglePlayerButtonClicked();
 	UFUNCTION()
@@ -53,6 +54,10 @@ protected:
 	float GameVersion = 0.11;
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
+	
+	UPROPERTY(meta = (BindWidget))
+	class UButton* StartScreenButton;
+
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SinglePlayerButton;
@@ -102,6 +107,8 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
+	UPROPERTY(meta = (BindWidget))
+	class UWidget* StartScreen;
 	UPROPERTY(meta = (BindWidget))
 	class UWidget* MainMenu;
 	UPROPERTY(meta = (BindWidget))
