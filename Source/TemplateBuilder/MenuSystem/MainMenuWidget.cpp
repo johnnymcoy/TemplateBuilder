@@ -35,7 +35,7 @@ bool UMainMenuWidget::Initialize()
 	if (!ensure(OptionsBackButton != nullptr)) return false;
 	if (!ensure(CharacterBackButton != nullptr)) return false;
 	if (!ensure(QuitButton != nullptr)) return false;
-	if (!ensure(JoinMenuButton != nullptr)) return false;
+	// if (!ensure(JoinMenuButton != nullptr)) return false;
 	if (!ensure(StartScreenButton != nullptr)) return false;
 	if (!ensure(SearchServersButton != nullptr)) return false;
 	if (!ensure(SearchingProgressSpinner != nullptr)) return false;
@@ -52,13 +52,12 @@ bool UMainMenuWidget::Initialize()
 	CharacterButton->OnClicked.AddDynamic(this, &UMainMenuWidget::CharacterButtonClicked);
 	OptionsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OptionsButtonClicked);
 	QuitButton->OnClicked.AddDynamic(this, &UMainMenuWidget::QuitButtonClicked);
-	HostMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostMenuButtonClicked);
-	JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinMenuButtonClicked);
+	// HostMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostMenuButtonClicked);
+	// JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinMenuButtonClicked);
 	SearchServersButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SearchServersButtonClicked);
 	StartScreenButton->OnClicked.AddDynamic(this, &UMainMenuWidget::StartScreenButtonClicked);
 	SearchingProgressSpinner->SetVisibility(ESlateVisibility::Hidden);
 	NumberOfPlayersSlider->OnValueChanged.AddDynamic(this, &UMainMenuWidget::NumberOnSliderChanged);
-
     GameVersionText->SetText(FText::AsNumber(GameVersion));
 	return true;
 }
@@ -78,10 +77,7 @@ void UMainMenuWidget::SinglePlayerButtonClicked()
 
 void UMainMenuWidget::OptionsButtonClicked()
 {
-	if(MenuInterface != nullptr)
-	{
-		MenuInterface->Options();
-	}
+	MenuSwitcher->SetActiveWidget(OptionsMenu);
 }
 
 void UMainMenuWidget::CharacterButtonClicked()

@@ -75,10 +75,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SearchServersButton;
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinMenuButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* HostMenuButton;
+	// UPROPERTY(meta = (BindWidget))
+	// class UButton* JoinMenuButton;
+	// UPROPERTY(meta = (BindWidget))
+	// class UButton* HostMenuButton;
 	UPROPERTY(meta = (BindWidget))
 	class UButton* JoinBackButton;
 	UPROPERTY(meta = (BindWidget))
