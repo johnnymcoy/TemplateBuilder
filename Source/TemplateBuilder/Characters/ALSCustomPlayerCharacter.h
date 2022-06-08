@@ -11,11 +11,29 @@ class TEMPLATEBUILDER_API AALSCustomPlayerCharacter : public AALSCustomCharacter
 {
 	GENERATED_BODY()
 
+public:
+	// Sets default values for this actor's properties
+	AALSCustomPlayerCharacter(const FObjectInitializer& ObjectInitializer);
+
+	//Interaction
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
+	float UseLength;
+
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Menu")
+	void PauseGame();
+	virtual void PauseGame_Implementation();
+	
+	virtual void Death_Implementation() override;
+	
 protected:
 	virtual void BeginPlay() override;
 
 
-	
 	////Interaction////
 	void Use();
 	UFUNCTION(Server, Reliable)
@@ -37,29 +55,14 @@ protected:
 	void StopAiming();
 	void StopAiming_Implementation();
 
-public:
-	// Sets default values for this actor's properties
-	AALSCustomPlayerCharacter(const FObjectInitializer& ObjectInitializer);
-
-	//Interaction
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	float UseLength;
-
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Menu")
-	void PauseGame();
-	virtual void PauseGame_Implementation();
-	
-	virtual void Death_Implementation() override;
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AimAssistLookRate = 1.0f;
 private:
 	//Interaction
 	UPROPERTY(Replicated)
 	AActor* FocusedActor;
+	UPROPERTY()
+	AActor* AimAssistTarget;
 
 	
 	//functions

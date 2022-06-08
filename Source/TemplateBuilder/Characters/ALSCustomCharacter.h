@@ -64,15 +64,21 @@ public:
 
 
 	/////////////////////////////INTERFACE EVENTS///////////////////////////////////////////////
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")
-	void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
+	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")
+	UFUNCTION(BlueprintCallable, Category = "Reaction")
+	// void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
 	virtual void AddImpulseEvent_Implementation(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
-	void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
-    TSubclassOf<class UDamageType> in_DamageType);
-	virtual void BulletDamageEvent_Implementation(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
+	// void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
+	 //    TSubclassOf<class UDamageType> in_DamageType);
+	UFUNCTION(BlueprintCallable, Category = "Damage")
+	virtual void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
     TSubclassOf<class UDamageType> in_DamageType) override;
+	
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Damage", meta=(DisplayName = "Bullet Damage"))
+	void RecieveBulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
+	TSubclassOf<class UDamageType> in_DamageType);
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
 	void PickupGunEvent(const FWeaponData in_WeaponData);

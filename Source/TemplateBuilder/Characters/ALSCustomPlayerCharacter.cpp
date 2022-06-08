@@ -7,6 +7,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Net/UnrealNetwork.h"
+#include "TemplateBuilder/AimAssist/AimAssistInterface.h"
+#include "TemplateBuilder/Components/AimAssistTargetComponent.h"
 #include "TemplateBuilder/Components/ShootingComponent.h"
 #include "TemplateBuilder/MenuSystem/MenuGameInstance.h"
 
@@ -81,30 +83,48 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 		bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartPoint, EndPoint, ECC_GameTraceChannel5, TraceParams);
 		//if(bDebuggingMode)	{DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Orange, false, 0.2f );	}
 		//UKismetSystemLibrary::LineTraceSingle(this, StartPoint, EndPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5),false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f)
+		//TODO: Aim Assist
 		if(bHit /*&& Interactable != this*/) //Needs to Not Hit Self
 		{
-			AActor* Interactable = Hit.GetActor();
-			if(bDebuggingMode){	DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(1,1,1), FColor::Orange, false, 1.0f);}
-			if(Interactable)
+			AActor* HitActor = Hit.GetActor();
+			if(HitActor)
 			{
+				//	Debugging
+				if(bDebuggingMode){	DrawDebugBox(GetWorld(), Hit.ImpactPoint, FVector(1,1,1), FColor::Orange, false, 1.0f);}
+				//	Aim Assist
+				IAimAssistInterface* HitAimTarget = Cast<IAimAssistInterface>(HitActor->GetComponentByClass(UAimAssistTargetComponent::StaticClass()));
+				if(HitAimTarget)
+				{
+					if(!HitAimTarget->bIsDead())
+					{
+						LookUpDownRate = AimAssistLookRate;
+						LookLeftRightRate = AimAssistLookRate;
+					}
+				}
+				else
+				{
+					LookUpDownRate = LookRateDefault;
+					LookLeftRightRate = LookRateDefault;
+				}
+				
 				////////////////////////////
-				if(Interactable != FocusedActor)
+				if(HitActor != FocusedActor)
 				{
 					if(FocusedActor)
 					{
 						IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
-						if (Interface!= nullptr)
+						if (Interface != nullptr)
 						{
 							Interface->Execute_EndFocus(FocusedActor);
 						}
 					}
-					IInteractableInterface* Interface = Cast<IInteractableInterface>(Interactable);
+					IInteractableInterface* Interface = Cast<IInteractableInterface>(HitActor);
 					if(Interface != nullptr)
 					{
 						// If the Object: Has an interactable interface
-						Interface->Execute_StartFocus(Interactable);
+						Interface->Execute_StartFocus(HitActor);
 					}
-					FocusedActor = Interactable;
+					FocusedActor = HitActor;
 				}
 				////////////////////////////
 			}
@@ -119,6 +139,9 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 					}
 				}
 				FocusedActor = nullptr;
+				// //Reset Aim Assist
+				LookUpDownRate = LookRateDefault;
+				LookLeftRightRate = LookRateDefault;
 			}
 		}
 		else // if nothing is Hit, BUT there is a focused actor, End Focus and Set the actor to NULL
@@ -145,6 +168,9 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 				FocusedActor = nullptr;
 			}
 		}
+		//Reset Aim Assist
+		LookUpDownRate = LookRateDefault;
+		LookLeftRightRate = LookRateDefault;
 	}
 }
 

@@ -464,7 +464,7 @@ void AALSCustomCharacter::AddImpulseEvent_Implementation(const FVector in_Impuls
 	}
 }
 
-void AALSCustomCharacter::BulletDamageEvent_Implementation(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
+void AALSCustomCharacter::BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
  											AController* in_EventInstigator, AActor* in_DamageCauser,  TSubclassOf<class UDamageType> in_DamageType) 
 {
 	// UE_LOG(LogTemp, Warning, TEXT("damage type; %s"), *in_DamageType->GetName());
@@ -490,6 +490,7 @@ void AALSCustomCharacter::BulletDamageEvent_Implementation(const float in_Damage
 	{
 		UE_LOG(LogTemp, Warning, TEXT("InjuredState"));
 	}
+	RecieveBulletDamageEvent(in_Damage, in_HeadMultiplier, in_HitBone, in_EventInstigator, in_DamageCauser, in_DamageType);
 }
 
 //
