@@ -22,16 +22,14 @@ AALSCustomPlayerCharacter::AALSCustomPlayerCharacter(const FObjectInitializer& O
 void AALSCustomPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	//Optimised Tick for Traceforward todo: check value 
+	GetWorldTimerManager().SetTimer(TraceForwardTimerHandle, this, &AALSCustomPlayerCharacter::TraceForward, 0.1f, true);
 }
 
 
 void AALSCustomPlayerCharacter::Tick(float DeltaTime) 
 {
     Super::Tick(DeltaTime);
-    if(!IsDead())
-    {
-        TraceForward();
-    }
 }
 
 void AALSCustomPlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) 
@@ -63,6 +61,7 @@ void AALSCustomPlayerCharacter::DebugCurrentWeapon()
 
 void AALSCustomPlayerCharacter::TraceForward_Implementation() 
 {
+	if(IsDead()){return;};
 	if(bIsAiming)
 	{
 		FVector Location;
@@ -168,10 +167,10 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 				Interface->EndFocus();
 				FocusedActor = nullptr;
 			}
-		}
 		//Reset Aim Assist
 		LookUpDownRate = LookRateDefault;
 		LookLeftRightRate = LookRateDefault;
+		}
 	}
 }
 

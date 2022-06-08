@@ -6,8 +6,12 @@ Features:
 
 
 
-Working on:
+## Working on:
 New Main Menu UI.
++ Add in selection bar to main menu
++ Use more Blueprint controls for UI, C++ is too bloated
++ On button click, play animation, once completed, use menu swapper
+
 Controller support for Menu.
 Aim Assist
 

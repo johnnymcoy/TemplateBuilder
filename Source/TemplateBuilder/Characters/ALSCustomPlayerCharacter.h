@@ -62,7 +62,7 @@ private:
 	UPROPERTY(Replicated)
 	AActor* FocusedActor;
 
-	
+	FTimerHandle TraceForwardTimerHandle;
 	//functions
 	void ThrowWeaponAction();
 
