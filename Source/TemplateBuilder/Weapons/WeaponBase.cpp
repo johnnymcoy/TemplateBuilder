@@ -341,7 +341,7 @@ void AWeaponBase::ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirectio
 		{
 			//Hit a Player
 			HitCharacterInterface->BulletDamageEvent( GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-			HitCharacterInterface->Execute_AddImpulseEvent(Hit.GetActor(), (ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
+			HitCharacterInterface->AddImpulseEvent((ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
 		}
 		else
 		{

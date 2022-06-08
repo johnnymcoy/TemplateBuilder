@@ -52,13 +52,13 @@ void AALSCustomPlayerCharacter::DebugCurrentWeapon()
 	IDebugInterface* WeaponDebugInterface = Cast<IDebugInterface>(Gun->GetChildActor());
 	if(WeaponDebugInterface)
 	{
-		WeaponDebugInterface->Execute_EnableWeaponDebug(Gun->GetChildActor(), bDebuggingMode);
+		WeaponDebugInterface->EnableWeaponDebug(bDebuggingMode);
 	}
-	IDebugInterface* PlayerControllerDebugInterface = Cast<IDebugInterface>(GetController());
-	if(PlayerControllerDebugInterface)
-	{
-		PlayerControllerDebugInterface->Execute_EnableControllerDebug(GetController(), bDebuggingMode);
-	}
+	// IDebugInterface* PlayerControllerDebugInterface = Cast<IDebugInterface>(GetController());
+	// if(PlayerControllerDebugInterface)
+	// {
+	// 	PlayerControllerDebugInterface->EnableControllerDebug(bDebuggingMode);
+	// }
 }
 
 void AALSCustomPlayerCharacter::TraceForward_Implementation() 
@@ -95,10 +95,11 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 				IAimAssistInterface* HitAimTarget = Cast<IAimAssistInterface>(HitActor->GetComponentByClass(UAimAssistTargetComponent::StaticClass()));
 				if(HitAimTarget)
 				{
+					//todo: add to character that has component, when dead deactivate
 					if(!HitAimTarget->bIsDead())
 					{
-						LookUpDownRate = AimAssistLookRate;
-						LookLeftRightRate = AimAssistLookRate;
+						LookUpDownRate = (LookRateDefault * AimAssistLookRate);
+						LookLeftRightRate = (LookRateDefault * AimAssistLookRate);
 					}
 				}
 				else
@@ -115,14 +116,14 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 						IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
 						if (Interface != nullptr)
 						{
-							Interface->Execute_EndFocus(FocusedActor);
+							Interface->EndFocus();
 						}
 					}
 					IInteractableInterface* Interface = Cast<IInteractableInterface>(HitActor);
 					if(Interface != nullptr)
 					{
 						// If the Object: Has an interactable interface
-						Interface->Execute_StartFocus(HitActor);
+						Interface->StartFocus();
 					}
 					FocusedActor = HitActor;
 				}
@@ -135,7 +136,7 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 					IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
 					if (Interface)
 					{
-						Interface->Execute_EndFocus(FocusedActor);
+						Interface->EndFocus();
 					}
 				}
 				FocusedActor = nullptr;
@@ -151,7 +152,7 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 				IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
 				if (Interface!= nullptr)
 				{
-					Interface->Execute_EndFocus(FocusedActor);
+					Interface->EndFocus();
 					FocusedActor = nullptr;
 				}
 			}
@@ -164,7 +165,7 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 			IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
 			if (Interface!= nullptr)
 			{
-				Interface->Execute_EndFocus(FocusedActor);
+				Interface->EndFocus();
 				FocusedActor = nullptr;
 			}
 		}
@@ -217,7 +218,7 @@ void AALSCustomPlayerCharacter::Use()
 		IInteractableInterface* Interface = Cast<IInteractableInterface>(FocusedActor);
 		if(Interface)
 		{
-			Interface->Execute_OnInteract(FocusedActor, this);
+			Interface->OnInteract(this);
 		}
 	}else
 	{

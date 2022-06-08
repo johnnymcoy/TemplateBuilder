@@ -8,7 +8,7 @@
 #include "ALSCustomController.generated.h"
 
 UCLASS()
-class TEMPLATEBUILDER_API AALSCustomController : public AALSPlayerController, public IDebugInterface
+class TEMPLATEBUILDER_API AALSCustomController : public AALSPlayerController
 {
 	GENERATED_BODY()
 
@@ -31,7 +31,7 @@ public:
 	UUserWidget* GameModeRef;
 
 	//Debug Interface
-	virtual void EnableControllerDebug_Implementation(bool DebugStatus);
+	// virtual void EnableControllerDebug(bool DebugStatus) override;
 	void Disable();
 
 private:

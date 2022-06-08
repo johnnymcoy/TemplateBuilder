@@ -13,9 +13,6 @@ class UAimAssistInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class TEMPLATEBUILDER_API IAimAssistInterface
 {
 	GENERATED_BODY()

@@ -39,7 +39,7 @@ void AWeaponPickupBase::WeaponDroppedEvent(FWeaponData DroppedWeaponData)
 	}
 }
 
-void AWeaponPickupBase::OnInteract_Implementation(AActor* Caller) 
+void AWeaponPickupBase::OnInteract(AActor* Caller) 
 {
 	IALSCharacterInterface* CharacterRef = Cast<IALSCharacterInterface>(Caller);
 	if(CharacterRef)
@@ -47,25 +47,28 @@ void AWeaponPickupBase::OnInteract_Implementation(AActor* Caller)
 		if(WeaponPickupData.MeshForPickup)
 		{
 			SetOwner(Caller);
-			CharacterRef->Execute_PickupGunEvent(Caller, WeaponPickupData);
+			CharacterRef->PickupGunEvent(WeaponPickupData);
 			CharacterRef->DestroyActor(this);
 		}
 	}
+	ReceiveOnInteract(Caller);
 }
 
-void AWeaponPickupBase::OnPickUp_Implementation(AActor* Caller) 
+void AWeaponPickupBase::OnPickUp(AActor* Caller) 
 {
+	ReceiveOnPickUp(Caller);
 
 }
 
-void AWeaponPickupBase::StartFocus_Implementation() 
+void AWeaponPickupBase::StartFocus() 
 {
-	
+	ReceiveStartFocus();
+
 }
 
-void AWeaponPickupBase::EndFocus_Implementation() 
+void AWeaponPickupBase::EndFocus() 
 {
-	
+	ReceiveEndFocus();
 }
 
 void AWeaponPickupBase::SetMesh() 

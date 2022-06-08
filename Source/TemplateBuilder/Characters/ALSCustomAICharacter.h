@@ -27,18 +27,25 @@ protected:
 
 public:	
 
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	// void OnInteract(AActor* Caller);
-	virtual void OnInteract_Implementation(AActor* Caller) override;
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	// void OnPickUp(AActor* Caller);
-	virtual void OnPickUp_Implementation(AActor* Caller) override;
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	// void StartFocus();
-	virtual void StartFocus_Implementation() override;
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Interaction")
-	// void EndFocus();
-	virtual void EndFocus_Implementation() override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnInteract(AActor* Caller) override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "Receive Interact"))
+	void ReceiveOnInteract(AActor* Caller);
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnPickUp(AActor* Caller) override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Pickup"))
+	void ReceiveOnPickUp(AActor* Caller);
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void StartFocus() override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "Start Focus"))
+	void ReceiveStartFocus();
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void EndFocus() override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "End Focus"))
+	void ReceiveEndFocus();
 
 	virtual void Death_Implementation() override;
 	UFUNCTION(NetMulticast , Reliable)

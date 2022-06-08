@@ -14,9 +14,9 @@ AHealthPickup::AHealthPickup()
 	bReplicates = true;
 }
 
-void AHealthPickup::OnInteract_Implementation(AActor* Caller)
+void AHealthPickup::OnInteract(AActor* Caller)
 {
-	Super::OnInteract_Implementation(Caller);
+	Super::OnInteract(Caller);
 	IALSCharacterInterface* CharacterRef = Cast<IALSCharacterInterface>(Caller);
 	if(CharacterRef)
 	{

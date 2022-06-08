@@ -57,10 +57,10 @@ void AALSCustomController::UpdateRound_Implementation(int Round)
 	GameRound = Round;
 }
 
-void AALSCustomController::EnableControllerDebug_Implementation(bool DebugStatus) 
-{
-    bDebuggingMode = DebugStatus;
-}
+// void AALSCustomController::EnableControllerDebug(bool DebugStatus) 
+// {
+//     bDebuggingMode = DebugStatus;
+// }
 
 void AALSCustomController::Disable() 
 {

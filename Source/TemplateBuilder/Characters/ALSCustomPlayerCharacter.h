@@ -61,8 +61,6 @@ private:
 	//Interaction
 	UPROPERTY(Replicated)
 	AActor* FocusedActor;
-	UPROPERTY()
-	AActor* AimAssistTarget;
 
 	
 	//functions

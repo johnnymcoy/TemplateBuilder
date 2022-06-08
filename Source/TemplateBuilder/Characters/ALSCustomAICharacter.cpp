@@ -32,32 +32,35 @@ void AALSCustomAICharacter::BeginPlay()
 }
 
 
-void AALSCustomAICharacter::OnInteract_Implementation(AActor* Caller) 
+void AALSCustomAICharacter::OnInteract(AActor* Caller) 
 {
     UE_LOG(LogTemp,Warning, TEXT("Interact with AI"));
+	ReceiveOnInteract(Caller);
 }
 
-void AALSCustomAICharacter::OnPickUp_Implementation(AActor* Caller) 
+void AALSCustomAICharacter::OnPickUp(AActor* Caller) 
 {
-    
+    ReceiveOnPickUp(Caller);
 }
 
-void AALSCustomAICharacter::StartFocus_Implementation() 
+void AALSCustomAICharacter::StartFocus() 
 {
     if(IsDead() == false)
 	{
 		HealthBar->SetVisibility(true);
 		GetWorldTimerManager().SetTimer(HealthBarTimer, this, &AALSCustomAICharacter::FaceHealthBarToPlayer, 0.2f, true, 0);		
 	}
+	ReceiveStartFocus();
 }
 
-void AALSCustomAICharacter::EndFocus_Implementation() 
+void AALSCustomAICharacter::EndFocus() 
 {
     if(IsDead() == false)
 	{
 		HealthBar->SetVisibility(false);
 		GetWorldTimerManager().ClearTimer(HealthBarTimer);
 	}
+	ReceiveEndFocus();
 }
 
 
@@ -124,7 +127,7 @@ void AALSCustomAICharacter::PickupNearbyWeapon()
 				if(WeaponPickup)
 				{
 					// UE_LOG(LogTemp,Warning,TEXT("Weapon Pickup"));
-					InteractableActor->Execute_OnInteract(OutHits[i].GetActor(), this);
+					InteractableActor->OnInteract(this);
 				}
 				else
 				{

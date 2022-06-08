@@ -22,23 +22,27 @@ void AInteractableActorBase::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AInteractableActorBase::OnInteract_Implementation(AActor* Caller) 
+void AInteractableActorBase::OnInteract(AActor* Caller) 
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("Interact"));
+	ReceiveOnInteract(Caller);
 }
 
-void AInteractableActorBase::OnPickUp_Implementation(AActor* Caller) 
+void AInteractableActorBase::OnPickUp(AActor* Caller) 
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("OnPickUp"));
+	ReceiveOnPickUp(Caller);
 }
 
-void AInteractableActorBase::StartFocus_Implementation() 
+void AInteractableActorBase::StartFocus() 
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Orange, TEXT("Startfocus"));
+	ReceiveStartFocus();
 }
 
-void AInteractableActorBase::EndFocus_Implementation() 
+void AInteractableActorBase::EndFocus() 
 {
 	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("EndFocus"));
+	ReceiveEndFocus();
 }
 

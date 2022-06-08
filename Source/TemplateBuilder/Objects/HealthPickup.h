@@ -28,7 +28,7 @@ public:
 	TSubclassOf<UDamageType> DamageType;
 
 protected:
-	virtual void OnInteract_Implementation(AActor* Caller) override;
+	virtual void OnInteract(AActor* Caller);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	float HealthToGain = 20;

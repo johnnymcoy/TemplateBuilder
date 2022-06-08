@@ -65,9 +65,11 @@ public:
 
 	/////////////////////////////INTERFACE EVENTS///////////////////////////////////////////////
 	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")
-	UFUNCTION(BlueprintCallable, Category = "Reaction")
 	// void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
-	virtual void AddImpulseEvent_Implementation(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
+	UFUNCTION(BlueprintCallable, Category = "Reaction")
+	virtual void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Reaction", meta=(DisplayName = "Impulse"))
+	void ReceiveImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
 
 	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	// void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
@@ -75,20 +77,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	virtual void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
     TSubclassOf<class UDamageType> in_DamageType) override;
-	
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Damage", meta=(DisplayName = "Bullet Damage"))
-	void RecieveBulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
+	void ReceiveBulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
 	TSubclassOf<class UDamageType> in_DamageType);
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
-	void PickupGunEvent(const FWeaponData in_WeaponData);
-	virtual void PickupGunEvent_Implementation(const FWeaponData in_WeaponData) override;
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
+	// virtual void PickupGunEvent_Implementation(const FWeaponData in_WeaponData) override;
+	UFUNCTION(BlueprintCallable, Category = "Pickups")
+	virtual void PickupGunEvent(const FWeaponData in_WeaponData) override;
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Damage", meta=(DisplayName = "Pickup Gun"))
+	void ReceivePickupGun(const FWeaponData in_WeaponData);
 	
 	UFUNCTION(Server, Reliable)
 	virtual void DestroyActor(AActor* ActorToDestroy) override;
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override; 
-
 	///////////////////////////////////////////////////////////////////////////
 
 	

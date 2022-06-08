@@ -283,12 +283,13 @@ void AALSCustomCharacter::SwapWeaponReleased()
 	}
 }
 
-void AALSCustomCharacter::PickupGunEvent_Implementation(const FWeaponData in_WeaponData) 
+void AALSCustomCharacter::PickupGunEvent(const FWeaponData in_WeaponData) 
 {
 	if(ShootingComponent)
 	{
 		ShootingComponent->PickupWeapon(in_WeaponData);
 	}
+	ReceivePickupGun(in_WeaponData);
 }
 
 void AALSCustomCharacter::DestroyActor_Implementation(AActor* ActorToDestroy)
@@ -356,7 +357,7 @@ void AALSCustomCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AA
 	IInteractableInterface* Interface = Cast<IInteractableInterface>(OtherActor);
 	if(Interface)
 	{
-		Interface->Execute_OnPickUp(OtherActor, this);
+		Interface->OnPickUp(this);
 	}
 }
 
@@ -445,7 +446,7 @@ void AALSCustomCharacter::AddRecoilWBP_Implementation(float RecoilAmount)
 }
 
 /// Interface Calls
-void AALSCustomCharacter::AddImpulseEvent_Implementation(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) 
+void AALSCustomCharacter::AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) 
 {
 	FVector BulletForce;
 	BulletForce.X = (in_Impulse.X * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
@@ -462,6 +463,7 @@ void AALSCustomCharacter::AddImpulseEvent_Implementation(const FVector in_Impuls
 			DoOnce = true;
 		}
 	}
+	ReceiveImpulseEvent(in_Impulse, in_HitBone, in_GunImpulse);
 }
 
 void AALSCustomCharacter::BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
@@ -490,7 +492,7 @@ void AALSCustomCharacter::BulletDamageEvent(const float in_Damage, const float i
 	{
 		UE_LOG(LogTemp, Warning, TEXT("InjuredState"));
 	}
-	RecieveBulletDamageEvent(in_Damage, in_HeadMultiplier, in_HitBone, in_EventInstigator, in_DamageCauser, in_DamageType);
+	ReceiveBulletDamageEvent(in_Damage, in_HeadMultiplier, in_HitBone, in_EventInstigator, in_DamageCauser, in_DamageType);
 }
 
 //

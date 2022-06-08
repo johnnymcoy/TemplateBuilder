@@ -190,7 +190,7 @@ public:
 	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData) override {GunWeaponData = in_WeaponData;};
 
 	//Debug Interface
-	virtual void EnableWeaponDebug_Implementation(bool DebugStatus) override {bDebuggingMode = DebugStatus;};
+	virtual void EnableWeaponDebug(bool DebugStatus) override {bDebuggingMode = DebugStatus;};
 	
 	virtual void MoveUMG_Implementation(bool bIsRightShoulder) override;
 	virtual void FadeInUMG_Implementation(bool bIsAiming) override;
