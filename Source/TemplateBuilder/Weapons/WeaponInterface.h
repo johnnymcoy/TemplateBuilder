@@ -8,7 +8,7 @@
 #include "WeaponInterface.generated.h"
 
 // This class does not need to be modified.
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI,meta = (CannotImplementInterfaceInBlueprint))
 class UWeaponInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -19,38 +19,40 @@ class TEMPLATEBUILDER_API IWeaponInterface
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) = 0;
 
 	/// Interface Functions ///
 	// Shooting
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void Fire();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void Reload(float ReloadTime);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void CancelReload();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void SwitchAutoMode();
-	UFUNCTION(Category = "Weapons")
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void Fire() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void Reload(float ReloadTime) = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void CancelReload() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void SwitchAutoMode() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void BlindFireWeapon() = 0;
 
 	//Extra Functions
 	UFUNCTION(Category = "Weapons")
 	virtual void ToggleFlashlight() = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void MoveUMG(bool bIsRightShoulder);
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void FadeInUMG(bool bIsAiming);
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void MoveUMG(bool bIsRightShoulder) = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void FadeInUMG(bool bIsAiming) = 0;
 	
 	//Get Weapon infos
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	FWeaponData GetWeaponData();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	bool IsInAutoMode();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void SetWeaponData(const FWeaponData in_WeaponData);
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual FWeaponData GetWeaponData() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual bool IsInAutoMode() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void SetWeaponData(const FWeaponData in_WeaponData) = 0;
 
 	///////////////
 	

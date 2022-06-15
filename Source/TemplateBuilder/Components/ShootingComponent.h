@@ -40,7 +40,7 @@ class TEMPLATEBUILDER_API UShootingComponent : public UActorComponent
 public:	
 	UShootingComponent();
 	
-	UPROPERTY(BlueprintAssignable, Category = "Shooting")
+	UPROPERTY(Replicated, BlueprintAssignable, Category = "Shooting")
 	FOnStateChangeSignature OnStateChange;
 	//Recalculating Accuracy when needed 
 	UPROPERTY(BlueprintAssignable, Category = "Shooting")
@@ -75,7 +75,6 @@ public:
 	void ServerPickupWeapon(FWeaponData WeaponToPickup);
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerEquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWeapon = true);
-
 	
 	//Owner Activated Functions
 	void SwitchAutoMode();

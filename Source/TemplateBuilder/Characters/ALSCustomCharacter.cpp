@@ -30,7 +30,7 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	Gun->SetIsReplicated(true);
 	
 	ShootingComponent = CreateDefaultSubobject<UShootingComponent>("ShootingComponent");
-	ShootingComponent->OnStateChange.AddDynamic(this, &AALSCustomCharacter::OnStateChanged);
+	ShootingComponent->OnStateChange.AddDynamic(this, &AALSCustomCharacter::ServerOnStateChanged);
 	ShootingComponent->OnBulletShot.AddDynamic(this, &AALSCustomCharacter::AddRecoil);
 
 	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
@@ -254,6 +254,12 @@ void AALSCustomCharacter::AddRecoil(float RecoilAmount)
 }
 
 void AALSCustomCharacter::OnStateChanged(EALSOverlayState NewOverlayState)
+{
+	ServerOnStateChanged(NewOverlayState);
+	SetOverlayState(NewOverlayState);
+}
+
+void AALSCustomCharacter::ServerOnStateChanged_Implementation(EALSOverlayState NewOverlayState)
 {
 	SetOverlayState(NewOverlayState);
 }

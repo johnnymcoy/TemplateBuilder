@@ -168,6 +168,8 @@ protected:
 
 	UFUNCTION()
 	void OnStateChanged(EALSOverlayState NewOverlayState);
+	UFUNCTION(Server, Reliable)
+	void ServerOnStateChanged(EALSOverlayState NewOverlayState);
 
 private:
 	

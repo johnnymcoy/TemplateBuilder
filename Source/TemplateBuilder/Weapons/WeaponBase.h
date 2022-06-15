@@ -148,8 +148,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	UStaticMeshComponent* AttachmentSlot03; 
-
-	//Locations for attachments
 	
 	
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Widget")
@@ -157,21 +155,30 @@ protected:
 
 public:	
 	//Base Functions//
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	void Fire();
-	virtual void Fire_Implementation() override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	void Reload(float ReloadTime);
-	virtual void Reload_Implementation(float ReloadTime) override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void CancelReload();
-	virtual void CancelReload_Implementation() override;
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	void SwitchAutoMode();
-	virtual void SwitchAutoMode_Implementation() override;
-
+	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
+	// virtual void Fire_Implementation() override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
+	virtual void Fire() override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
+	virtual void Reload(float ReloadTime) override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
+	virtual void CancelReload() override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
+	virtual void SwitchAutoMode() override;
+	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
 	virtual void BlindFireWeapon() override;
+	virtual FWeaponData GetWeaponData() override {return GunWeaponData;};
+	virtual bool IsInAutoMode() override {return GunWeaponData.bIsInAutoMode;};
+	virtual void SetWeaponData(const FWeaponData in_WeaponData) override {GunWeaponData = in_WeaponData;};
+	virtual void MoveUMG(bool bIsRightShoulder) override;
+	virtual void FadeInUMG(bool bIsAiming) override;
+	
+	///Interface Functions
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) override;
 
+	UFUNCTION(Server, Reliable)
+	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 	//Extra Functions
 	virtual void ToggleFlashlight() override;
 
@@ -184,24 +191,10 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerReload();
 	
-	//Interface
-	virtual FWeaponData GetWeaponData_Implementation() override {return GunWeaponData;};
-	virtual bool IsInAutoMode_Implementation() override {return GunWeaponData.bIsInAutoMode;};
-	virtual void SetWeaponData_Implementation(const FWeaponData in_WeaponData) override {GunWeaponData = in_WeaponData;};
 
 	//Debug Interface
 	virtual void EnableWeaponDebug(bool DebugStatus) override {bDebuggingMode = DebugStatus;};
-	
-	virtual void MoveUMG_Implementation(bool bIsRightShoulder) override;
-	virtual void FadeInUMG_Implementation(bool bIsAiming) override;
 
-	///Interface Functions
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapons")
-	void GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
-	virtual void GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) override;
-
-	UFUNCTION(Server, Reliable)
-	void ServerGetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy);
 
 private:
 	void Shoot();

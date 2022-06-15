@@ -22,7 +22,6 @@ void UShootingComponent::BeginPlay()
 		PlayerShootingStatus.bIsHolstered = true;
 	}
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					HUD for weapons			  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -46,7 +45,7 @@ void UShootingComponent::DelayUpdateWeaponHUD()
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(GunChildActorReference->GetChildActor());
+		CurrentWeaponData = CurrentWeapon->GetWeaponData();
 		if(PlayerShootingStatus.bPrimaryEquipped)
 		{
 			PrimaryWeaponData = CurrentWeaponData;
@@ -62,7 +61,6 @@ void UShootingComponent::DelayUpdateWeaponHUD()
 	}
 	//Add crosshair functions
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Ammo UMG				  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -72,8 +70,8 @@ void UShootingComponent::AimPressed(bool bRightShoulder)
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon && CurrentWeaponData.IsValid())
 	{
-		CurrentWeapon->Execute_MoveUMG(GunChildActorReference->GetChildActor(), !bRightShoulder);
-		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), PlayerShootingStatus.bIsAiming);
+		CurrentWeapon->MoveUMG(!bRightShoulder);
+		CurrentWeapon->FadeInUMG(PlayerShootingStatus.bIsAiming);
 		UE_LOG(LogTemp, Warning, TEXT("Fade UMG - ShootingComponent"));
 	}
 }
@@ -83,8 +81,8 @@ void UShootingComponent::AimReleased(bool bRightShoulder)
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon && CurrentWeaponData.IsValid())
 	{
-		CurrentWeapon->Execute_MoveUMG(GunChildActorReference->GetChildActor(), !bRightShoulder);
-		CurrentWeapon->Execute_FadeInUMG(GunChildActorReference->GetChildActor(), PlayerShootingStatus.bIsAiming);
+		CurrentWeapon->MoveUMG(!bRightShoulder);
+		CurrentWeapon->FadeInUMG(PlayerShootingStatus.bIsAiming);
 	}
 }
 void UShootingComponent::MoveUMG(bool bRightShoulder)
@@ -92,10 +90,9 @@ void UShootingComponent::MoveUMG(bool bRightShoulder)
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon && CurrentWeaponData.IsValid())
 	{
-		CurrentWeapon->Execute_MoveUMG(GunChildActorReference->GetChildActor(), bRightShoulder);
+		CurrentWeapon->MoveUMG(bRightShoulder);
 	}
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Shooting				  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -106,7 +103,7 @@ void UShootingComponent::ValidateShootGun()
 	if(CurrentWeapon)
 	{
 		if(PlayerShootingStatus.bIsReloading && CurrentWeaponData.CurrentAmmo > 0){CancelReload();}
-		if(CurrentWeapon->Execute_IsInAutoMode(GunChildActorReference->GetChildActor()))
+		if(CurrentWeapon->IsInAutoMode())
 		{
 			//todo remove firerate / 200.0f
 			GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UShootingComponent::ShootGun, (CurrentWeaponData.FireRate/ 200.f), true, 0.01f);
@@ -145,7 +142,7 @@ void UShootingComponent::ShootGun()
 				}
 			}
 			//todo:Need to change name so it's more fittting From: GetTraceParams -> TO :ShootGun
-			CurrentWeapon->Execute_GetTraceParams(GunChildActorReference->GetChildActor(), InLocation, InRotation, GetOwner(), Accuracy);
+			CurrentWeapon->GetTraceParams(InLocation, InRotation, GetOwner(), Accuracy);
 		}
 		else
 		{
@@ -183,15 +180,13 @@ void UShootingComponent::SwitchAutoMode()
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Execute_SwitchAutoMode(GunChildActorReference->GetChildActor());
+		CurrentWeapon->SwitchAutoMode();
 		UpdateWeaponHUD();
 	}
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Reload					  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-
 void UShootingComponent::Reload(UAnimMontage* ReloadAnimation)
 {
 	if(!PlayerShootingStatus.bIsReloading && CurrentWeaponData.IsValid())
@@ -209,7 +204,7 @@ void UShootingComponent::Reload(UAnimMontage* ReloadAnimation)
 					UE_LOG(LogTemp,Warning, TEXT("ReloadTime is too slow, set to Default"));
 					//todo: Have check for Server? make sure theres a default
 				}
-				CurrentWeapon->Execute_Reload(GunChildActorReference->GetChildActor(), ReloadTime);
+				CurrentWeapon->Reload(ReloadTime);
 				PlayerShootingStatus.bIsReloading = true;
 				GetOwner()->GetWorldTimerManager().SetTimer(ReloadTimer, this, &UShootingComponent::ReloadDelay, (ReloadTime + 0.1f), false); //Offset so that the HUD updates properly
 	// 			// if(GetLocalRole() < ROLE_Authority){ServerPlayMontageAnimation(GetReloadAnimation(CurrentWeaponData.WeaponType), (1.0f / CurrentWeaponData.ReloadTime), EMontagePlayReturnType::Duration, 0.0f, true);}
@@ -228,7 +223,7 @@ void UShootingComponent::ReloadDelay()
 		if(CurrentWeapon)
 		{
 			//todo move this to update hud
-			CurrentWeaponData = CurrentWeapon->Execute_GetWeaponData(GunChildActorReference->GetChildActor());
+			CurrentWeaponData = CurrentWeapon->GetWeaponData();
 			//if Player
 			UpdateWeaponHUD();
 		}
@@ -241,7 +236,7 @@ void UShootingComponent::CancelReload()
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Execute_CancelReload(GunChildActorReference->GetChildActor());
+		CurrentWeapon->CancelReload();
 	}
 	PlayerShootingStatus.bIsReloading = false;
 	MainAnimInstance->Montage_Stop(0.05f, LastReloadAnimation);
@@ -249,11 +244,9 @@ void UShootingComponent::CancelReload()
 	// else{MulticastStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
 	GetOwner()->GetWorldTimerManager().ClearTimer(ReloadTimer);
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Pickup					  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-
 void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 {
 	//todo Multiple Weapon Slots
@@ -350,7 +343,6 @@ void UShootingComponent::PickupWeapon(FWeaponData WeaponToPickup)
 			}
 		}
 	}
-
 		// if(CurrentWeaponData.WeaponClass != WeaponToPickup.WeaponClass)
 		// {
 		// 	//if we already have a weapon equipped
@@ -421,7 +413,7 @@ void UShootingComponent::EquipWeapon(FWeaponData WeaponToEquip, bool bPrimaryWea
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Execute_SetWeaponData(GunChildActorReference->GetChildActor(), CurrentWeaponData);
+		CurrentWeapon->SetWeaponData(CurrentWeaponData);
 		OnStateChange.Broadcast(CurrentWeaponData.OverlayState);
 		UpdateWeaponHUD();
 	}
@@ -436,11 +428,9 @@ bool UShootingComponent::ServerEquipWeapon_Validate(FWeaponData WeaponToEquip, b
 {
 	return true;
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////				Multiple Weapons WIP		  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-
 void UShootingComponent::AddWeaponToList(FWeaponData SelectedWeapon, bool bAddWeapon)
 {
 	//for currentWeaponListData
@@ -758,17 +748,14 @@ void UShootingComponent::AddAmmo(const FWeaponData in_WeaponData, const bool in_
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{
-		CurrentWeapon->Execute_SetWeaponData(GunChildActorReference->GetChildActor(), CurrentWeaponData);
+		CurrentWeapon->SetWeaponData(CurrentWeaponData);
 		UpdateWeaponHUD();
 		// PickupGunWBP(CurrentWeaponData);
 	}
 }
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Death					  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-
-
 void UShootingComponent::Death()
 {
 	if(PlayerShootingStatus.bHasGun)

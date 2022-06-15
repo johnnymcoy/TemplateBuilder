@@ -68,7 +68,7 @@ void AWeaponBase::BeginPlay()
 	// FireRate = (FireRate / 200.f); 
 }
 
-void AWeaponBase::Fire_Implementation() 
+void AWeaponBase::Fire() 
 {
 	if(CanShoot())
 	{
@@ -80,7 +80,7 @@ void AWeaponBase::Fire_Implementation()
 	}
 }
 
-void AWeaponBase::Reload_Implementation(float ReloadTime) 
+void AWeaponBase::Reload(float ReloadTime) 
 {
 	if(GunWeaponData.CurrentAmmo < GunWeaponData.ClipSize && GunWeaponData.TotalAmmoCount > 0)
 	{
@@ -92,7 +92,7 @@ void AWeaponBase::Reload_Implementation(float ReloadTime)
 	} 
 }
 
-void AWeaponBase::CancelReload_Implementation() 
+void AWeaponBase::CancelReload() 
 {
 	ServerSetReloading(false);
 }
@@ -121,7 +121,7 @@ void AWeaponBase::ServerReload_Implementation()
 	ServerSetReloading(false);
 }
 
-void AWeaponBase::SwitchAutoMode_Implementation() 
+void AWeaponBase::SwitchAutoMode() 
 {
 	if(GunWeaponData.bHasAutoMode)
 	{
@@ -138,7 +138,7 @@ void AWeaponBase::SwitchAutoMode_Implementation()
 
 //Separate Component
 //////////////////////////////////
-void AWeaponBase::MoveUMG_Implementation(bool bIsRightShoulder) 
+void AWeaponBase::MoveUMG(bool bIsRightShoulder) 
 {
 	// if(bIsRightShoulder)
 	// {
@@ -150,7 +150,7 @@ void AWeaponBase::MoveUMG_Implementation(bool bIsRightShoulder)
 	// }
 }
 
-void AWeaponBase::FadeInUMG_Implementation(bool bIsAiming) 
+void AWeaponBase::FadeInUMG(bool bIsAiming) 
 {
 	// if(bIsAiming && UMGAlpha <= 0.3)
 	// {
@@ -193,7 +193,7 @@ void AWeaponBase::FadeInUMGTimed(float Alpha)
 	// }
 }
 
-void AWeaponBase::GetTraceParams_Implementation(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
+void AWeaponBase::GetTraceParams(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) 
 {
 	ServerGetTraceParams(in_Location, in_Rotation, ActorToIgnore, in_Accuracy);
 }

@@ -82,7 +82,7 @@ void AALSCustomAICharacter::TraceForward()
 	// bool bHit = UKismetSystemLibrary::LineTraceSingle(this, StartPoint, EndPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5),
 	// true, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 5.0f);
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(this, StartPoint, (StartPoint * 1.01f), PickupReach,
-		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5), true, ActorsToIgnore, EDrawDebugTrace::ForDuration,
+		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5), true, ActorsToIgnore, EDrawDebugTrace::None,
 		OutHits, true, FLinearColor::Red, FLinearColor::Green, 5.0f);
 	if(bHit)
 	{
@@ -95,7 +95,7 @@ void AALSCustomAICharacter::TraceForward()
 			{
 				// UE_LOG(LogTemp,Warning,TEXT("Interactable actor"));
 			}
-			DrawDebugBox(GetWorld(), OutHits[i].ImpactPoint, FVector(1,1,1), FColor::Orange, false, 1.0f);
+			// DrawDebugBox(GetWorld(), OutHits[i].ImpactPoint, FVector(1,1,1), FColor::Orange, false, 1.0f);
 		}
 	}
 }
@@ -112,7 +112,7 @@ void AALSCustomAICharacter::PickupNearbyWeapon()
 	ActorsToIgnore.Add(this);
 	TArray<FHitResult> OutHits;
 	bool bHit = UKismetSystemLibrary::SphereTraceMulti(this, StartPoint, (StartPoint * 1.01f), PickupReach,
-		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5), true, ActorsToIgnore, EDrawDebugTrace::ForDuration,
+		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5), true, ActorsToIgnore, EDrawDebugTrace::None,
 		OutHits, true, FLinearColor::Red, FLinearColor::Green, 5.0f);
 	if(bHit)
 	{

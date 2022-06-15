@@ -106,7 +106,6 @@ void AALSCustomPlayerCharacter::TraceForward_Implementation()
 					LookUpDownRate = LookRateDefault;
 					LookLeftRightRate = LookRateDefault;
 				}
-				
 				////////////////////////////
 				if(HitActor != FocusedActor)
 				{

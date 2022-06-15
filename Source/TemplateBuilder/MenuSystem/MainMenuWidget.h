@@ -52,23 +52,23 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float GameVersion = 0.11;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* StartScreenButton;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* SinglePlayerButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* HostButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* JoinButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* CharacterButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* OptionsButton;
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
-	UPROPERTY(meta = (BindWidget))
-	class UButton* StartScreenButton;
-
-	
-	UPROPERTY(meta = (BindWidget))
-	class UButton* SinglePlayerButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* HostButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* CharacterButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* OptionsButton;
 
 
 	
