@@ -62,17 +62,17 @@ bool UOptionsMenu::Initialize()
 	TQMediumButton->OnClicked.AddDynamic(this, &UOptionsMenu::UOptionsMenu::ChangeTextureMedium);
 	TQHighButton->OnClicked.AddDynamic(this, &UOptionsMenu::UOptionsMenu::ChangeTextureHigh);
 	TQEpicButton->OnClicked.AddDynamic(this, &UOptionsMenu::UOptionsMenu::ChangeTextureEpic);
-	BackButton->OnClicked.AddDynamic(this, &UOptionsMenu::UOptionsMenu::Exit);
+	// BackButton->OnClicked.AddDynamic(this, &UOptionsMenu::UOptionsMenu::Exit);
 	
 	return true;
 }
 
-void UOptionsMenu::Exit()
-{
-	RemoveFromViewport();
-	RemoveFromParent();
-	Destruct();
-}
+// void UOptionsMenu::Exit()
+// {
+// 	RemoveFromViewport();
+// 	RemoveFromParent();
+// 	Destruct();
+// }
 
 void UOptionsMenu::ChangeResolution480()
 {

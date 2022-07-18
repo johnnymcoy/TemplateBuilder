@@ -26,7 +26,7 @@ AWeaponBase::AWeaponBase()
 	// AmmoWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
 	// AmmoWidgetComponent->SetupAttachment(GunMeshComponent);
 	// AmmoWidgetComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	// // AmmoWidgetComponent->SetWidget(WeaponWidget);
+	// AmmoWidgetComponent->SetWidget(WeaponWidget);
 	// UMG_RightLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGRightLocation"));
 	// UMG_RightLocation->SetupAttachment(GunMeshComponent);
 	// UMG_LeftLocation = CreateDefaultSubobject<USceneComponent>(TEXT("UMGLeftLocation"));

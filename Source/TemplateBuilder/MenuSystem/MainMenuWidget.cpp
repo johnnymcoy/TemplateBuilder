@@ -25,16 +25,16 @@ bool UMainMenuWidget::Initialize()
 {
 	bool Success = Super::Initialize();
 	if(!Success) return false;
-	if (!ensure(JoinButton != nullptr)) return false;
-	if (!ensure(HostButton != nullptr)) return false;
-	if (!ensure(SinglePlayerButton != nullptr)) return false;
-	if (!ensure(CharacterButton != nullptr)) return false;
-	if (!ensure(OptionsButton != nullptr)) return false;
-	if (!ensure(JoinBackButton != nullptr)) return false;
-	if (!ensure(HostBackButton != nullptr)) return false;
-	if (!ensure(OptionsBackButton != nullptr)) return false;
-	if (!ensure(CharacterBackButton != nullptr)) return false;
-	if (!ensure(QuitButton != nullptr)) return false;
+	// if (!ensure(JoinButton != nullptr)) return false;
+	// if (!ensure(HostButton != nullptr)) return false;
+	// if (!ensure(SinglePlayerButton != nullptr)) return false;
+	// if (!ensure(CharacterButton != nullptr)) return false;
+	// if (!ensure(OptionsButton != nullptr)) return false;
+	// if (!ensure(JoinBackButton != nullptr)) return false;
+	// if (!ensure(HostBackButton != nullptr)) return false;
+	// if (!ensure(OptionsBackButton != nullptr)) return false;
+	// if (!ensure(CharacterBackButton != nullptr)) return false;
+	// if (!ensure(QuitButton != nullptr)) return false;
 	// if (!ensure(JoinMenuButton != nullptr)) return false;
 	if (!ensure(StartScreenButton != nullptr)) return false;
 	if (!ensure(SearchServersButton != nullptr)) return false;
@@ -42,16 +42,16 @@ bool UMainMenuWidget::Initialize()
 	if (!ensure(NumberOfPlayersSlider != nullptr)) return false;
 	if (!ensure(NumberOfPlayersText != nullptr)) return false;
 	if (!ensure(GameVersionText != nullptr)) return false;	
-	HostButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostButtonClicked);
-	SinglePlayerButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SinglePlayerButtonClicked);
-	JoinBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
-	HostBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
-	CharacterBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
-	OptionsBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	// HostButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostButtonClicked);
+	// SinglePlayerButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SinglePlayerButtonClicked);
+	// JoinBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	// HostBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	// CharacterBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
+	// OptionsBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
 	JoinButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinButtonClicked);
-	CharacterButton->OnClicked.AddDynamic(this, &UMainMenuWidget::CharacterButtonClicked);
-	OptionsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OptionsButtonClicked);
-	QuitButton->OnClicked.AddDynamic(this, &UMainMenuWidget::QuitButtonClicked);
+	// CharacterButton->OnClicked.AddDynamic(this, &UMainMenuWidget::CharacterButtonClicked);
+	// OptionsButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OptionsButtonClicked);
+	// QuitButton->OnClicked.AddDynamic(this, &UMainMenuWidget::QuitButtonClicked);
 	// HostMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostMenuButtonClicked);
 	// JoinMenuButton->OnClicked.AddDynamic(this, &UMainMenuWidget::JoinMenuButtonClicked);
 	SearchServersButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SearchServersButtonClicked);
@@ -67,48 +67,48 @@ void UMainMenuWidget::StartScreenButtonClicked()
 	MenuSwitcher->SetActiveWidget(MainMenu);
 }
 
-void UMainMenuWidget::SinglePlayerButtonClicked()
-{
-	if(MenuInterface != nullptr)
-	{
-		MenuInterface->SinglePlayer();
-	}
-}
+// void UMainMenuWidget::SinglePlayerButtonClicked()
+// {
+// 	if(MenuInterface != nullptr)
+// 	{
+// 		MenuInterface->SinglePlayer();
+// 	}
+// }
 
-void UMainMenuWidget::OptionsButtonClicked()
-{
-	MenuSwitcher->SetActiveWidget(OptionsMenu);
-}
+// void UMainMenuWidget::OptionsButtonClicked()
+// {
+// 	MenuSwitcher->SetActiveWidget(OptionsMenu);
+// }
 
-void UMainMenuWidget::CharacterButtonClicked()
-{
-	if (!ensure(MenuSwitcher != nullptr)) return;
-	MenuSwitcher->SetActiveWidget(CharacterMenu);
-	// if(MenuInterface != nullptr)
-	// {
-	// 	MenuInterface->Character();
-	// }
-}
+// void UMainMenuWidget::CharacterButtonClicked()
+// {
+// 	if (!ensure(MenuSwitcher != nullptr)) return;
+// 	MenuSwitcher->SetActiveWidget(CharacterMenu);
+// 	// if(MenuInterface != nullptr)
+// 	// {
+// 	// 	MenuInterface->Character();
+// 	// }
+// }
 
-void UMainMenuWidget::JoinMenuButtonClicked() 
-{
-	if (!ensure(MenuSwitcher != nullptr)) return;
-	if (!ensure(JoinMenu != nullptr)) return;
-	if (!ensure(SearchingProgressSpinner != nullptr)) return;
-	MenuSwitcher->SetActiveWidget(JoinMenu);
-	if(MenuInterface != nullptr)
-	{
-		MenuInterface->SearchServers();
-		SearchingProgressSpinner->SetVisibility(ESlateVisibility::Visible);
-	}
-}
+// void UMainMenuWidget::JoinMenuButtonClicked() 
+// {
+// 	if (!ensure(MenuSwitcher != nullptr)) return;
+// 	if (!ensure(JoinMenu != nullptr)) return;
+// 	if (!ensure(SearchingProgressSpinner != nullptr)) return;
+// 	MenuSwitcher->SetActiveWidget(JoinMenu);
+// 	if(MenuInterface != nullptr)
+// 	{
+// 		MenuInterface->SearchServers();
+// 		SearchingProgressSpinner->SetVisibility(ESlateVisibility::Visible);
+// 	}
+// }
 
-void UMainMenuWidget::HostMenuButtonClicked()
-{
-	if (!ensure(MenuSwitcher != nullptr)) return;
-	if (!ensure(JoinMenu != nullptr)) return;
-	MenuSwitcher->SetActiveWidget(HostMenu);
-}
+// void UMainMenuWidget::HostMenuButtonClicked()
+// {
+// 	if (!ensure(MenuSwitcher != nullptr)) return;
+// 	if (!ensure(JoinMenu != nullptr)) return;
+// 	MenuSwitcher->SetActiveWidget(HostMenu);
+// }
 
 void UMainMenuWidget::HostButtonClicked() 
 {
@@ -206,17 +206,18 @@ void UMainMenuWidget::SearchServersButtonClicked()
     }
 }
 
-void UMainMenuWidget::BackButtonClicked() 
-{
-    if (!ensure(MenuSwitcher != nullptr)) return;
-    if (!ensure(MainMenu != nullptr)) return;
-    MenuSwitcher->SetActiveWidget(MainMenu);
-}
+// void UMainMenuWidget::BackButtonClicked() 
+// {
+//     if (!ensure(MenuSwitcher != nullptr)) return;
+//     if (!ensure(MainMenu != nullptr)) return;
+//     MenuPageIndex = 0;
+//     MenuSwitcher->SetActiveWidget(MainMenu);
+// }
 
-void UMainMenuWidget::QuitButtonClicked() 
-{
-    if(MenuInterface != nullptr)
-    {
-        MenuInterface->Quit();
-    }
-}
+// void UMainMenuWidget::QuitButtonClicked() 
+// {
+//     if(MenuInterface != nullptr)
+//     {
+//         MenuInterface->Quit();
+//     }
+// }

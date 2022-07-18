@@ -19,10 +19,10 @@ protected:
 	
 private:
 
-	UPROPERTY(meta = (BindWidget))
-	class UButton* BackButton;
-	UFUNCTION()
-    void Exit();
+	// UPROPERTY(meta = (BindWidget))
+	// class UButton* BackButton;
+	// UFUNCTION()
+    // void Exit();
 
 	UFUNCTION()
 	void ChangeResolution480();

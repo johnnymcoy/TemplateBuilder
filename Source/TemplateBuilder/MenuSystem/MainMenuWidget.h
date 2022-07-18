@@ -22,12 +22,6 @@ protected:
 	virtual bool Initialize() override;
 	UFUNCTION()
 	void StartScreenButtonClicked();
-	UFUNCTION()
-	void SinglePlayerButtonClicked();
-	UFUNCTION()
-	void OptionsButtonClicked();
-	UFUNCTION()
-	void CharacterButtonClicked();
 
 	UFUNCTION()
 	void JoinButtonClicked();
@@ -35,15 +29,6 @@ protected:
 	void SearchServersButtonClicked();
 	UFUNCTION()
 	void HostButtonClicked();
-	UFUNCTION()
-	void JoinMenuButtonClicked();
-	UFUNCTION()
-	void HostMenuButtonClicked();
-
-	UFUNCTION()
-	void BackButtonClicked();
-	UFUNCTION()
-	void QuitButtonClicked();
 
 	void UpdateServerRows();
 	UFUNCTION()
@@ -57,15 +42,33 @@ protected:
 	class UButton* StartScreenButton;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* SinglePlayerButton;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* HostButton;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UButton* JoinButton;
+    
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidgetSwitcher* MenuSwitcher;
+    UPROPERTY(BlueprintReadWrite)
+    int32 MenuPageIndex = 0;
+    UPROPERTY(BlueprintReadWrite)
+    int32 CampainPageIndex = 0;
+    UPROPERTY(BlueprintReadWrite)
+    int32 MultiplayerPageIndex = 0;
+
+    UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidget* StartScreen;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* CharacterButton;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* OptionsButton;
+	class UWidget* MainMenu;
+	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	// class UWidget* JoinMenu;
+	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	// class UWidget* JoinIPMenu;
+	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	// class UWidget* HostMenu;
+	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	// class UWidget* OptionsMenu;
+	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	// class UWidget* CharacterMenu;
+
+
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
@@ -74,21 +77,6 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SearchServersButton;
-
-	// UPROPERTY(meta = (BindWidget))
-	// class UButton* JoinMenuButton;
-	// UPROPERTY(meta = (BindWidget))
-	// class UButton* HostMenuButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* JoinBackButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* HostBackButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* OptionsBackButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* CharacterBackButton;
-	UPROPERTY(meta = (BindWidget))
-	class UButton* QuitButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* IPInputTextBox;
@@ -105,22 +93,6 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;
 
-	UPROPERTY(meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* StartScreen;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* MainMenu;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* JoinMenu;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* JoinIPMenu;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* HostMenu;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* OptionsMenu;
-	UPROPERTY(meta = (BindWidget))
-	class UWidget* CharacterMenu;
 
 
 
@@ -128,6 +100,7 @@ private:
 	class UWidget* SearchingProgressSpinner;
 
 	float NumberOfPlayers;
-	TOptional<uint32> SelectedIndex;
+    TOptional<uint32> SelectedIndex;
+
 };
 
