@@ -57,6 +57,8 @@ protected:
 	class UWidget* StartScreen;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UWidget* MainMenu;
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+    bool bIsControllerInput;
 	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	// class UWidget* JoinMenu;
 	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
