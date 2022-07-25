@@ -56,7 +56,8 @@ UI:
 
 
 Wish List: 
+
 Chat Box: All Chat, Team Chat, Direct Chat.
 Emotes. 
 Cheat Menu (Halo:CE).
-Rework of the Pink system 
+Rework of the Ping system 
