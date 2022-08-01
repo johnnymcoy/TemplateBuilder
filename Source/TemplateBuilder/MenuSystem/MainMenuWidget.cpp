@@ -17,6 +17,7 @@ UMainMenuWidget::UMainMenuWidget()
 	ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/MenuSystem/WBP_ServerRow"));
 	if (!ensure(ServerRowBPClass.Class != nullptr)) return;
 	ServerRowClass = ServerRowBPClass.Class;
+
 	// if (!ensure(ServerRowReference->StaticClass() != nullptr)) return;
 	// ServerRowClass = ServerRowReference->StaticClass();
 }

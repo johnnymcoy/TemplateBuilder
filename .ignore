@@ -1,0 +1,13 @@
+.git
+.idea
+.vs
+.vscode
+Content
+DerivedDataCache
+Intermediate
+Saved
+Script
+Plugins/ALSV4_CPP-main/Content
+Plugins/ALSV4_CPP-main/Intermediate
+Plugins/MyPlugin/Content
+Plugins/MyPlugin/Intermediate

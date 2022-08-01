@@ -24,7 +24,7 @@
 		{
 			"Name": "AutoSettings",
 			"Enabled": true,
-			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/7f6a777da2724d4a9a3dd551f03a3ad1"
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/fcc480bac77b4373bc6c68f0ae4f9847"
 		},
 		{
 			"Name": "BlockoutToolsPlugin",
@@ -50,6 +50,26 @@
 			"Name": "PerceptionExtension",
 			"Enabled": true,
 			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/3554adbb682840be9abe0db1afef4b32"
+		},
+		{
+			"Name": "SnapSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/fa834687594944f5aafe2be8b44ad3f1"
+		},
+		{
+			"Name": "DlgSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/6d0255a60be340dfa1c556503cc57eb3"
+		},
+		{
+			"Name": "PowerIK",
+			"Enabled": true,
+			"MarketplaceURL": "https://www.unrealengine.com/marketplace/en-US/product/power-ik"
+		},
+		{
+			"Name": "SmoothSyncPlugin",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/c8f61b007fb44f4abcb7b0974cebff6b"
 		}
 	]
 }
