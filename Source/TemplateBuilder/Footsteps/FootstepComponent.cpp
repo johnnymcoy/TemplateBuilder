@@ -8,11 +8,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 
-
-#include "DrawDebugHelpers.h"
-#include "TemplateBuilder/AI/AIControllerBase.h"
-
-
 // Sets default values for this component's properties
 UFootstepComponent::UFootstepComponent()
 {

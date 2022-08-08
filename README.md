@@ -1,5 +1,4 @@
 # TemplateBuilder
-
 Developed with Unreal Engine 4
 
 Features:
@@ -22,6 +21,48 @@ Fixing up References in Character BP
 Trying to make it more flexable and usable if i want to use it in another project
 
 Changed EQS nearest player + find all players from Player_bp to Player controller, need to test if works
+
+## MVP:
+#### _Minimum viable product_
+What is needed to turn this prototype into a working demo
+#### Horde Mode
+- Game Mode
+- Scoring
+- Waves
+- Enemy Spawning
+- Zombie AI
+- Connect Menu UI
+
+## QOL:
+#### _Quality of Life_
++ 
++ 
++ 
+Character Component Base class
+ActorComponent-> but with some extra defaults
+Owning Pawn
+Owning Controller
+Owning Player Controller - see shooting component
++ Silenced Weapons, Weapons need to make Noise for AI 
++ List of things that make noise 
++ 
+
+## AI:
+
++ Shooting Component needs BP function calls, so AI can tell Blackboard they're reloading etc.
++ Add TargetActor to Array, 
++ Forloop over them and find which is closest, or if bTakingDamage
++ Melee Attack in Zombie AI (Refactor it for use with any character)
++ Zombie AI always chooses Player first, change it to Any enemy
++ Go through ALS with interaction for more Insperation for Human AI
++ 
+Human
++ Fix When AI is low health
++ add,  when Limb is detached 
++ List of events that will turn a human hostile,
++ What will turn them back 
++ Push back animation
++ fix up decorators and if has weapon task 
 
 
 ## Working on:

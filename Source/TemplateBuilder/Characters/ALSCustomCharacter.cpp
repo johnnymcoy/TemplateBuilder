@@ -58,19 +58,22 @@ void AALSCustomCharacter::BeginPlay()
 	DefaultAccuracy = Accuracy;
 
 	//ShootingComponent setters
-	ShootingComponent->SetIsNPC(bIsNPC);
-	ShootingComponent->SetGunChildActor(Gun);
-	ShootingComponent->SetThrowPoint(ThrowPoint);
-	ShootingComponent->SetOwnerMesh(GetMesh());
-	ShootingComponent->SetAnimInstance(MainAnimInstance);
-	ShootingComponent->SetController(GetController());
-	if(!bIsNPC)
+	if(GetLocalRole() == ROLE_Authority)
 	{
-		ShootingComponent->SetupHUD();
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-		if(PlayerController != nullptr)
+		ShootingComponent->SetIsNPC(bIsNPC);
+		ShootingComponent->SetGunChildActor(Gun);
+		ShootingComponent->SetThrowPoint(ThrowPoint);
+		ShootingComponent->SetOwnerMesh(GetMesh());
+		ShootingComponent->SetAnimInstance(MainAnimInstance);
+		ShootingComponent->SetController(GetController());
+		if(!bIsNPC)
 		{
-			OwnerPlayerController = PlayerController;
+			ShootingComponent->SetupHUD();
+			APlayerController* PlayerController = Cast<APlayerController>(GetController());
+			if(PlayerController != nullptr)
+			{
+				OwnerPlayerController = PlayerController;
+			}
 		}
 	}
 	//todo Shooting Component 

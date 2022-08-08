@@ -25,7 +25,7 @@ public:
 	UPinComponent();
 
 	UFUNCTION(BlueprintCallable, Category = "Pin")
-	void AddPin();
+	void AddPin(FHitResult& out_Hit);
 
 
 protected:
@@ -55,5 +55,11 @@ private:
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
 	AActor* HitActor;
+
+	//Standard
+	UPROPERTY()
+	APlayerController* OwningPlayerController;
+	UPROPERTY()
+	APawn* OwningPawn;
 
 };

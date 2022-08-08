@@ -154,12 +154,11 @@ protected:
 	// class UUserWidget* WeaponWidget;
 
 public:	
-	//Base Functions//
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Weapon Functions")
-	// virtual void Fire_Implementation() override;
 	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
 	virtual void Fire() override;
-	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon Functions", meta=(DisplayName = "Fire"))
+	void ReceiveFire(FHitResult Hit);
+
 	virtual void Reload(float ReloadTime) override;
 	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
 	virtual void CancelReload() override;

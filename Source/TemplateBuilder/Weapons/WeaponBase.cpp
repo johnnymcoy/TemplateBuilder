@@ -261,6 +261,8 @@ void AWeaponBase::Shoot()
 					//Nothing in the way
 					if(Hit.GetActor() != nullptr)
 					{
+						//todo: Fire in proper spot
+						ReceiveFire(Hit);
 						ApplyDamageToActor(Hit, ShotDirection);
 					}
 				}

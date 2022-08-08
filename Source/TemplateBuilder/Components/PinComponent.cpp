@@ -16,9 +16,11 @@ UPinComponent::UPinComponent()
 void UPinComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	OwningPawn = Cast<APawn>(GetOwner());
+	OwningPlayerController = Cast<APlayerController>(OwningPawn->GetController());
 }
 
-void UPinComponent::AddPin() 
+void UPinComponent::AddPin(FHitResult& out_Hit) 
 {
 	GetTraceParams();
 	FVector TraceStart = InLocation;
@@ -29,6 +31,7 @@ void UPinComponent::AddPin()
 	if(UKismetSystemLibrary::LineTraceSingle(this, TraceStart, TraceEnd, UEngineTypes::ConvertToTraceType(ECC_Visibility),
 	 true, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f))
 	{
+		out_Hit = Hit;
 		SpawnLocation = Hit.Location;
 		FHitResult SphereHit;
 		if(UKismetSystemLibrary::SphereTraceSingle(this, SpawnLocation, SpawnLocation, 50.0f, UEngineTypes::ConvertToTraceType(ECC_Visibility), 
@@ -103,11 +106,10 @@ void UPinComponent::DestroyLastPin()
 
 void UPinComponent::GetTraceParams()
 {
-	// ALSCustomCharacter* OwnerPawn = Cast<UALSCustomCharacter>(GetOwner());
-	// if(OwnerPawn)
-	// {
-		APlayerCameraManager* PlayerCamera = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	if(OwningPlayerController)
+	{
+		APlayerCameraManager* PlayerCamera = OwningPlayerController->PlayerCameraManager;
 		InLocation = PlayerCamera->GetCameraLocation();
 		InRotation = PlayerCamera->GetCameraRotation();
-	// }
+	}
 }
