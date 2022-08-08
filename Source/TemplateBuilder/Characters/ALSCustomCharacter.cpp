@@ -2,10 +2,10 @@
 
 
 #include "ALSCustomCharacter.h"
-
 #include "AIController.h"
 #include "TemplateBuilder/Interactable/InteractableInterface.h"
 #include "TemplateBuilder/Interactable/WeaponPickupBase.h"
+#include "TemplateBuilder/Components/CustomPhysicalAnimation.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "PhysicsEngine/PhysicalAnimationComponent.h"
@@ -36,7 +36,8 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
 	ThrowPoint->SetupAttachment(GetMesh(), TEXT("head"));
 	
-	PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimation"));
+	// PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimation"));
+    CustomPhysicalAnimation = CreateDefaultSubobject<UCustomPhysicalAnimation>(TEXT("CustomPhysicalAnimation"));
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AALSCustomCharacter::OnHealthChanged);
@@ -83,43 +84,44 @@ void AALSCustomCharacter::Tick(float DeltaTime)
 
 void AALSCustomCharacter::SetupPhysicalAnimation() 
 {
-	PhysicalAnimation->SetSkeletalMeshComponent(GetMesh());
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Pelvis"), PelvisData, true);
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("spine_01"), SpineData, true);
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Thigh_L"), LegData, true);
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Thigh_R"), LegData, true);
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("clavicle_l"), ArmData, true);
-	PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("clavicle_r"), ArmData, true);
-	GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("Pelvis"), true, true);
+    CustomPhysicalAnimation->SetupMesh(GetMesh());
+	// PhysicalAnimation->SetSkeletalMeshComponent(GetMesh());
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Pelvis"), PelvisData, true);
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("spine_01"), SpineData, true);
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Thigh_L"), LegData, true);
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("Thigh_R"), LegData, true);
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("clavicle_l"), ArmData, true);
+	// PhysicalAnimation->ApplyPhysicalAnimationSettingsBelow(FName("clavicle_r"), ArmData, true);
+	// GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("Pelvis"), true, true);
 }
-
+// Todo: Remove
 void AALSCustomCharacter::SetupPhysicalAnimationDefaults() 
 {
-	PelvisData.bIsLocalSimulation = false;
-	SpineData.bIsLocalSimulation = false;
-	LegData.bIsLocalSimulation = false;
-	ArmData.bIsLocalSimulation = false;
-	PelvisData.OrientationStrength = 10000.0f;
-	SpineData.OrientationStrength = 10000.0f;
-	LegData.OrientationStrength = 10000.0f;
-	ArmData.OrientationStrength = 10000.0f;
-	PelvisData.AngularVelocityStrength = 300.0f;
-	SpineData.AngularVelocityStrength = 500.0f;
-	LegData.AngularVelocityStrength = 500.0f;
-	ArmData.AngularVelocityStrength = 500.0f;
-	PelvisData.PositionStrength = 2000.0f;
-	SpineData.PositionStrength = 1000.0f;
-	LegData.PositionStrength = 1000.0f;
-	ArmData.PositionStrength = 500.0f;
-	PelvisData.VelocityStrength = 100.0f;
-	PelvisData.MaxLinearForce = 3000.0f;
-	SpineData.MaxLinearForce = 50000.0f;
-	LegData.MaxLinearForce = 50000.0f;
-	ArmData.MaxLinearForce = 50000.0f;
-	PelvisData.MaxAngularForce = 3000.0f;
-	SpineData.MaxAngularForce = 50000.0f;
-	LegData.MaxAngularForce = 100000.0f;
-	ArmData.MaxAngularForce = 3000.0f;
+// 	PelvisData.bIsLocalSimulation = false;
+// 	SpineData.bIsLocalSimulation = false;
+// 	LegData.bIsLocalSimulation = false;
+// 	ArmData.bIsLocalSimulation = false;
+// 	PelvisData.OrientationStrength = 10000.0f;
+// 	SpineData.OrientationStrength = 10000.0f;
+// 	LegData.OrientationStrength = 10000.0f;
+// 	ArmData.OrientationStrength = 10000.0f;
+// 	PelvisData.AngularVelocityStrength = 300.0f;
+// 	SpineData.AngularVelocityStrength = 500.0f;
+// 	LegData.AngularVelocityStrength = 500.0f;
+// 	ArmData.AngularVelocityStrength = 500.0f;
+// 	PelvisData.PositionStrength = 2000.0f;
+// 	SpineData.PositionStrength = 1000.0f;
+// 	LegData.PositionStrength = 1000.0f;
+// 	ArmData.PositionStrength = 500.0f;
+// 	PelvisData.VelocityStrength = 100.0f;
+// 	PelvisData.MaxLinearForce = 3000.0f;
+// 	SpineData.MaxLinearForce = 50000.0f;
+// 	LegData.MaxLinearForce = 50000.0f;
+// 	ArmData.MaxLinearForce = 50000.0f;
+// 	PelvisData.MaxAngularForce = 3000.0f;
+// 	SpineData.MaxAngularForce = 50000.0f;
+// 	LegData.MaxAngularForce = 100000.0f;
+// 	ArmData.MaxAngularForce = 3000.0f;
 }
 
 void AALSCustomCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) 
@@ -323,15 +325,18 @@ void AALSCustomCharacter::ThrowWeaponEvent_Implementation(FWeaponData WeaponData
 void AALSCustomCharacter::RagdollStart() 
 {
 	Super::RagdollStart();
-	PhysicalAnimation->SetStrengthMultiplyer(0);
+    CustomPhysicalAnimation->SetStrengthMultiplyer(0);
+	// PhysicalAnimation->SetStrengthMultiplyer(0);
 }
 
 void AALSCustomCharacter::RagdollEnd() 
 {
 	Super::RagdollEnd();
-	PhysicalAnimation->SetStrengthMultiplyer(1);
-	GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("Pelvis"), true, true);
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+    // CustomPhysicalAnimation->TogglePhysicalAnimation(true);
+    CustomPhysicalAnimation->SetStrengthMultiplyer(1);
+	// PhysicalAnimation->SetStrengthMultiplyer(1);
+	// GetMesh()->SetAllBodiesBelowSimulatePhysics(FName("Pelvis"), true, true);
+	// GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	GetWorldTimerManager().SetTimer(RagdollGroundTimer, this, &AALSCustomCharacter::RagdollMeshFix, 1.0f, false);
 	ClearHeldObject();
 }
@@ -345,6 +350,10 @@ void AALSCustomCharacter::RagdollMeshFix()
 void AALSCustomCharacter::Death_Implementation() 
 {
 	ReplicatedRagdollStart();
+	if(CustomPhysicalAnimation)
+	{
+		CustomPhysicalAnimation->SetIsDead(true);
+	}
 	if(ShootingComponent)
 	{
 		ShootingComponent->Death();
@@ -452,24 +461,35 @@ void AALSCustomCharacter::AddRecoilWBP_Implementation(float RecoilAmount)
 }
 
 /// Interface Calls
-void AALSCustomCharacter::AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) 
+void AALSCustomCharacter::AddImpulseEvent(const FHitResult in_Hit, const float in_GunImpulse) 
 {
-	FVector BulletForce;
-	BulletForce.X = (in_Impulse.X * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
-	BulletForce.Y = (in_Impulse.Y * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
-	BulletForce.Z = (in_Impulse.Z * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
-	FVector Location;
-	GetMesh()->AddImpulseAtLocation(BulletForce, Location, in_HitBone);
-	GetMesh()->AddImpulseToAllBodiesBelow((BulletForce / 2), in_HitBone, true, true);
+	// FVector BulletForce;
+	// FVector Location;
+	// BulletForce.X = (in_Impulse.X * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
+	// BulletForce.Y = (in_Impulse.Y * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
+	// BulletForce.Z = (in_Impulse.Z * UKismetMathLibrary::RandomFloatInRange(0.3f, in_GunImpulse));
+	// GetMesh()->AddImpulseAtLocation(BulletForce, Location, in_HitBone);
+	// GetMesh()->AddImpulseToAllBodiesBelow((BulletForce / 2), in_HitBone, true, true);
+	FVector HitVector = (in_Hit.TraceEnd - in_Hit.TraceStart);
+	HitVector.Normalize(0.0001f);
+	HitVector *= in_GunImpulse;
+	//todo: get proper number, also add in ragdoll if high enough
+	
+	if(in_GunImpulse > 50)
+	{
+		LaunchCharacter(HitVector,true,true);
+	}
+    CustomPhysicalAnimation->HitReaction(in_Hit, in_GunImpulse);
 	if(HealthComponent->GetHealth() == 0)
 	{
 		if(!DoOnce)
 		{
-			GetMesh()->AddImpulseToAllBodiesBelow((BulletForce), in_HitBone, true, true);
+            // CustomPhysicalAnimation->HitReaction(in_Impulse, in_HitBone, in_GunImpulse);
 			DoOnce = true;
+			// GetMesh()->AddImpulseToAllBodiesBelow((BulletForce), in_HitBone, true, true);
 		}
 	}
-	ReceiveImpulseEvent(in_Impulse, in_HitBone, in_GunImpulse);
+	ReceiveImpulseEvent(in_Hit, in_GunImpulse);
 }
 
 void AALSCustomCharacter::BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,

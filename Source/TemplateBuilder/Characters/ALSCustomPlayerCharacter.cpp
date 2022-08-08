@@ -22,6 +22,7 @@ AALSCustomPlayerCharacter::AALSCustomPlayerCharacter(const FObjectInitializer& O
 void AALSCustomPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+    UE_LOG(LogTemp,Warning,TEXT("Version 0.12.05"));
 	//Optimised Tick for Traceforward todo: check value 
 	GetWorldTimerManager().SetTimer(TraceForwardTimerHandle, this, &AALSCustomPlayerCharacter::TraceForward, 0.1f, true);
 }

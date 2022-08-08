@@ -10,6 +10,7 @@
 
 
 #include "DrawDebugHelpers.h"
+#include "TemplateBuilder/AI/AIControllerBase.h"
 
 
 // Sets default values for this component's properties

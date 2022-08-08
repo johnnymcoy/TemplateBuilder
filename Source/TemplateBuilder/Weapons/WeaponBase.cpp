@@ -249,7 +249,7 @@ void AWeaponBase::Shoot()
 				//Check if Anything is between the player and where they should be shooting //
 				//i.e. can see someone around the corner but gun is pointed at the wall //
 				FHitResult HitCheck;
-				ActorsToIgnore.Add(Hit.Actor.Get());
+				ActorsToIgnore.Add(Hit.GetActor());
 				if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
 				if(UKismetSystemLibrary::LineTraceSingle(this, Hit.Location, MuzzleLocation, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
 							true, ActorsToIgnore, DrawDebugType, HitCheck, true, FLinearColor::Blue, FLinearColor::Blue, 1.0f))
@@ -264,7 +264,7 @@ void AWeaponBase::Shoot()
 						ApplyDamageToActor(Hit, ShotDirection);
 					}
 				}
-				ActorsToIgnore.Remove(Hit.Actor.Get()); //Remove as the var is kept
+				ActorsToIgnore.Remove(Hit.GetActor()); //Remove as the var is kept
 			}
 		}
 		else
@@ -341,7 +341,8 @@ void AWeaponBase::ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirectio
 		{
 			//Hit a Player
 			HitCharacterInterface->BulletDamageEvent( GunWeaponStats.DefaultDamage, GunWeaponStats.HeadMultiplier, Hit.BoneName, TraceActorToIgnore->GetInstigatorController(), this, GunWeaponStats.DamageType);
-			HitCharacterInterface->AddImpulseEvent((ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
+			// HitCharacterInterface->AddImpulseEvent((ForwardVector * GunWeaponStats.GunImpulse), Hit.BoneName, GunWeaponStats.GunImpulse);
+			HitCharacterInterface->AddImpulseEvent( Hit, GunWeaponStats.GunImpulse);
 		}
 		else
 		{

@@ -20,7 +20,7 @@ class TEMPLATEBUILDER_API IALSCharacterInterface
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Reaction")
-	virtual void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) = 0;
+	virtual void AddImpulseEvent(const FHitResult in_Hit, const float in_GunImpulse = 1) = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	virtual void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,

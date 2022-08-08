@@ -6,6 +6,23 @@ Features:
 
 ## Done:
 + Add in selection bar to main menu
+Add in Custom Physical Animation to CustomALS Character
+Add in gun impulse to the physical Anim part
+BUG- Collision on the custom physical animation doesn't really work when being shot
+
+When taking damage-> health left should be the Alpha of how much the customPhysicalAnimation is applied
+Dismemberment component 
+
+AI - -
+
+Add in new animations
+
+Add in reaction Animations?
+Fixing up References in Character BP
+Trying to make it more flexable and usable if i want to use it in another project
+
+Changed EQS nearest player + find all players from Player_bp to Player controller, need to test if works
+
 
 ## Working on:
 New Main Menu UI.
@@ -30,6 +47,11 @@ Todo:
 Refactor WeaponInterface
 Add in all weapons 
 Gun FX
+Fix up Physical Animation into Seperate component - saves memory
+Add in all animation from animation packs
+Fix up proper rig, instead of current floating one
+
+
 
 Finish enemy AI 
 HUD 

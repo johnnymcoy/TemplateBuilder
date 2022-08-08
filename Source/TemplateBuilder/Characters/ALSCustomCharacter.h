@@ -18,8 +18,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
 	class UChildActorComponent* Gun;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
-	class UPhysicalAnimationComponent* PhysicalAnimation;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
+	// class UPhysicalAnimationComponent* PhysicalAnimation;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
+	class UCustomPhysicalAnimation* CustomPhysicalAnimation;
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class USceneComponent* ThrowPoint;
@@ -27,8 +31,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class UShootingComponent* ShootingComponent;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
-	class UShootingReplicationComponent* ShootingReplication;
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
+	// class UShootingReplicationComponent* ShootingReplication;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* HealthComponent;
@@ -67,9 +71,12 @@ public:
 	//UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Reaction")
 	// void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
 	UFUNCTION(BlueprintCallable, Category = "Reaction")
-	virtual void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
+    virtual void AddImpulseEvent(const FHitResult in_Hit, const float in_GunImpulse) override;
+	// virtual void AddImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse) override;
+
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Reaction", meta=(DisplayName = "Impulse"))
-	void ReceiveImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
+	void ReceiveImpulseEvent(const FHitResult in_Hit, const float in_GunImpulse);
+	// void ReceiveImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
 
 	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
 	// void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
@@ -208,13 +215,13 @@ private:
 	// UUserWidget* PauseMenu;
 
 	//Server//
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void ServerPlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages);
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastPlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate, EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages);
-	UFUNCTION(Server, Reliable)
+	UFUNCTION(Server, Unreliable)
 	void ServerStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION(NetMulticast, Unreliable)
 	void MulticastStopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
 
 	
