@@ -26,7 +26,10 @@ void AAIControllerBase::Tick(float DeltaSeconds)
 
 void AAIControllerBase::Death()
 {
+    GetBrainComponent()->StopLogic("Death");
+    SetActorTickEnabled(false);
     GetBrainComponent()->Cleanup();
+    UnPossess();
 }
 
 bool AAIControllerBase::IsDead() const

@@ -24,3 +24,6 @@ Content/Hack_And_Slash_FX
 Content/ReactionSystemBP
 Content/StarterContent
 Content/VFX_Toolkit_V1
+Content/BallisticsVFX
+
+*.uasset

@@ -242,6 +242,7 @@ void UShootingComponent::CancelReload()
 	MainAnimInstance->Montage_Stop(0.05f, LastReloadAnimation);
 	// if(GetLocalRole() < ROLE_Authority){ServerStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
 	// else{MulticastStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
+	//BUG CLient Doesn't work 
 	GetOwner()->GetWorldTimerManager().ClearTimer(ReloadTimer);
 }
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////

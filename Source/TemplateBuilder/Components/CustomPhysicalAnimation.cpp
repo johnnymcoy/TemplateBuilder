@@ -95,5 +95,10 @@ void UCustomPhysicalAnimation::SetStrengthMultiplyer(float Strength)
 void UCustomPhysicalAnimation::SetIsDead(bool bIsDead)
 {
     bDead = bIsDead;
+    //
+    HitReactionTimeRemaining = 0;
+    OwnerMesh->SetAllBodiesBelowSimulatePhysics(Pelvis, true, true);
+    //
+    SetStrengthMultiplyer(0);
 }
 

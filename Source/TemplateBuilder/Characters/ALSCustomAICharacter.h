@@ -68,6 +68,7 @@ private:
 	void FaceHealthBarToPlayer();
 
 	FTimerHandle HealthBarTimer;
+	bool bHealthBarActive;
 
 	
 };

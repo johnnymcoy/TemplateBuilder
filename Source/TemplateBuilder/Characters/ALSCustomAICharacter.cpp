@@ -20,6 +20,7 @@ AALSCustomAICharacter::AALSCustomAICharacter(const FObjectInitializer& ObjectIni
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Health Bar"));
 	HealthBar->SetupAttachment(GetMesh());
+	bHealthBarActive = true;
 	GetMesh()->OnComponentHit.AddDynamic(this, &AALSCustomAICharacter::OnHit);
 	bIsNPC = true;
 	HealthComponent->bHasShield = false;
@@ -45,7 +46,7 @@ void AALSCustomAICharacter::OnPickUp(AActor* Caller)
 
 void AALSCustomAICharacter::StartFocus() 
 {
-    if(IsDead() == false)
+    if(bHealthBarActive)
 	{
 		HealthBar->SetVisibility(true);
 		GetWorldTimerManager().SetTimer(HealthBarTimer, this, &AALSCustomAICharacter::FaceHealthBarToPlayer, 0.2f, true, 0);		
@@ -55,7 +56,7 @@ void AALSCustomAICharacter::StartFocus()
 
 void AALSCustomAICharacter::EndFocus() 
 {
-    if(IsDead() == false)
+    if(bHealthBarActive)
 	{
 		HealthBar->SetVisibility(false);
 		GetWorldTimerManager().ClearTimer(HealthBarTimer);
@@ -149,7 +150,7 @@ void AALSCustomAICharacter::OnHit(UPrimitiveComponent* HitComponent, AActor* Oth
 
 void AALSCustomAICharacter::FaceHealthBarToPlayer() 
 {
-	if(IsDead())
+	if(!bHealthBarActive)
 	{
 		GetWorldTimerManager().ClearTimer(HealthBarTimer);
 		return;
@@ -170,20 +171,24 @@ void AALSCustomAICharacter::Death_Implementation()
 	if(!DeathOnce)
 	{
 		DeathOnce = true;
-		AAIControllerBase* AIController = Cast<AAIControllerBase>(GetController());
-		if(AIController)
-		{
-			AIController->Death();
-			// AIController->UnPossess();
+	 	AAIControllerBase* AIController = Cast<AAIControllerBase>(GetController());
+	 	if(AIController)
+	 	{
+	 		AIController->Death();
+	 		// AIController->UnPossess();
 		}
+		SetActorTickEnabled(false);
 		MulticastDeath();
 	}
 }
 
 void AALSCustomAICharacter::MulticastDeath_Implementation() 
 {
+	//TODO BUGGY!!
+	//BUG 
 	if(HealthBar)
 	{
-		HealthBar->DestroyComponent();
+		HealthBar->SetVisibility(false);
+		bHealthBarActive = false;
 	}
 }
