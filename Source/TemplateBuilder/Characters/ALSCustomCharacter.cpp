@@ -8,7 +8,6 @@
 #include "TemplateBuilder/Components/CustomPhysicalAnimation.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "PhysicsEngine/PhysicalAnimationComponent.h"
 #include "TemplateBuilder/Health/HealthComponent.h"
 #include "TemplateBuilder/Weapons/WeaponBase.h"
 #include "TemplateBuilder/Components/ShootingComponent.h"
@@ -208,16 +207,16 @@ void AALSCustomCharacter::CameraButtonPressed()
 		ShootingComponent->MoveUMG(bRightShoulder);
 	}
 }
-//
-// //TODO fix throw weapon (check character_BP) 
-// void AALSCustomCharacter::ThrowWeaponPressed()
-// {
-// 	if(ShootingComponent)
-// 	{
+
+//	TODO fix throw weapon (check character_BP) 
+void AALSCustomCharacter::ThrowWeaponPressed()
+{
+	if(ShootingComponent)
+	{
 // 		CalculateAccuracy();
 // 		ShootingComponent->ThrowWeapon(ShootingComponent->GetCurrentWeaponData());
-// 	}
-// }
+	}
+}
 
 void AALSCustomCharacter::ShootGun() 
 {

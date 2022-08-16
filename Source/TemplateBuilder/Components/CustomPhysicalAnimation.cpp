@@ -17,13 +17,15 @@ UCustomPhysicalAnimation::UCustomPhysicalAnimation()
 {
     PrimaryComponentTick.bStartWithTickEnabled = false;
 	PrimaryComponentTick.bCanEverTick = false;
+    SetIsReplicated(true);
 }
 
 void UCustomPhysicalAnimation::BeginPlay()
 {
 	Super::BeginPlay();
-    FTransform Transform;
+    const FTransform Transform;
     PhysicalAnimationRef = Cast<UPhysicalAnimationComponent>(GetOwner()->AddComponentByClass(UPhysicalAnimationComponent::StaticClass(), false, Transform, false));
+    PhysicalAnimationRef->SetIsReplicated(true);
 }
 
 void UCustomPhysicalAnimation::SetupMesh(USkeletalMeshComponent* MeshToAttach)

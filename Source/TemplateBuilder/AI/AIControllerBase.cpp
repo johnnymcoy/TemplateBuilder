@@ -21,7 +21,6 @@ void AAIControllerBase::BeginPlay()
 void AAIControllerBase::Tick(float DeltaSeconds) 
 {
     Super::Tick(DeltaSeconds);
-    
 }
 
 void AAIControllerBase::Death()

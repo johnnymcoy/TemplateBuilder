@@ -155,12 +155,12 @@ void AALSCustomAICharacter::FaceHealthBarToPlayer()
 		GetWorldTimerManager().ClearTimer(HealthBarTimer);
 		return;
 	}
-	APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
+	const APlayerCameraManager* CameraManager = GetWorld()->GetFirstPlayerController()->PlayerCameraManager;
 	if(CameraManager)
 	{
-		FVector CameraLocation = CameraManager->GetCameraLocation();
-		FVector HealthLocation = HealthBar->GetComponentLocation();
-		FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(HealthLocation, CameraLocation);
+		const FVector CameraLocation = CameraManager->GetCameraLocation();
+		const FVector HealthLocation = HealthBar->GetComponentLocation();
+		const FRotator NewRotation = UKismetMathLibrary::FindLookAtRotation(HealthLocation, CameraLocation);
 		HealthBar->SetWorldRotation(NewRotation);
 	}
 }
@@ -175,7 +175,6 @@ void AALSCustomAICharacter::Death_Implementation()
 	 	if(AIController)
 	 	{
 	 		AIController->Death();
-	 		// AIController->UnPossess();
 		}
 		SetActorTickEnabled(false);
 		MulticastDeath();
@@ -185,7 +184,6 @@ void AALSCustomAICharacter::Death_Implementation()
 void AALSCustomAICharacter::MulticastDeath_Implementation() 
 {
 	//TODO BUGGY!!
-	//BUG 
 	if(HealthBar)
 	{
 		HealthBar->SetVisibility(false);

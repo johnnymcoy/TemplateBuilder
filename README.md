@@ -33,16 +33,32 @@ What is needed to turn this prototype into a working demo
 - Zombie AI
 - Connect Menu UI
 
+## To Add:
+Component
+
+Character Component - Base class
+- ActorComponent-> but with some extra defaults
+- Owning Pawn
+- Owning Controller
+- Owning Player Controller - see shooting component
+
+Visual Effects Spawner 
+- Ballistics VFX example 
+- Projectile weapons
+
+
+Pawn Sensing in Character
+
+Testing Map
+Similar to ALS testing map 
+also has all floors 
+
+
 ## QOL:
 #### _Quality of Life_
 + 
 + 
 + 
-Character Component Base class
-ActorComponent-> but with some extra defaults
-Owning Pawn
-Owning Controller
-Owning Player Controller - see shooting component
 + Silenced Weapons, Weapons need to make Noise for AI 
 + List of things that make noise 
 + 
@@ -64,6 +80,11 @@ Human
 + Push back animation
 + fix up decorators and if has weapon task 
 
+Character
++ Fix Death Ragdoll, currently not replicated
++ Physical Animation component not replicating
++ Pawn Sensing
++ Pawn Sense Stimuli 
 
 ## Working on:
 New Main Menu UI.

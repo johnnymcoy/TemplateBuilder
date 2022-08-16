@@ -262,7 +262,8 @@ void AWeaponBase::Shoot()
 					if(Hit.GetActor() != nullptr)
 					{
 						//todo: Fire in proper spot
-						ReceiveFire(Hit);
+						APawn* OwnerPawn = Cast<APawn>(GetOwner());
+						ReceiveFire(Hit, OwnerPawn);
 						ApplyDamageToActor(Hit, ShotDirection);
 					}
 				}

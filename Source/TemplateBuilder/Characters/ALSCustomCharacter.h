@@ -18,9 +18,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Gun")
 	class UChildActorComponent* Gun;
 
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
-	// class UPhysicalAnimationComponent* PhysicalAnimation;
-
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
 	class UCustomPhysicalAnimation* CustomPhysicalAnimation;
 
@@ -31,9 +28,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class UShootingComponent* ShootingComponent;
 	
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
-	// class UShootingReplicationComponent* ShootingReplication;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* HealthComponent;
 
@@ -78,9 +72,6 @@ public:
 	void ReceiveImpulseEvent(const FHitResult in_Hit, const float in_GunImpulse);
 	// void ReceiveImpulseEvent(const FVector in_Impulse, const FName in_HitBone, const float in_GunImpulse);
 
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Damage")
-	// void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
-	 //    TSubclassOf<class UDamageType> in_DamageType);
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 	virtual void BulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
     TSubclassOf<class UDamageType> in_DamageType) override;
@@ -88,8 +79,6 @@ public:
 	void ReceiveBulletDamageEvent(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, AController* in_EventInstigator, AActor* in_DamageCauser,
 	TSubclassOf<class UDamageType> in_DamageType);
 
-	// UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Pickups")
-	// virtual void PickupGunEvent_Implementation(const FWeaponData in_WeaponData) override;
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	virtual void PickupGunEvent(const FWeaponData in_WeaponData) override;
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Damage", meta=(DisplayName = "Pickup Gun"))
@@ -148,10 +137,6 @@ public:
 	UFUNCTION()
 	bool IsCrouching() const;
 	
-	// UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "Weapons")
-	// struct FWeaponData CurrentWeaponData;
-
-
 	 // less than 1 is Low, 5 Is Very high
 	 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
 	 float Accuracy = 1;
@@ -208,11 +193,6 @@ private:
 	
 	void SetupPhysicalAnimation();
 	void SetupPhysicalAnimationDefaults();
-
-	// UPROPERTY(EditAnywhere)
-	// TSubclassOf<class UUserWidget> PauseMenuClass;
-	// UPROPERTY()
-	// UUserWidget* PauseMenu;
 
 	//Server//
 	UFUNCTION(Server, Unreliable)

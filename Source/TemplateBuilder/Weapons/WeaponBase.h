@@ -157,7 +157,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
 	virtual void Fire() override;
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon Functions", meta=(DisplayName = "Fire"))
-	void ReceiveFire(FHitResult Hit);
+	void ReceiveFire(FHitResult Hit, APawn* InstigatorPawn);
 
 	virtual void Reload(float ReloadTime) override;
 	UFUNCTION(BlueprintCallable, Category = "Weapon Functions")
