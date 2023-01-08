@@ -34,6 +34,7 @@ void UShootingComponent::SetupHUD()
 	if(WeaponWidget == nullptr){UE_LOG(LogTemp, Error, TEXT("WeaponWidget FAILED"))return;}
 	WeaponWidget->AddToViewport();
 }
+
 //Update Ammo with a slight delay so there's time for the gun to fire
 void UShootingComponent::UpdateWeaponHUD()
 {

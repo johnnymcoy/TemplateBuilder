@@ -1,13 +1,27 @@
 # TemplateBuilder
 Developed with Unreal Engine 4
 
+# Latest
++ Just added in test Dialouge to get a mission started
++ Added the Dialouge interface to the bp for the player and aI 
++ Added a missionComponent (temp bp) to add to a player to keep track of mission progress
+
++ NEXT 
++ Add in Dialogue System properly
++ figure out Mission Component 
++ Start with Get Mission from AI, then go to car 
++ then remove all unused menu Items or set to disabled
++ build first level and try as standalone demo
++ then start writing out list of whats next 
++ Create start Mission, Go to car, Find Keys, then Mission complete 
+
 Features:
 
 ## Done:
 + Add in selection bar to main menu
-Add in Custom Physical Animation to CustomALS Character
-Add in gun impulse to the physical Anim part
-BUG- Collision on the custom physical animation doesn't really work when being shot
++ Add in Custom Physical Animation to CustomALS Character
++ Add in gun impulse to the physical Anim part
++ BUG- Collision on the custom physical animation doesn't really work when being shot
 
 When taking damage-> health left should be the Alpha of how much the customPhysicalAnimation is applied
 Dismemberment component 

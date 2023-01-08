@@ -53,11 +53,6 @@ void AALSCustomPlayerCharacter::DebugCurrentWeapon()
 	{
 		WeaponDebugInterface->EnableWeaponDebug(bDebuggingMode);
 	}
-	// IDebugInterface* PlayerControllerDebugInterface = Cast<IDebugInterface>(GetController());
-	// if(PlayerControllerDebugInterface)
-	// {
-	// 	PlayerControllerDebugInterface->EnableControllerDebug(bDebuggingMode);
-	// }
 }
 
 void AALSCustomPlayerCharacter::TraceForward_Implementation() 
