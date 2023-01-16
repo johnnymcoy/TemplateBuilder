@@ -21,7 +21,7 @@ public:
 	void SetIsNPC(bool in_bIsNPC){bIsNPC = in_bIsNPC;};
 	void SetIsDead(bool bDead){bIsDead = bDead;};
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
+
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION(BlueprintCallable, Category = "Character")
@@ -34,6 +34,9 @@ protected:
 	bool GetIsNPC() const {return bIsNPC;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	bool GetIsDead() const {return bIsDead;};
+
+	void SetInputModeGameAndUI(bool bGameAndUI, class UWidget* InWidgetToFocus, bool bShowMouse);
+	
 
 private:
 	bool bIsNPC;

@@ -20,8 +20,7 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "PhysicalAnimation")
 	class UCustomPhysicalAnimation* CustomPhysicalAnimation;
-
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapons")
 	class USceneComponent* ThrowPoint;
 
@@ -87,7 +86,11 @@ public:
 	UFUNCTION(Server, Reliable)
 	virtual void DestroyActor(AActor* ActorToDestroy) override;
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override; 
+	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override;
+
+	UFUNCTION(BlueprintCallable, Category = Dialogue)
+	virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) override;
+
 	///////////////////////////////////////////////////////////////////////////
 
 	

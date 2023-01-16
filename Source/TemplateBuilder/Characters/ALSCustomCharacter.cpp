@@ -302,6 +302,12 @@ void AALSCustomCharacter::PickupGunEvent(const FWeaponData in_WeaponData)
 	ReceivePickupGun(in_WeaponData);
 }
 
+void AALSCustomCharacter::StartDialogue(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Start Dialogue | Custom Character | from Interface"));
+}
+
+
 void AALSCustomCharacter::DestroyActor_Implementation(AActor* ActorToDestroy)
 {
 	DestroyActorOnClient(ActorToDestroy);

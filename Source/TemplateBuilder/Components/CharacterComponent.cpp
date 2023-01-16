@@ -2,6 +2,7 @@
 
 
 #include "CharacterComponent.h"
+#include "Components/Widget.h"
 
 UCharacterComponent::UCharacterComponent()
 {
@@ -28,9 +29,28 @@ void UCharacterComponent::BeginPlay()
 	
 }
 
+void UCharacterComponent::SetInputModeGameAndUI(bool bGameAndUI,UWidget* InWidgetToFocus, bool bShowMouse)
+{
+	if(bGameAndUI)
+	{
+		FInputModeGameAndUI InputModeData;
+		OwnerPlayerController->SetInputMode(InputModeData);
+		OwnerPlayerController->bShowMouseCursor = bShowMouse;
+		if (InWidgetToFocus != nullptr)
+		{
+			InputModeData.SetWidgetToFocus(InWidgetToFocus->TakeWidget());
+		}
+	}
+	else
+	{
+		FInputModeGameOnly InputModeData;
+		OwnerPlayerController->SetInputMode(InputModeData);
+		OwnerPlayerController->bShowMouseCursor = bShowMouse;
+	}
+}
+
 void UCharacterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/Interface.h"
 #include "TemplateBuilder/Data/CustomStructLibrary.h"
+#include "DlgContext.h"
 #include "ALSCharacterInterface.generated.h"
 
 // This class does not need to be modified.
@@ -33,6 +34,9 @@ public:
 	virtual void DestroyActor(AActor* ActorToDestroy);
 
 	UFUNCTION(NetMulticast, Reliable)
-	virtual void DestroyActorOnClient(AActor* ActorToDestroy); 
+	virtual void DestroyActorOnClient(AActor* ActorToDestroy);
+
+	UFUNCTION(BlueprintCallable, Category = Dialogue)
+	virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) = 0;
 
 };

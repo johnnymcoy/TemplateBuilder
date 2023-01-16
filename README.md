@@ -8,6 +8,11 @@ Developed with Unreal Engine 4
 
 + NEXT 
 + Add in Dialogue System properly
++ add in display name to c++, and add the display name from simple shooter to have in multiplayer 
++ Dialogue Component - Has displayName, Icon, Name, and all function for dialouge - also a physical widget icon tooltip "talk to me"
++ check old project to see how i implemented the dialogue, if check, 
+  https://gitlab.com/NotYetGames/DlgSystem/-/wikis/Using-with-C++#tldr-c-short-integration-guide
++ 
 + figure out Mission Component 
 + Start with Get Mission from AI, then go to car 
 + then remove all unused menu Items or set to disabled
