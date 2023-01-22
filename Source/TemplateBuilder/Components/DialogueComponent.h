@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CharacterComponent.h"
+#include "Components/CharacterComponent.h"
 #include "DlgSystem/Public/DlgDialogueParticipant.h"
 #include "DialogueComponent.generated.h"
 

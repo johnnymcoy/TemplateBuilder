@@ -47,7 +47,10 @@ void UCustomPhysicalAnimation::HitReaction(FHitResult Hit, float Multiplier)
 {
     if(!bDead)
     {
-        HitReactionTimeRemaining += 0.1f;
+        if(HitReactionTimeRemaining <= 1.5) //todo Magic number (Max Time can be floppy)
+        {
+            HitReactionTimeRemaining += 0.1f;
+        }
         GetOwner()->GetWorldTimerManager().SetTimer(ReactionLengthTimer, this, &UCustomPhysicalAnimation::PhysicalReaction, 0.01f, true);
         OwnerMesh->SetAllBodiesBelowSimulatePhysics(Pelvis, true, false);
         PhysicalAnimationRef->ApplyPhysicalAnimationProfileBelow(Pelvis, ProfileStrong, false);
@@ -70,12 +73,14 @@ void UCustomPhysicalAnimation::HitReaction(FHitResult Hit, float Multiplier)
     OwnerMesh->AddImpulse((BulletForce * ImpulseMultiplyer), BoneHit, true);
     // OwnerMesh->AddImpulseToAllBodiesBelow((BulletForce * ImpulseMultiplyer), BoneHit, true);
 }
-
+// todo Continue with changing above value of how long they should be floppy
+// todo continue with changing the Blend weight so it more naturally changes back to non floppy
+// the problem is probably in the *10, change and log the numbers before going into the blend
 void UCustomPhysicalAnimation::PhysicalReaction()
 {
     Counter = (GetWorld()->GetDeltaSeconds() * CounterMultiplier);
     HitReactionTimeRemaining = (FMath::FInterpTo(HitReactionTimeRemaining, 0.0f, 0.0f, 1.0f) - Counter);
-    UE_LOG(LogTemp,Warning,TEXT(" %f : TimeRemaining 1.8 ,Counter: %f "), HitReactionTimeRemaining, Counter);
+    // UE_LOG(LogTemp,Warning,TEXT(" %f : TimeRemaining 1.91 ,Counter: %f "), HitReactionTimeRemaining, Counter);
     if(HitReactionTimeRemaining <= 0)
     {
         HitReactionTimeRemaining = 0;
@@ -84,7 +89,9 @@ void UCustomPhysicalAnimation::PhysicalReaction()
     }
     else
     {
-        OwnerMesh->SetAllBodiesBelowPhysicsBlendWeight(Pelvis, UKismetMathLibrary::FMin(HitReactionTimeRemaining * 10, 1));
+        float BlendFloat = UKismetMathLibrary::FMin(HitReactionTimeRemaining * 10, 1);
+        UE_LOG(LogTemp,Warning,TEXT("v1.93 %f : TimeRemaining ,BlendFloat: %f "), HitReactionTimeRemaining, BlendFloat);
+        OwnerMesh->SetAllBodiesBelowPhysicsBlendWeight(Pelvis, HitReactionTimeRemaining);
     }
 }
 

@@ -11,7 +11,7 @@ public class TemplateBuilder : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "DlgSystem", "Niagara", "PhysicsCore", "ALSV4_CPP", "GameplayTasks", "UMG", "HTTP", "Json", "OnlineSubsystem"});
 
  		//PublicIncludePaths.AddRange(new string[] {"<ALSV4_CPP-main>/Public", "<ALSV4_CPP-main>/Classes" });
-		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore"});
+		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore", "BaseHelpers"});
 
 
 	}
