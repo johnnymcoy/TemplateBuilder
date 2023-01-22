@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "ALSCustomCharacter.h"
 #include "AIController.h"
 #include "TemplateBuilder/Interactable/InteractableInterface.h"
@@ -16,6 +15,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "TimerManager.h"
+#include "DialogueComponent/Public/Components/DialogueComponent.h"
 #include "TemplateBuilder/DamageTypes/ShieldRegen.h"
 
 //TODO: Picking up gun always destroys actor
@@ -37,6 +37,10 @@ AALSCustomCharacter::AALSCustomCharacter(const FObjectInitializer& ObjectInitial
 	
 	// PhysicalAnimation = CreateDefaultSubobject<UPhysicalAnimationComponent>(TEXT("PhysicalAnimation"));
     CustomPhysicalAnimation = CreateDefaultSubobject<UCustomPhysicalAnimation>(TEXT("CustomPhysicalAnimation"));
+
+
+	DialogueComponent = CreateDefaultSubobject<UDialogueComponent>(TEXT("Dialogue Component"));
+
 
 	HealthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("Health Component"));
 	HealthComponent->OnHealthChanged.AddDynamic(this, &AALSCustomCharacter::OnHealthChanged);
@@ -75,6 +79,12 @@ void AALSCustomCharacter::BeginPlay()
 			}
 		}
 	}
+	// todo Dialogue
+	DialogueComponent->SetController(GetController());
+	DialogueComponent->SetIsNPC(bIsNPC);
+	DialogueComponent->InitialSetup();
+
+	
 	//todo Shooting Component 
 	// if(CurrentWeaponData.MeshForPickup == nullptr){bIsHolstered = true;}
 }
@@ -302,10 +312,10 @@ void AALSCustomCharacter::PickupGunEvent(const FWeaponData in_WeaponData)
 	ReceivePickupGun(in_WeaponData);
 }
 
-void AALSCustomCharacter::StartDialogue(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Start Dialogue | Custom Character | from Interface"));
-}
+// void AALSCustomCharacter::StartDialogue(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
+// {
+// 	UE_LOG(LogTemp, Warning, TEXT("Start Dialogue | Custom Character | from Interface"));
+// }
 
 
 void AALSCustomCharacter::DestroyActor_Implementation(AActor* ActorToDestroy)

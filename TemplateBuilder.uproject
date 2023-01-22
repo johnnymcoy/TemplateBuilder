@@ -74,6 +74,10 @@
 		{
 			"Name": "ApexDestruction",
 			"Enabled": true
+		},
+		{
+			"Name": "DialogueComponent",
+			"Enabled": true
 		}
 	]
 }

@@ -12,7 +12,7 @@ FAutoConsoleVariableRef CVARDebugHealthStats(TEXT("CustomDebugs.DebugHealthStats
 // Sets default values for this component's properties
 UHealthComponent::UHealthComponent()
 {
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 	DefaultHealth = 100;
 	Health = DefaultHealth;
 	DefaultShieldHealth = 100;

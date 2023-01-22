@@ -11,7 +11,7 @@
 UShootingComponent::UShootingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 void UShootingComponent::BeginPlay()

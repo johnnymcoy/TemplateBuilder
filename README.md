@@ -7,8 +7,8 @@ Developed with Unreal Engine 4
 + Added a missionComponent (temp bp) to add to a player to keep track of mission progress
 
 + NEXT 
-+ Change UE 4.26 program location to T drive
-+ Add in Dialogue System properly
++ Add in Dialogue System properly - Almost done
++ Finish added any more parts in c++ - check synty project
 + add in display name to c++, and add the display name from simple shooter to have in multiplayer 
 + Dialogue Component - Has displayName, Icon, Name, and all function for dialouge - also a physical widget icon tooltip "talk to me"
 + check old project to see how i implemented the dialogue, if check, 

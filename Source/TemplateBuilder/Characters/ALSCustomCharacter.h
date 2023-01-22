@@ -30,6 +30,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	class UHealthComponent* HealthComponent;
 
+	// todo temp
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue")
+	class UDialogueComponent* DialogueComponent;
+
 	virtual void BeginPlay() override;
 	
 	//ALS Overriden Functions
@@ -88,8 +93,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override;
 
-	UFUNCTION(BlueprintCallable, Category = Dialogue)
-	virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) override;
+	// UFUNCTION(BlueprintCallable, Category = Dialogue)
+	// virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) override;
 
 	///////////////////////////////////////////////////////////////////////////
 

@@ -36,7 +36,7 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	virtual void DestroyActorOnClient(AActor* ActorToDestroy);
 
-	UFUNCTION(BlueprintCallable, Category = Dialogue)
-	virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) = 0;
+	// UFUNCTION(BlueprintCallable, Category = Dialogue)
+	// virtual void StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) = 0;
 
 };

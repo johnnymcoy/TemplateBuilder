@@ -8,7 +8,7 @@
 UShootingReplicationComponent::UShootingReplicationComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-	SetIsReplicated(true);
+	SetIsReplicatedByDefault(true);
 }
 
 
