@@ -1,0 +1,36 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "DialogueComponent",
+	"Description": "Adding Dialogue to Characters with included Example",
+	"Category": "Other",
+	"CreatedBy": "Curtis Bucciol",
+	"CreatedByURL": "www.curtisbucciol.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "DialogueComponent",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "DlgSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/6d0255a60be340dfa1c556503cc57eb3"
+		},
+		{
+			"Name": "BaseHelpers",
+			"Enabled": true,
+			"MarketplaceURL": "unreal.curtisbucciol.com/plugins"
+		}
+	]
+}

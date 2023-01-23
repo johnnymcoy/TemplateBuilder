@@ -13,7 +13,10 @@ Saved
 *.xcodeproj
 *.xcworkspace
 
-Plugins
+
+Plugins/ALSV4_CPP-main
+Plugins/Developer
+Plugins/MyPlugin
 
 Content/A_Surface_Footstep
 Content/Animations
