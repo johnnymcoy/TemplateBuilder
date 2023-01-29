@@ -20,6 +20,9 @@ void UCharacterHealthComponent::BeginPlay()
 	Super::BeginPlay();
 	if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
 	{
+		//Todo this
+		MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
+
 		HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());
 		if(HealthWidget != nullptr)
 		{
@@ -74,8 +77,15 @@ void UCharacterHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, c
 	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, DamageType);
 }
 
+void UCharacterHealthComponent::TakePointDamage(AActor OnTakePointDamage, AActor* DamagedActor, float Damage,
+	AController* InstigatedBy, FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName,
+	FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser)
+{
+	
+}
+
 void UCharacterHealthComponent::LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
-	TSubclassOf<UDamageType> in_DamageType)
+                                           TSubclassOf<UDamageType> in_DamageType)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("HitBOne: %s"), *in_HitBone.ToString());
 	for(int i = 0; i < HeadBones.Num(); i++)

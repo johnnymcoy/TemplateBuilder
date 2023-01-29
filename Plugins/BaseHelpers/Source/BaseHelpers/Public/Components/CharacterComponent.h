@@ -8,6 +8,8 @@
 #include "CharacterComponent.generated.h"
 
 
+
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BASEHELPERS_API UCharacterComponent : public UActorComponent
 {
@@ -41,7 +43,8 @@ protected:
 	bool GetIsDead() const {return bIsDead;};
 
 	void SetInputModeGameAndUI(bool bGameAndUI, class UWidget* InWidgetToFocus, bool bShowMouse);
-	
+
+	bool bIsComponentSetup;
 private:
 	bool bIsNPC;
 	bool bIsDead;

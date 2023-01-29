@@ -33,6 +33,7 @@ void UHealthComponentBase::BeginPlay()
 		if(MyOwner != nullptr)
 		{
 			MyOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponentBase::TakeDamage);
+
 		}
 	}
 	if(MyOwner == nullptr)

@@ -76,6 +76,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) override;
+	virtual void TakePointDamage(AActor OnTakePointDamage, AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
 
 	// // Health Bar
 	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")

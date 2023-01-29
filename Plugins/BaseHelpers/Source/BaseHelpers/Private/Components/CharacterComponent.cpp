@@ -18,7 +18,7 @@ void UCharacterComponent::SetupComponent(AController* Controller, const bool bNP
 void UCharacterComponent::SetupComponent(USkeletalMeshComponent* SkeletalMesh, UAnimInstance* AnimationInstance,
                                          AController* Controller, const bool bNPC, const bool bDead)
 {
-	
+	bIsComponentSetup = true;
 }
 
 void UCharacterComponent::BeginPlay()
