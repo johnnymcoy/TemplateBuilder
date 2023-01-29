@@ -13,21 +13,11 @@ UCharacterHealthComponent::UCharacterHealthComponent()
 	ShieldHealth = MaxShieldHealth;
 	BodyIndex.Init(0,7);
 	if(bSyntySkeleton){SetupSyntySkeleton();}
-	// HealthBar = GetOwner()->FindComponentByClass<UHealthBarWidgetComponent>();
-	// if(HealthBar){UE_LOG(LogTemp, Warning, TEXT("Health Bar Successfully Found On Owner"));}
-	// HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Health Bar"));
-	// HealthBar->SetupAttachment(GetOwnerMesh());
-	// bHealthBarActive = true;
-	
 }
 
 void UCharacterHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	// if(!bHasHealthBar)
-	// {
-	// 	// remove health bar?
-	// }
 	if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
 	{
 		HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());

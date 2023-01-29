@@ -24,9 +24,9 @@ public:
 protected:
 	virtual bool Initialize() override;
 
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HealthBar;
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* ShieldBar;
 private:
 	UPROPERTY()
