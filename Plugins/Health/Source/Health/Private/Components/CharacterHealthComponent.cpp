@@ -1,45 +1,49 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Components/HealthComponentPlugin.h"
+#include "Components/CharacterHealthComponent.h"
+#include "Components/HealthBarWidgetComponent.h"
+#include "Widgets/HealthWidget.h"
 #include "Net/UnrealNetwork.h"
 
-
-static int32 DebugHealthStats = 0;
-FAutoConsoleVariableRef CVARDebugHealthStats(TEXT("CustomDebugs.DebugHealthStats"), DebugHealthStats, TEXT("Debugs for HealthComponents"), ECVF_Cheat);
-
-
-UHealthComponentPlugin::UHealthComponentPlugin()
+UCharacterHealthComponent::UCharacterHealthComponent()
 {
-	PrimaryComponentTick.bStartWithTickEnabled = false;
-	PrimaryComponentTick.bCanEverTick = false;
 	SetIsReplicatedByDefault(true);
-	MaxHealth = 100;
-	Health = MaxHealth;
 	MaxShieldHealth = 100;
 	ShieldHealth = MaxShieldHealth;
 	BodyIndex.Init(0,7);
-	//todo newObjkecT? 
-	// ShieldDamageType = NewObject<UShieldRegen>();
 	if(bSyntySkeleton){SetupSyntySkeleton();}
+	// HealthBar = GetOwner()->FindComponentByClass<UHealthBarWidgetComponent>();
+	// if(HealthBar){UE_LOG(LogTemp, Warning, TEXT("Health Bar Successfully Found On Owner"));}
+	// HealthBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Health Bar"));
+	// HealthBar->SetupAttachment(GetOwnerMesh());
+	// bHealthBarActive = true;
+	
 }
 
-void UHealthComponentPlugin::BeginPlay()
+void UCharacterHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	if(GetOwnerRole() == ROLE_Authority)
+	// if(!bHasHealthBar)
+	// {
+	// 	// remove health bar?
+	// }
+	if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
 	{
-		AActor* MyOwner = GetOwner();
-		if(MyOwner != nullptr)
+		HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());
+		if(HealthWidget != nullptr)
 		{
-			MyOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponentPlugin::TakeDamage);
+			UE_LOG(LogTemp, Warning, TEXT("Health Widget Successfully Created"));
 		}
 	}
+	
 }
 
-void UHealthComponentPlugin::TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+void UCharacterHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
 	AController* InstigatedBy, AActor* DamageCauser)
 {
+	if(GetIsDead()){return;}
+	// Super::TakeDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
 	if(bHasShield)
 	{
 		if(ShieldHealth > 0 && Damage > 0)
@@ -53,29 +57,34 @@ void UHealthComponentPlugin::TakeDamage(AActor* DamagedActor, float Damage, cons
 		}
 		else
 		{
-			HealthDamage(Damage);
+			Super::TakeDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+			// HealthDamage(Damage);
 		}
 	}
 	else
 	{
-		HealthDamage(Damage);
+		Super::TakeDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+		// HealthDamage(Damage);
 	}
-	if(Health <= 0.0f && bDeathOnce)
-	{
-		Death();
-	}
-	if(DebugHealthStats)
-	{
-		FString String = FString::SanitizeFloat(Health);
-		FString Name = GetOwner()->GetName();
-		UE_LOG(LogTemp,Warning, TEXT("Health of %s is: %s"), *String, *Name);
-		GEngine->AddOnScreenDebugMessage(-1, 24.0f, FColor::Orange, (FString("Health of") + *Name + FString("is") + *String));
-	}
-
-	OnHealthChanged.Broadcast(this, Health, MaxHealth, ShieldHealth, MaxShieldHealth, DamageType);
+	// if(GetHealth() <= 0.0f && !bDeathOnce)
+	// {
+	// 	Death();
+	// }
+	// if(DebugHealthStats)
+	// {
+	// 	FString String = FString::SanitizeFloat(Health);
+	// 	FString Name = GetOwner()->GetName();
+	// 	UE_LOG(LogTemp,Warning, TEXT("Health of %s is: %s"), *String, *Name);
+	// 	GEngine->AddOnScreenDebugMessage(-1, 24.0f, FColor::Orange, (FString("Health of") + *Name + FString("is") + *String));
+	// }
+	MyOwner->GetWorldTimerManager().ClearTimer(ShieldTimerHandle);
+	//todo Remove 
+	// MyOwner->GetWorldTimerManager().SetTimer(HealthTimerHandle, this, &UHealthComponentPlugin::HealthUpdateDelay, 0.001f, false);
+	MyOwner->GetWorldTimerManager().SetTimer(ShieldTimerHandle, this, &UCharacterHealthComponent::CheckShieldRegen, 0.01f, true, ShieldTimeToRegen);
+	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, DamageType);
 }
 
-void UHealthComponentPlugin::LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
+void UCharacterHealthComponent::LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone,
 	TSubclassOf<UDamageType> in_DamageType)
 {
 	// UE_LOG(LogTemp, Warning, TEXT("HitBOne: %s"), *in_HitBone.ToString());
@@ -137,51 +146,43 @@ void UHealthComponentPlugin::LimbDamage(const float in_Damage, const float in_He
 	//todo Add on Injured Body Part
 }
 
-void UHealthComponentPlugin::ShieldRegen()
+
+void UCharacterHealthComponent::ShieldRegen()
 {
 	ShieldHealth = FMath::Clamp(ShieldHealth + AmountToRecharge, 0.0f, MaxShieldHealth);
 	// OnHealthChanged.Broadcast(this, Health, DefaultHealth, ShieldHealth, DefaultShieldHealth, ShieldDamageType);
-	OnHealthChanged.Broadcast(this, Health, MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
+	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
 }
 
-void UHealthComponentPlugin::OnRep_Health()
+
+void UCharacterHealthComponent::OnRep_Shield()
 {
-	OnHealthChanged.Broadcast(this, Health, MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
+	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
 }
 
-void UHealthComponentPlugin::OnRep_Shield()
-{
-	OnHealthChanged.Broadcast(this, Health, MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
-}
-
-
-void UHealthComponentPlugin::HealthDamage(float Damage)
-{
-	Health = FMath::Clamp(Health - Damage, 0.0f, MaxHealth);
-}
-
-void UHealthComponentPlugin::ShieldDamage(float Damage)
+void UCharacterHealthComponent::ShieldDamage(float Damage)
 {
 	ShieldHealth = FMath::Clamp(ShieldHealth - Damage, 0.0f, MaxShieldHealth);
 }
 
-void UHealthComponentPlugin::Death()
+void UCharacterHealthComponent::CheckShieldRegen()
 {
-	bDeathOnce = true;
-	AActor* Owner = GetOwner();
-	if(DebugHealthStats)
+	if(ShieldHealth < MaxShieldHealth && !GetIsDead())
 	{
-		const FString Name = GetOwner()->GetName();
-		UE_LOG(LogTemp, Warning, TEXT("%s is DEAD"), *Name);
-		GEngine->AddOnScreenDebugMessage(1, 24.0f, FColor::Orange, (*Name + FString("is dead")));
+		ShieldRegen();
 	}
-
-	OnDeath.Broadcast(Owner);
-	//todo Temp got from Lyra
-	Owner->ForceNetUpdate();
+	else
+	{
+		MyOwner->GetWorldTimerManager().ClearTimer(ShieldTimerHandle);
+	}
 }
 
-void UHealthComponentPlugin::SetupSyntySkeleton()
+void UCharacterHealthComponent::FaceHealthBarToPlayer()
+{
+	
+}
+
+void UCharacterHealthComponent::SetupSyntySkeleton()
 {
 	HeadBones.Add(FName("head"));
 	HeadBones.Add(FName("eyes"));
@@ -224,11 +225,10 @@ void UHealthComponentPlugin::SetupSyntySkeleton()
 	RightHandBones.Add(FName("finger_02_r"));
 }
 
-void UHealthComponentPlugin::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+
+void UCharacterHealthComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UHealthComponentPlugin, Health);
-	DOREPLIFETIME(UHealthComponentPlugin, ShieldHealth);
-	DOREPLIFETIME(UHealthComponentPlugin, bIsDead);
+	DOREPLIFETIME(UCharacterHealthComponent, ShieldHealth);
 
 }

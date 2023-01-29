@@ -31,6 +31,9 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	APlayerController* GetOwnerPlayerController() const {return OwnerPlayerController;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
+	USkeletalMeshComponent* GetOwnerMesh(){return OwnerMesh;}
+
+	UFUNCTION(BlueprintCallable, Category = "Character")
 	AAIController* GetOwnerAIController() const {return OwnerAIController;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	bool GetIsNPC() const {return bIsNPC;};
@@ -38,7 +41,7 @@ protected:
 	bool GetIsDead() const {return bIsDead;};
 
 	void SetInputModeGameAndUI(bool bGameAndUI, class UWidget* InWidgetToFocus, bool bShowMouse);
-
+	
 private:
 	bool bIsNPC;
 	bool bIsDead;

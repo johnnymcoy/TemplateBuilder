@@ -120,7 +120,7 @@ void UShootingComponent::ShootGun()
 {
 	if(CurrentWeaponData.CurrentAmmo <= 0){return;};
 	//todo Accuracy in auto is same as first bullet
-	UE_LOG(LogTemp, Warning, TEXT("Accuracy: %f"), Accuracy);
+	// UE_LOG(LogTemp, Warning, TEXT("Accuracy: %f"), Accuracy);
 	IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
 	if(CurrentWeapon)
 	{

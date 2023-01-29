@@ -6,9 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "DialogueWidget.generated.h"
 
-/**
- * 
- */
 UCLASS(Blueprintable)
 class DIALOGUECOMPONENT_API UDialogueWidget : public UUserWidget
 {

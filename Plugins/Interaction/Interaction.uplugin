@@ -2,8 +2,8 @@
 	"FileVersion": 3,
 	"Version": 1,
 	"VersionName": "1.0",
-	"FriendlyName": "Health",
-	"Description": "Health, Health Bars, etc.",
+	"FriendlyName": "Interaction",
+	"Description": "Basic Interaction, Interactables, Pickups",
 	"Category": "Other",
 	"CreatedBy": "Curtis Bucciol",
 	"CreatedByURL": "",
@@ -16,18 +16,9 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "Health",
+			"Name": "Interaction",
 			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
-		
-	],
-	"Plugins": [
-		{
-			"Name": "BaseHelpers",
-			"Enabled": true,
-			"MarketplaceURL": "unreal.curtisbucciol.com/plugins"
-		}
 	]
-
 }

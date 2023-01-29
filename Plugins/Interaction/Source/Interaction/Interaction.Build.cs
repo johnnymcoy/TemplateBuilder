@@ -2,15 +2,14 @@
 
 using UnrealBuildTool;
 
-public class Health : ModuleRules
+public class Interaction : ModuleRules
 {
-	public Health(ReadOnlyTargetRules Target) : base(Target)
+	public Interaction(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-
 				// ... add public include paths required here ...
 			}
 			);
@@ -18,7 +17,6 @@ public class Health : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-
 				// ... add other private include paths required here ...
 			}
 			);
@@ -28,9 +26,6 @@ public class Health : ModuleRules
 			new string[]
 			{
 				"Core",
-				"UMG", 
-				"BaseHelpers",
-
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -43,7 +38,6 @@ public class Health : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
-
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
@@ -52,7 +46,6 @@ public class Health : ModuleRules
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
 			{
-
 				// ... add any modules that your module loads dynamically here ...
 			}
 			);
