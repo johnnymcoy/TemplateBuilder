@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "InteractionInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI,meta = (CannotImplementInterfaceInBlueprint))
 class UInteractionInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -16,6 +16,13 @@ class INTERACTION_API IInteractionInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnInteract(AActor* Caller) = 0;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnPickUp(AActor* Caller) = 0;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void StartFocus() = 0;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void EndFocus() = 0;
 public:
 };

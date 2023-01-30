@@ -69,20 +69,7 @@ void UCharacterHealthComponent::TakeDamage(AActor* DamagedActor, float Damage, c
 		Super::TakeDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
 		// HealthDamage(Damage);
 	}
-	// if(GetHealth() <= 0.0f && !bDeathOnce)
-	// {
-	// 	Death();
-	// }
-	// if(DebugHealthStats)
-	// {
-	// 	FString String = FString::SanitizeFloat(Health);
-	// 	FString Name = GetOwner()->GetName();
-	// 	UE_LOG(LogTemp,Warning, TEXT("Health of %s is: %s"), *String, *Name);
-	// 	GEngine->AddOnScreenDebugMessage(-1, 24.0f, FColor::Orange, (FString("Health of") + *Name + FString("is") + *String));
-	// }
 	MyOwner->GetWorldTimerManager().ClearTimer(ShieldTimerHandle);
-	//todo Remove 
-	// MyOwner->GetWorldTimerManager().SetTimer(HealthTimerHandle, this, &UHealthComponentPlugin::HealthUpdateDelay, 0.001f, false);
 	MyOwner->GetWorldTimerManager().SetTimer(ShieldTimerHandle, this, &UCharacterHealthComponent::CheckShieldRegen, 0.01f, true, ShieldTimeToRegen);
 	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, DamageType);
 }
@@ -92,7 +79,6 @@ void UCharacterHealthComponent::TakePointDamage(AActor* DamagedActor, float Dama
 	FVector ShotFromDirection, const UDamageType* DamageType, AActor* DamageCauser)
 {
 	// DamageType
-	UE_LOG(LogTemp,Warning,TEXT("PointDamage %f"), Damage);
 	if(BoneName == FName("head"))
 	{
 		//todo headshot damage
@@ -105,105 +91,22 @@ void UCharacterHealthComponent::TakePointDamage(AActor* DamagedActor, float Dama
 void UCharacterHealthComponent::LimbDamage(const float in_Damage, const FName in_HitBone,
                                            const UDamageType* in_DamageType)
 {
-	// v3.0
-	// int t = 0;
 	for (FBodyPart& BoneData : BodyParts)
 	{
-		// t++;
-		// UE_LOG(LogTemp,Warning,TEXT("First Index %i, %i"), t, BoneData.Bones.Num());
 		for(int i = 0; i < BoneData.Bones.Num(); i++)
 		{
-			// UE_LOG(LogTemp,Warning,TEXT("Second Loop Index %i, %s"), i, *BoneData.Bones[i].ToString());
 			if(in_HitBone == BoneData.Bones[i])
 			{
 				BoneData.BodyPartHealth -= (in_Damage);
-				
-				OnInjuredBodyPart.Broadcast(BoneData.BodyPartName);
 				UE_LOG(LogTemp,Warning,TEXT("%s Hit! %f Damage"), *in_HitBone.ToString(), BoneData.BodyPartHealth);
+				if(BoneData.BodyPartHealth <= BodyPartInjuredHealthLevel)
+				{
+					InjuredBodyPart(BoneData.BodyPartName);
+				}
 				return;
 			}
 		}
 	}
-
-	// V 2.1
-	//todo Double for loop, only problem is unreal doesn't support Array in Array
-	// TArray<TArray<FName>> BodyParts = { HeadBones, RightArmBones, LeftArmBones, RightLegBones, LeftLegBones, RightHandBones, LeftHandBones };
-	// UE_LOG(LogTemp,Warning,TEXT("Bone: %s , HeadBone: %s From Character Health Component"), *in_HitBone.ToString(), *HeadBones[0].ToString());
-	// for(int i = 0; i < BodyParts.Num(); i++)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Start For loop: %i, Number: %i "), i, BodyParts[i].Num());
-	// 	for(int j = 0; j < BodyParts[i].Num(); j++)
-	// 	{
-	// 		UE_LOG(LogTemp, Warning, TEXT("Second For loop: %i , %i"), i,j);
-	// 		if(in_HitBone == BodyParts[i][j])
-	// 		{
-	// 			BodyIndex[i] = BodyIndex[i] + (in_Damage);
-	// 			UE_LOG(LogTemp, Warning, TEXT("HeadHitCounter: %f"), BodyIndex[0]);
-	// 			break;
-	// 		}
-	// 	}
-	// }
-
-	// v1.1
-	// // UE_LOG(LogTemp, Warning, TEXT("HitBOne: %s"), *in_HitBone.ToString());
-	// for(int i = 0; i < HeadBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == HeadBones[i])
-	// 	{
-	// 		BodyIndex[0] = BodyIndex[0] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("HeadHitCounter: %f"), BodyIndex[0]);
-	// 	}
-	// }
-	// for(int i = 0; i < RightArmBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == RightArmBones[i])
-	// 	{
-	// 		BodyIndex[1] = BodyIndex[1] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("RightArmBones: %f"), BodyIndex[1]);
-	// 	}
-	// }
-	// for(int i = 0; i < LeftArmBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == LeftArmBones[i])
-	// 	{
-	// 		BodyIndex[2] = BodyIndex[2] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("LeftArmBones: %f"), BodyIndex[2]);
-	// 	}
-	// }
-	// for(int i = 0; i < RightLegBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == RightLegBones[i])
-	// 	{
-	// 		BodyIndex[3] = BodyIndex[3] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("RightLegBones: %f"), BodyIndex[3]);
-	//
-	// 	}
-	// }
-	// for(int i = 0; i < LeftLegBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == LeftLegBones[i])
-	// 	{
-	// 		BodyIndex[4] = BodyIndex[4] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("LeftLegBones: %f"), BodyIndex[4]);
-	// 	}
-	// }
-	// for(int i = 0; i < RightHandBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == RightHandBones[i])
-	// 	{
-	// 		BodyIndex[5] = BodyIndex[5] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("RightHandBones: %f"), BodyIndex[5]);
-	// 	}
-	// }
-	// for(int i = 0; i < LeftHandBones.Num(); i++)
-	// {
-	// 	if(in_HitBone == LeftHandBones[i])
-	// 	{
-	// 		BodyIndex[6] = BodyIndex[6] + (in_Damage);
-	// 		// UE_LOG(LogTemp, Warning, TEXT("LeftHandBones: %f"), BodyIndex[6]);
-	// 	}
-	// }
-	// //todo Add on Injured Body Part
 }
 
 
@@ -218,6 +121,11 @@ void UCharacterHealthComponent::ShieldRegen()
 void UCharacterHealthComponent::OnRep_Shield()
 {
 	OnHealthAndShieldChanged.Broadcast(this, GetHealth(), MaxHealth, ShieldHealth, MaxShieldHealth, nullptr);
+}
+
+void UCharacterHealthComponent::InjuredBodyPart(FName BodyPart)
+{
+	OnInjuredBodyPart.Broadcast(BodyPart);
 }
 
 void UCharacterHealthComponent::ShieldDamage(float Damage)
@@ -244,51 +152,6 @@ void UCharacterHealthComponent::FaceHealthBarToPlayer()
 
 void UCharacterHealthComponent::SetupSyntySkeleton()
 {
-	// V 2.0
-
-	// BodyParts[0].Add(FName("head"));
-	// BodyParts[0].Add(FName("eyes"));
-	// BodyParts[0].Add(FName("eyebrows"));
-	// BodyParts[1].Add(FName("clavicle_r"));
-	// BodyParts[1].Add(FName("UpperArm_R"));
-	// BodyParts[1].Add(FName("lowerarm_r"));
-	// BodyParts[2].Add(FName("clavicle_l"));
-	// BodyParts[2].Add(FName("UpperArm_L"));
-	// BodyParts[2].Add(FName("lowerarm_l"));
-	// BodyParts[3].Add(FName("Thigh_R"));
-	// BodyParts[3].Add(FName("calf_r"));
-	// BodyParts[3].Add(FName("Foot_R"));
-	// BodyParts[3].Add(FName("ball_r"));
-	// BodyParts[3].Add(FName("toes_r"));
-	// BodyParts[4].Add(FName("Thigh_L"));
-	// BodyParts[4].Add(FName("calf_l"));
-	// BodyParts[4].Add(FName("Foot_L"));
-	// BodyParts[4].Add(FName("ball_l"));
-	// BodyParts[4].Add(FName("toes_l"));
-	// BodyParts[5].Add(FName("Hand_L"));
-	// BodyParts[5].Add(FName("thumb_01_l"));
-	// BodyParts[5].Add(FName("thumb_02_l"));
-	// BodyParts[5].Add(FName("thumb_03_l"));
-	// BodyParts[5].Add(FName("indexFinger_01_l"));
-	// BodyParts[5].Add(FName("indexFinger_02_l"));
-	// BodyParts[5].Add(FName("indexFinger_03_l"));
-	// BodyParts[5].Add(FName("indexFinger_04_l"));
-	// BodyParts[5].Add(FName("finger_01_l"));
-	// BodyParts[5].Add(FName("finger_02_l"));
-	// BodyParts[6].Add(FName("hand_r"));
-	// BodyParts[6].Add(FName("thumb_01_r"));
-	// BodyParts[6].Add(FName("thumb_02_r"));
-	// BodyParts[6].Add(FName("thumb_03_r"));
-	// BodyParts[6].Add(FName("indexFinger_01_r"));
-	// BodyParts[6].Add(FName("indexFinger_02_r"));
-	// BodyParts[6].Add(FName("indexFinger_03_r"));
-	// BodyParts[6].Add(FName("indexFinger_04_r"));
-	// BodyParts[6].Add(FName("finger_01_r"));
-	// BodyParts[6].Add(FName("finger_02_r"));
-
-	// V 3.0
-	// Head.BodyPartName = FName("Head");
-
 	Head.Bones.Add(FName("head"));
 	Head.Bones.Add(FName("eyes"));
 	Head.Bones.Add(FName("eyebrows"));
@@ -333,67 +196,26 @@ void UCharacterHealthComponent::SetupSyntySkeleton()
 	RightHand.Bones.Add(FName("indexFinger_04_r"));
 	RightHand.Bones.Add(FName("finger_01_r"));
 	RightHand.Bones.Add(FName("finger_02_r"));
-	
-	// V 1.1 
-	// HeadBones.Add(FName("head"));
-	// HeadBones.Add(FName("eyes"));
-	// HeadBones.Add(FName("eyebrows"));
-	// RightArmBones.Add(FName("clavicle_r"));
-	// RightArmBones.Add(FName("UpperArm_R"));
-	// RightArmBones.Add(FName("lowerarm_r"));
-	// LeftArmBones.Add(FName("clavicle_l"));
-	// LeftArmBones.Add(FName("UpperArm_L"));
-	// LeftArmBones.Add(FName("lowerarm_l"));
-	// RightLegBones.Add(FName("Thigh_R"));
-	// RightLegBones.Add(FName("calf_r"));
-	// RightLegBones.Add(FName("Foot_R"));
-	// RightLegBones.Add(FName("ball_r"));
-	// RightLegBones.Add(FName("toes_r"));
-	// LeftLegBones.Add(FName("Thigh_L"));
-	// LeftLegBones.Add(FName("calf_l"));
-	// LeftLegBones.Add(FName("Foot_L"));
-	// LeftLegBones.Add(FName("ball_l"));
-	// LeftLegBones.Add(FName("toes_l"));
-	// LeftHandBones.Add(FName("Hand_L"));
-	// LeftHandBones.Add(FName("thumb_01_l"));
-	// LeftHandBones.Add(FName("thumb_02_l"));
-	// LeftHandBones.Add(FName("thumb_03_l"));
-	// LeftHandBones.Add(FName("indexFinger_01_l"));
-	// LeftHandBones.Add(FName("indexFinger_02_l"));
-	// LeftHandBones.Add(FName("indexFinger_03_l"));
-	// LeftHandBones.Add(FName("indexFinger_04_l"));
-	// LeftHandBones.Add(FName("finger_01_l"));
-	// LeftHandBones.Add(FName("finger_02_l"));
-	// RightHandBones.Add(FName("hand_r"));
-	// RightHandBones.Add(FName("thumb_01_r"));
-	// RightHandBones.Add(FName("thumb_02_r"));
-	// RightHandBones.Add(FName("thumb_03_r"));
-	// RightHandBones.Add(FName("indexFinger_01_r"));
-	// RightHandBones.Add(FName("indexFinger_02_r"));
-	// RightHandBones.Add(FName("indexFinger_03_r"));
-	// RightHandBones.Add(FName("indexFinger_04_r"));
-	// RightHandBones.Add(FName("finger_01_r"));
-	// RightHandBones.Add(FName("finger_02_r"));
 }
 
 void UCharacterHealthComponent::SetupLimbs()
 {
 	Head.BodyPartName = FName("Head");
 	Spine.BodyPartName = FName("Spine");
-	RightArm.BodyPartName = FName("RightArm");
-	LeftArm.BodyPartName = FName("LeftArm");
-	RightLeg.BodyPartName = FName("RightLeg");
-	LeftLeg.BodyPartName = FName("LeftLeg");
-	LeftHand.BodyPartName = FName("LeftHand");
-	RightHand.BodyPartName = FName("RightHand");
-	Head.BodyPartHealth = 100.0f;
-	Spine.BodyPartHealth = 100.0f;
-	RightArm.BodyPartHealth = 100.0f;
-	LeftArm.BodyPartHealth = 100.0f;
-	RightLeg.BodyPartHealth = 100.0f;
-	LeftLeg.BodyPartHealth = 100.0f;
-	LeftHand.BodyPartHealth = 100.0f;
-	RightHand.BodyPartHealth = 100.0f;
+	RightArm.BodyPartName = FName("Right Arm");
+	LeftArm.BodyPartName = FName("LeftA rm");
+	RightLeg.BodyPartName = FName("Right Leg");
+	LeftLeg.BodyPartName = FName("Left Leg");
+	LeftHand.BodyPartName = FName("Left Hand");
+	RightHand.BodyPartName = FName("Right Hand");
+	Head.BodyPartHealth = BodyPartMaxHealth;
+	Spine.BodyPartHealth = BodyPartMaxHealth;
+	RightArm.BodyPartHealth = BodyPartMaxHealth;
+	LeftArm.BodyPartHealth = BodyPartMaxHealth;
+	RightLeg.BodyPartHealth = BodyPartMaxHealth;
+	LeftLeg.BodyPartHealth = BodyPartMaxHealth;
+	LeftHand.BodyPartHealth = BodyPartMaxHealth;
+	RightHand.BodyPartHealth = BodyPartMaxHealth;
 	BodyParts.Add(Head);
 	BodyParts.Add(Spine);
 	BodyParts.Add(RightArm);
@@ -402,7 +224,6 @@ void UCharacterHealthComponent::SetupLimbs()
 	BodyParts.Add(LeftLeg);
 	BodyParts.Add(LeftHand);
 	BodyParts.Add(RightHand);
-
 }
 
 

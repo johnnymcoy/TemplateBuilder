@@ -17,7 +17,7 @@ class BASEHELPERS_API UCharacterComponent : public UActorComponent
 
 public:	
 	UCharacterComponent();
-	void SetupComponent(AController* Controller, const bool bNPC);
+	UFUNCTION(BlueprintCallable)
 	void SetupComponent(USkeletalMeshComponent* SkeletalMesh, UAnimInstance* AnimationInstance, AController* Controller, const bool bNPC, const bool bDead);
 	void SetOwnerMesh(USkeletalMeshComponent* SkeletalMesh){OwnerMesh = SkeletalMesh;}
 	void SetAnimInstance(UAnimInstance* AnimationInstance){MainAnimInstance = AnimationInstance;};

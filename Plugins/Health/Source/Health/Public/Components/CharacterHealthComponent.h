@@ -6,16 +6,6 @@
 #include "Components/HealthComponentBase.h"
 #include "CharacterHealthComponent.generated.h"
 
-UENUM(BlueprintType)
-enum class EInjuredState: uint8
-{
-	None,
-	Head,
-	LeftArm,
-	RightArm,
-	LeftLeg,
-	RightLeg,
-};
 
 USTRUCT(BlueprintType)
 struct FBodyPart
@@ -78,16 +68,10 @@ public:
 	TArray<FName> RightHandBones; 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
 	TArray<FName> LeftHandBones;
-
-	TArray<FBodyPart> BodyParts;
-	FBodyPart Head;
-	FBodyPart Spine;
-	FBodyPart RightArm;
-	FBodyPart LeftArm;
-	FBodyPart RightLeg;
-	FBodyPart LeftLeg;
-	FBodyPart RightHand;
-	FBodyPart LeftHand;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs")
+	float BodyPartMaxHealth = 100.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs")
+	float BodyPartInjuredHealthLevel = 25.0f;
 	
 	UFUNCTION()
 	void LimbDamage(const float in_Damage, const FName in_HitBone, const UDamageType* in_DamageType);
@@ -122,6 +106,18 @@ protected:
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_Shield, meta = (EditCondition = "bHasShield"))
 	float ShieldHealth;
+
+	void InjuredBodyPart(FName BodyPart);
+	
+	TArray<FBodyPart> BodyParts;
+	FBodyPart Head;
+	FBodyPart Spine;
+	FBodyPart RightArm;
+	FBodyPart LeftArm;
+	FBodyPart RightLeg;
+	FBodyPart LeftLeg;
+	FBodyPart RightHand;
+	FBodyPart LeftHand;
 	
 	void SetupSyntySkeleton();
 	void SetupLimbs();

@@ -10,14 +10,15 @@ UCharacterComponent::UCharacterComponent()
 
 }
 
-void UCharacterComponent::SetupComponent(AController* Controller, const bool bNPC)
-{
-	
-}
 
 void UCharacterComponent::SetupComponent(USkeletalMeshComponent* SkeletalMesh, UAnimInstance* AnimationInstance,
                                          AController* Controller, const bool bNPC, const bool bDead)
 {
+	SetOwnerMesh(SkeletalMesh);
+	SetAnimInstance(AnimationInstance);
+	SetController(Controller);
+	SetIsNPC(bNPC);
+	SetIsDead(bDead);
 	bIsComponentSetup = true;
 }
 
