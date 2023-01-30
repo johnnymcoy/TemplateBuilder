@@ -99,6 +99,10 @@
 		{
 			"Name": "CustomALS",
 			"Enabled": true
+		},
+		{
+			"Name": "AnalyticsBlueprintLibrary",
+			"Enabled": true
 		}
 	]
 }

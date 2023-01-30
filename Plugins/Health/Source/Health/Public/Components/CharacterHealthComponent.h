@@ -17,10 +17,20 @@ enum class EInjuredState: uint8
 	RightLeg,
 };
 
+USTRUCT(BlueprintType)
+struct FBodyPart
+{
+	GENERATED_USTRUCT_BODY()
+
+	FName BodyPartName;
+	TArray<FName> Bones;
+	float BodyPartHealth = 100.0f;
+};
+
 // On Shield Break sets off blueprint event
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnShieldBreak);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInjuredBodyPart, EInjuredState, InjuredState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnInjuredBodyPart, FName, InjuredBodyPart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_SixParams(FOnHealthAndShieldChanged,class UHealthComponentBase*, HealthComponent, float, Health, float, MaxHealth, float, ShieldHealth, float, MaxShieldHealth, const class UDamageType*, DamageType);
 
 
@@ -51,8 +61,11 @@ public:
 	bool bUnrealSkeleton;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "!bSyntySkeleton && !bUnrealSkeleton"))
 	bool bUseCustomBones;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
 	TArray<FName> HeadBones;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
+	TArray<FName> SpineBones;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
 	TArray<FName> RightArmBones;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
@@ -64,53 +77,54 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
 	TArray<FName> RightHandBones; 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
-	TArray<FName> LeftHandBones; 
+	TArray<FName> LeftHandBones;
 
+	TArray<FBodyPart> BodyParts;
+	FBodyPart Head;
+	FBodyPart Spine;
+	FBodyPart RightArm;
+	FBodyPart LeftArm;
+	FBodyPart RightLeg;
+	FBodyPart LeftLeg;
+	FBodyPart RightHand;
+	FBodyPart LeftHand;
+	
 	UFUNCTION()
-	void LimbDamage(const float in_Damage, const float in_HeadMultiplier, const FName in_HitBone, TSubclassOf<class UDamageType> in_DamageType);
+	void LimbDamage(const float in_Damage, const FName in_HitBone, const UDamageType* in_DamageType);
 
 	UFUNCTION()
 	void ShieldRegen();
 
 protected:
 	virtual void BeginPlay() override;
-
 	virtual void TakeDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser) override;
-	virtual void TakePointDamage(AActor OnTakePointDamage, AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
-
-	// // Health Bar
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
-	// class UHealthBarWidgetComponent* HealthBar;
-
+	UFUNCTION()
+	virtual void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
 
 	UFUNCTION()
 	void OnRep_Shield();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	const UDamageType* ShieldDamageType;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield")
 	bool bHasShield;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "bHasShield"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield", meta = (EditCondition = "bHasShield"))
 	float MaxShieldHealth;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health", meta = (EditCondition = "bHasShield"))
+	// Inital Delay for the regen time
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield", meta = (EditCondition = "bHasShield"))
 	float ShieldTimeToRegen = 5.0f;
+	// How fast it goes up while recharging 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield")
+	float AmountToRecharge = 0.1f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Health")
 	class UHealthWidget* HealthWidget;
-
-
 private:
 	UPROPERTY(ReplicatedUsing=OnRep_Shield, meta = (EditCondition = "bHasShield"))
 	float ShieldHealth;
-
-	float AmountToRecharge = 0.1f;
-	
-	//Limb counter?
-	UPROPERTY(VisibleAnywhere, Category= "Health|Limbs")
-	TArray<float> BodyIndex;
 	
 	void SetupSyntySkeleton();
-
+	void SetupLimbs();
 	// virtual void HealthDamage(float Damage) override;
 	
 	void ShieldDamage(float Damage);
