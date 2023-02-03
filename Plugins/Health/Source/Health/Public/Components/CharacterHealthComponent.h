@@ -44,14 +44,15 @@ public:
 	FORCEINLINE float GetShieldHealth() const { return ShieldHealth;}
 	UFUNCTION(BlueprintCallable, Category = "Health")
 	FORCEINLINE float GetMaxShieldHealth() const { return MaxShieldHealth;}
-
+	UFUNCTION()
+	void SetHasShield(bool in_bHasShield, float in_MaxAmount, float in_ShieldTimeToRegen = 5.0f, float in_AmountToRecharge = 0.1f);
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "!bUnrealSkeleton && !bUseCustomBones"))
 	bool bSyntySkeleton;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "!bSyntySkeleton && !bUseCustomBones"))
 	bool bUnrealSkeleton;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "!bSyntySkeleton && !bUnrealSkeleton"))
 	bool bUseCustomBones;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
 	TArray<FName> HeadBones;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Limbs", meta = (EditCondition = "bUseCustomBones"))
@@ -98,7 +99,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield", meta = (EditCondition = "bHasShield"))
 	float ShieldTimeToRegen = 5.0f;
 	// How fast it goes up while recharging 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health|Shield", meta = (EditCondition = "bHasShield"))
 	float AmountToRecharge = 0.1f;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Health")

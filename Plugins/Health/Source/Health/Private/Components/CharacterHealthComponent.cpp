@@ -13,14 +13,22 @@ UCharacterHealthComponent::UCharacterHealthComponent()
 	ShieldHealth = MaxShieldHealth;
 }
 
+void UCharacterHealthComponent::SetHasShield(bool in_bHasShield, float in_MaxAmount, float in_ShieldTimeToRegen, float in_AmountToRecharge)
+{
+	bHasShield = in_bHasShield;
+	MaxShieldHealth = in_MaxAmount;
+	ShieldTimeToRegen = in_ShieldTimeToRegen;
+	AmountToRecharge = in_AmountToRecharge;
+}
+
 void UCharacterHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	// todo Check Dynamic Multiplayer
+	MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
 	if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
 	{
 		//Todo this
-		MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
-
 		HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());
 		if(HealthWidget != nullptr)
 		{

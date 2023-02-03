@@ -34,6 +34,8 @@ protected:
 	APlayerController* GetOwnerPlayerController() const {return OwnerPlayerController;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	USkeletalMeshComponent* GetOwnerMesh(){return OwnerMesh;}
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	UAnimInstance* GetOwnerAnimInstance(){return MainAnimInstance;}
 
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	AAIController* GetOwnerAIController() const {return OwnerAIController;};

@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class CustomALS : ModuleRules
+public class WeaponSystem : ModuleRules
 {
-	public CustomALS(ReadOnlyTargetRules Target) : base(Target)
+	public WeaponSystem(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 		
@@ -26,12 +26,8 @@ public class CustomALS : ModuleRules
 			new string[]
 			{
 				"Core",
-				"ALSV4_CPP",
-				"Health",
 				"BaseHelpers",
-				"DlgSystem",
-				"DialogueComponent",
-				"WeaponSystem"
+				"Interaction"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

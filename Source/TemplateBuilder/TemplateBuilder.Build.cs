@@ -8,7 +8,30 @@ public class TemplateBuilder : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay","BaseHelpers", "DlgSystem", "DialogueComponent","Health", "Interaction", "CustomALS", "Niagara", "PhysicsCore", "ALSV4_CPP", "GameplayTasks", "UMG", "HTTP", "Json", "OnlineSubsystem"});
+		PublicDependencyModuleNames.AddRange(new string[] { 
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore", 
+			"HeadMountedDisplay",
+			"Niagara", 
+			"PhysicsCore", 
+			"ALSV4_CPP", 
+			"GameplayTasks", 
+			"UMG", 
+			"HTTP", 
+			"Json", 
+			"OnlineSubsystem", 
+			"BaseHelpers", 
+			"DlgSystem", 
+			"DialogueComponent",
+			"Health", 
+			"Interaction", 
+			"CustomALS", 
+			"MenuSystem",
+			"WeaponSystem"
+			
+		});
 
  		//PublicIncludePaths.AddRange(new string[] {"<ALSV4_CPP-main>/Public", "<ALSV4_CPP-main>/Classes" });
 		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore"});

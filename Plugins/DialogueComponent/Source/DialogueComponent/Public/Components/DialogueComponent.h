@@ -27,7 +27,7 @@ public:
 	TSet<FName> TrueBools;
 };
 
-UCLASS(Blueprintable)
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class DIALOGUECOMPONENT_API UDialogueComponent : public UCharacterComponent, public IDlgDialogueParticipant, public IDialogueInterface
 {
 	GENERATED_BODY()

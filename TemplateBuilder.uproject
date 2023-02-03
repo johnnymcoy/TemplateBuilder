@@ -103,6 +103,14 @@
 		{
 			"Name": "AnalyticsBlueprintLibrary",
 			"Enabled": true
+		},
+		{
+			"Name": "MenuSystem",
+			"Enabled": true
+		},
+		{
+			"Name": "WeaponSystem",
+			"Enabled": true
 		}
 	]
 }
