@@ -14,14 +14,25 @@ class WEAPONSYSTEM_API AWeaponPickup : public AActor, public IInteractionInterfa
 
 public:
 	
-	
+	// Interface Functions
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void OnInteract(AActor* Caller);
+	virtual void OnInteract(AActor* Caller) override;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void OnPickUp(AActor* Caller);
+	virtual void OnPickUp(AActor* Caller) override;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void StartFocus();
+	virtual void StartFocus() override;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
-	virtual void EndFocus();
+	virtual void EndFocus() override;
+
+	// Blueprint Calls
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Interacted With"))
+	void ReceiveOnInteract(AActor* Caller);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Pickup"))
+	void ReceiveOnPickUp(AActor* Caller);
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "Start Focus"))
+	void ReceiveStartFocus();
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "End Focus"))
+	void ReceiveEndFocus();
+
 
 };

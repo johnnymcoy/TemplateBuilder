@@ -26,6 +26,7 @@ public class Interaction : ModuleRules
 			new string[]
 			{
 				"Core",
+				"BaseHelpers"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

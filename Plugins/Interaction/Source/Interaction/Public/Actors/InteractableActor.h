@@ -26,7 +26,7 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void OnInteract(AActor* Caller) override;
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Receive Interaction"))
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Interacted With"))
 	void ReceiveOnInteract(AActor* Caller);
 	
 	UFUNCTION(BlueprintCallable, Category = "Interaction")

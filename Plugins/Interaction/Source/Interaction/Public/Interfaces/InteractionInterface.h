@@ -15,7 +15,7 @@ class UInteractionInterface : public UInterface
 class INTERACTION_API IInteractionInterface
 {
 	GENERATED_BODY()
-
+public:
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void OnInteract(AActor* Caller) = 0;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
