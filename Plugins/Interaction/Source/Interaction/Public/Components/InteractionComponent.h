@@ -42,4 +42,6 @@ private:
 	UPROPERTY()
 	AActor* FocusedActor;
 	FTimerHandle TraceForwardTimerHandle;
+
+	void FocusOnActor(bool bStartFocus, AActor* ActorToFocus);
 };

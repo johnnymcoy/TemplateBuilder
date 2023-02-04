@@ -94,6 +94,8 @@ private:
 
 	FWeaponData_T GetCurrentWeapon();
 
+	UPROPERTY()
+	AActor* OwnerActor;
 	//todo Empty AActor
 	AActor* CurrentWeapon;
 

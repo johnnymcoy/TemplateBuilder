@@ -26,15 +26,16 @@ void UCharacterHealthComponent::BeginPlay()
 	Super::BeginPlay();
 	// todo Check Dynamic Multiplayer
 	MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
-	if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
-	{
-		//Todo this
-		HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());
-		if(HealthWidget != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Health Widget Successfully Created"));
-		}
-	}
+	// todo
+	// if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
+	// {
+	// 	//Todo this
+	// 	HealthWidget = CreateWidget<UHealthWidget>(GetOwnerPlayerController(), UHealthWidget::StaticClass());
+	// 	if(HealthWidget != nullptr)
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("Health Widget Successfully Created"));
+	// 	}
+	// }
 	if(bSyntySkeleton){SetupSyntySkeleton();}
 	if(bUseCustomBones)
 	{

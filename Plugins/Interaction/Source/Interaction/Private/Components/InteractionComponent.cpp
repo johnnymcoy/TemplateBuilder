@@ -2,7 +2,6 @@
 
 
 #include "Components/InteractionComponent.h"
-
 #include "Interfaces/InteractionInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -48,14 +47,14 @@ void UInteractionComponent::StopTraceForward()
 void UInteractionComponent::TraceForward()
 {
 	if(GetIsDead()){return;};
+	if(GetOwnerController() == nullptr)
+	{
+		LogMissingPointer("Owner Controller");
+		return;
+	}
 	FVector Location;
 	FRotator Rotation;
 	FHitResult Hit;
-	if(GetOwnerController() == nullptr)
-	{
-		UE_LOG(LogTemp,Error, TEXT("Controller not set in %s of %s"), ToCStr(GetName()), ToCStr(GetOwner()->GetName()));
-		return;
-	}
 	GetOwnerController()->GetPlayerViewPoint(Location, Rotation);
 	FVector StartPoint = Location;
 	// todo Check: useLength (ifInFirstPerson) { EndPoint = (...) * (UseLength *2);}
@@ -72,7 +71,9 @@ void UInteractionComponent::TraceForward()
 	//TODO: Aim Assist
 	if(bHit)
 	{
+		// Actor I'm looking at
 		AActor* HitActor = Hit.GetActor();
+		// If I'm looking at something
 		if(HitActor)
 		{
 			//	Debugging
@@ -97,37 +98,50 @@ void UInteractionComponent::TraceForward()
 			}
 			
 			////////////////////////////
+			/// We Focus on a New Actor - // FocusedActor is what we are already focused on 
 			if(HitActor != FocusedActor)
 			{
-				if(FocusedActor)
-				{
-					IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-					if(InteractableActor != nullptr)
-					{
-						InteractableActor->EndFocus();
-					}
-				}
-				IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(HitActor);
-				if(InteractableActor != nullptr)
-				{
-					// If the Object: Has an interactable interface
-					InteractableActor->StartFocus();
-				}
+				// End Focus on Old Actor first
+				FocusOnActor(false, FocusedActor);
+				// Focus on the HitActor
+				FocusOnActor(true, HitActor);
+				// Store our HitActor as our FocusedActor
 				FocusedActor = HitActor;
+				//v1 
+				// if(FocusedActor != nullptr)
+				// {
+				// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
+				// 	if(InteractableActor != nullptr)
+				// 	{
+				// 		InteractableActor->EndFocus();
+				// 	}
+				// }
+				// IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(HitActor);
+				// if(InteractableActor != nullptr)
+				// {
+				// 	// If the Object: Has an interactable interface
+				// 	InteractableActor->StartFocus();
+				// }
+				// FocusedActor = HitActor;
 			}
 			////////////////////////////
 		}
 		else
 		{
-			if(FocusedActor != nullptr)
-			{
-				IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-				if(InteractableActor)
-				{
-					InteractableActor->EndFocus();
-				}
-			}
+			FocusOnActor(false, FocusedActor);
 			FocusedActor = nullptr;
+
+			// v1
+			// if(FocusedActor != nullptr)
+			// {
+			// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
+			// 	if(InteractableActor)
+			// 	{
+			// 		InteractableActor->EndFocus();
+			// 	}
+			// }
+			// FocusedActor = nullptr;
+			
 			// //Reset Aim Assist
 			// LookUpDownRate = LookRateDefault;
 			// LookLeftRightRate = LookRateDefault;
@@ -136,17 +150,40 @@ void UInteractionComponent::TraceForward()
 	// if nothing is Hit, BUT there is a focused actor, End Focus and Set the actor to NULL
 	else
 	{
-		if(FocusedActor != nullptr)
+		FocusOnActor(false, FocusedActor);
+		FocusedActor = nullptr;
+		// v1
+		// if(FocusedActor != nullptr)
+		// {
+		// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
+		// 	if (InteractableActor != nullptr)
+		// 	{
+		// 		InteractableActor->EndFocus();
+		// 		FocusedActor = nullptr;
+		// 	}
+		// }
+	}
+}
+//v2
+void UInteractionComponent::FocusOnActor(bool bStartFocus, AActor* ActorToFocus)
+{
+	if(ActorToFocus != nullptr)
+	{
+		IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(ActorToFocus);
+		if (InteractableActor != nullptr)
 		{
-			IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-			if (InteractableActor != nullptr)
+			if(bStartFocus)
+			{
+				InteractableActor->StartFocus();
+			}
+			else
 			{
 				InteractableActor->EndFocus();
-				FocusedActor = nullptr;
 			}
 		}
 	}
 }
+
 
 
 void UInteractionComponent::Use()

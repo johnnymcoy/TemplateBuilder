@@ -7,7 +7,6 @@
 UCharacterComponent::UCharacterComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 
@@ -25,6 +24,37 @@ void UCharacterComponent::SetupComponent(USkeletalMeshComponent* SkeletalMesh, U
 void UCharacterComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+AController* UCharacterComponent::GetOwnerController()
+{
+	if(!CheckComponentIsSetup("Controller")){return nullptr;}
+	return OwnerController;
+}
+
+APlayerController* UCharacterComponent::GetOwnerPlayerController()
+{
+	// bool bSetup = CheckComponentIsSetup("Player Controller"); 
+	if(!CheckComponentIsSetup("Player Controller"))	{return nullptr;}
+	return OwnerPlayerController;
+}
+
+USkeletalMeshComponent* UCharacterComponent::GetOwnerMesh()
+{
+	if(!CheckComponentIsSetup("Owner Mesh")){return nullptr;}
+	return OwnerMesh;
+}
+
+UAnimInstance* UCharacterComponent::GetOwnerAnimInstance()
+{
+	if(!CheckComponentIsSetup("Animation Instance")){return nullptr;}
+	return MainAnimInstance;
+}
+
+AAIController* UCharacterComponent::GetOwnerAIController()
+{
+	if(!CheckComponentIsSetup("AI Controller")){return nullptr;}
+	return OwnerAIController;
 }
 
 void UCharacterComponent::SetController(AController* Controller)
@@ -48,6 +78,7 @@ void UCharacterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UCharacterComponent::SetInputModeGameAndUI(bool bGameAndUI, UWidget* InWidgetToFocus, bool bShowMouse)
 {
+	if(!CheckComponentIsSetup("Player Controller"))	{return;}
 	if(bGameAndUI)
 	{
 		FInputModeGameAndUI InputModeData;
@@ -66,5 +97,19 @@ void UCharacterComponent::SetInputModeGameAndUI(bool bGameAndUI, UWidget* InWidg
 	}
 }
 
+bool UCharacterComponent::CheckComponentIsSetup(FString ComponentName)
+{
+	if(!bIsComponentSetup)
+	{
+		UE_LOG(LogTemp,Error, TEXT(" %s not set in %s of %s"), ToCStr(ComponentName), ToCStr(GetName()), ToCStr(GetOwner()->GetName()));
+		SetActive(false);
+		return false;
+	}
+	return bIsComponentSetup;
+}
 
+void UCharacterComponent::LogMissingPointer(FString PointerName) const
+{
+	UE_LOG(LogTemp,Error, TEXT(" %s not set in %s of %s"), ToCStr(PointerName), ToCStr(GetName()), ToCStr(GetOwner()->GetName()));
+}
 

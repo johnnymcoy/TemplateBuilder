@@ -29,16 +29,16 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	UFUNCTION(BlueprintCallable, Category = "Character")
-	AController* GetOwnerController() const {return OwnerController;};
+	AController* GetOwnerController();
 	UFUNCTION(BlueprintCallable, Category = "Character")
-	APlayerController* GetOwnerPlayerController() const {return OwnerPlayerController;};
+	APlayerController* GetOwnerPlayerController();
 	UFUNCTION(BlueprintCallable, Category = "Character")
-	USkeletalMeshComponent* GetOwnerMesh(){return OwnerMesh;}
+	USkeletalMeshComponent* GetOwnerMesh();
 	UFUNCTION(BlueprintCallable, Category = "Character")
-	UAnimInstance* GetOwnerAnimInstance(){return MainAnimInstance;}
+	UAnimInstance* GetOwnerAnimInstance();
+	UFUNCTION(BlueprintCallable, Category = "Character")
+	AAIController* GetOwnerAIController();
 
-	UFUNCTION(BlueprintCallable, Category = "Character")
-	AAIController* GetOwnerAIController() const {return OwnerAIController;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	bool GetIsNPC() const {return bIsNPC;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
@@ -47,7 +47,11 @@ protected:
 	void SetInputModeGameAndUI(bool bGameAndUI, class UWidget* InWidgetToFocus, bool bShowMouse);
 
 	bool bIsComponentSetup;
+	
+	void LogMissingPointer(FString PointerName) const;
 private:
+
+	bool CheckComponentIsSetup(FString ComponentName);
 	bool bIsNPC;
 	bool bIsDead;
 	UPROPERTY()
@@ -62,3 +66,5 @@ private:
 	UAnimInstance* MainAnimInstance;
 
 };
+
+

@@ -30,20 +30,20 @@ void UDialogueComponent::InitialSetup()
 	if(GetIsNPC()){return;}
 	//Check values are valid
 	
-	if(DialogueWidgetClass == nullptr){UE_LOG(LogTemp, Error, TEXT("Add DialogueWidgetClass in Dialogue Component")); return;}
-	if(GetOwnerPlayerController() == nullptr){UE_LOG(LogTemp, Error, TEXT("Player Controller Failed in Dialogue Component")) return;}
-
+	if(DialogueWidgetClass == nullptr){	LogMissingPointer("Dialogue Widget Class");	return;}
+	if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Owner Player Controller");	return;}
+	
 	DialogueWidget = CreateWidget<UDialogueWidget>(GetOwnerPlayerController(), DialogueWidgetClass);
-	if(DialogueWidget == nullptr){UE_LOG(LogTemp, Error, TEXT("Dialogue Widget FAILED to create"))return;}
+	if(DialogueWidget == nullptr){LogMissingPointer("Dialogue Widget FAILED to create"); return;}
 	DialogueWidget->AddToViewport();
 	DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
-	if(DialogueWidget != nullptr){UE_LOG(LogTemp, Error, TEXT("Dialogue Widget SUCCESS"));}
-
+	
+	// if(DialogueWidget != nullptr){UE_LOG(LogTemp, Error, TEXT("Dialogue Widget SUCCESS"));}
 }
 
 bool UDialogueComponent::StartDialogue_Implementation(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Start Dialogue from Dialogue Component"));
+	// UE_LOG(LogTemp, Warning, TEXT("Start Dialogue from Dialogue Component"));
 	ActiveContext = UDlgManager::StartDialogue(Dialogue, Participants);
 	DialogueWidget->Refresh(ActiveContext);
 	SetInputModeGameAndUI(true, nullptr, true);
@@ -53,7 +53,7 @@ bool UDialogueComponent::StartDialogue_Implementation(UDlgDialogue* Dialogue, co
 
 void UDialogueComponent::SelectDialogueOption_Implementation(int32 Option)
 {
-	if(ActiveContext == nullptr){UE_LOG(LogTemp, Error, TEXT("Active Dialogue Context is Invalid in Dialogue Component"))return;}
+	if(ActiveContext == nullptr){LogMissingPointer("Active Dialogue Context");return;}
 	bool bIsStillActive = ActiveContext->ChooseOption(Option);
 	if(bIsStillActive)
 	{

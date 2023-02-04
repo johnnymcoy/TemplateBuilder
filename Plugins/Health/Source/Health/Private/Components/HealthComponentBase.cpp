@@ -38,7 +38,7 @@ void UHealthComponentBase::BeginPlay()
 	}
 	if(MyOwner == nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Invalid Owner Reference on Health Component -- Disabling"));
+		LogMissingPointer("My Owner");
 		Deactivate();
 	}
 }

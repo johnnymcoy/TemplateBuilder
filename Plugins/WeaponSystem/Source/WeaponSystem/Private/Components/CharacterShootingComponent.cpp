@@ -13,7 +13,8 @@ UCharacterShootingComponent::UCharacterShootingComponent()
 void UCharacterShootingComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	if(GetOwner() == nullptr){LogMissingPointer("GetOwner");return;}
+	OwnerActor = GetOwner();	
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	// if(Weapon->GetWeaponData()->IsValid())
 	// {
@@ -59,7 +60,7 @@ void UCharacterShootingComponent::ShootGun()
 		if(Weapon->IsInAutoMode())
 		{
 			//todo remove firerate / 200.0f
-			GetOwner()->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UCharacterShootingComponent::PullTrigger, (Weapon->GetWeaponData().FireRate/ 200.f), true, 0.01f);
+			OwnerActor->GetWorldTimerManager().SetTimer(ShootingTimerHandle, this, &UCharacterShootingComponent::PullTrigger, (Weapon->GetWeaponData().FireRate/ 200.f), true, 0.01f);
 		}
 		else
 		{
@@ -70,7 +71,7 @@ void UCharacterShootingComponent::ShootGun()
 }
 void UCharacterShootingComponent::StopShootGun()
 {
-	GetOwner()->GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
+	OwnerActor->GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
 
@@ -89,10 +90,12 @@ void UCharacterShootingComponent::PullTrigger()
 			FRotator InRotation;
 			if(GetIsNPC())
 			{
-				GetOwner()->GetActorEyesViewPoint(InLocation, InRotation);
+				OwnerActor->GetActorEyesViewPoint(InLocation, InRotation);
 			}
 			else
 			{
+				if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Player Controller");return;}
+
 				APlayerCameraManager* PlayerCamera = GetOwnerPlayerController()->PlayerCameraManager;
 				if(PlayerCamera)
 				{
@@ -100,8 +103,7 @@ void UCharacterShootingComponent::PullTrigger()
 					InRotation = PlayerCamera->GetCameraRotation();
 				}
 			}
-			//todo:Need to change name so it's more fittting From: GetTraceParams -> TO :ShootGun
-			Weapon->Fire(InLocation, InRotation, GetOwner(), CalculateAccuracy());
+			Weapon->Fire(InLocation, InRotation, OwnerActor, CalculateAccuracy());
 		}
 		else
 		{
@@ -113,7 +115,6 @@ void UCharacterShootingComponent::PullTrigger()
 		}
 		Recoil();
 		//todo Accuracy in auto is same as first bullet
-
 	}
 }
 
@@ -129,7 +130,7 @@ float UCharacterShootingComponent::CalculateAccuracy()
 	{
 		// CalculatedAccuracy = (CalculatedAccuracy * 1.5f);
 	}
-	if(GetOwner()->GetActorTimeDilation() < 1)
+	if(OwnerActor->GetActorTimeDilation() < 1)
 	{
 		// CalculatedAccuracy = (CalculatedAccuracy * 2.0f);	
 	}
@@ -164,7 +165,7 @@ void UCharacterShootingComponent::CancelReload()
 	//  else{MulticastStopMontageAnimation(0.05f, GetReloadAnimation(CurrentWeaponData.WeaponType));}
 	// BUG CLient Doesn't work 
 
-	GetOwner()->GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
+	OwnerActor->GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 }
 
 void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
