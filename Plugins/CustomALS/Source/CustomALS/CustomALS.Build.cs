@@ -31,7 +31,8 @@ public class CustomALS : ModuleRules
 				"BaseHelpers",
 				"DlgSystem",
 				"DialogueComponent",
-				"WeaponSystem"
+				"WeaponSystem",
+				"Interaction"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

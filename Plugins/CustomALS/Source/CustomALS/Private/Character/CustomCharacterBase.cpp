@@ -7,6 +7,7 @@
 #include "Components/CharacterHealthComponent.h"
 #include "Components/DialogueComponent.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
+#include "Components/InteractionComponent.h"
 
 ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: AALSCharacter(ObjectInitializer)
@@ -29,6 +30,11 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	// Shooting
 	ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
 	ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+
+	// Interaction
+	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
+	InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+	
 }
 
 void ACustomCharacterBase::BeginPlay()
@@ -37,8 +43,10 @@ void ACustomCharacterBase::BeginPlay()
 	
 }
 
+
+
 void ACustomCharacterBase::OnHealthChanged(UHealthComponentBase* HealthComponent, float Health, float MaxHealth,
-	const UDamageType* DamageType)
+                                           const UDamageType* DamageType)
 {
 	
 }

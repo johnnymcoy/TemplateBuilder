@@ -61,8 +61,6 @@ void UInteractionComponent::TraceForward()
 	FVector EndPoint = StartPoint + (Rotation.Vector() * UseLength);
 	FCollisionQueryParams TraceParams;
 	// TODO ECC TRACE CHANNEL
-	// bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, StartPoint, EndPoint, ECC_GameTraceChannel5, TraceParams);
-	// if(bDebuggingMode)	{DrawDebugLine(GetWorld(), StartPoint, EndPoint, FColor::Orange, false, 0.2f );	}
 	TArray<AActor*> ActorsToIgnore;
 	EDrawDebugTrace::Type DrawDebugType;
 	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
@@ -107,22 +105,6 @@ void UInteractionComponent::TraceForward()
 				FocusOnActor(true, HitActor);
 				// Store our HitActor as our FocusedActor
 				FocusedActor = HitActor;
-				//v1 
-				// if(FocusedActor != nullptr)
-				// {
-				// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-				// 	if(InteractableActor != nullptr)
-				// 	{
-				// 		InteractableActor->EndFocus();
-				// 	}
-				// }
-				// IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(HitActor);
-				// if(InteractableActor != nullptr)
-				// {
-				// 	// If the Object: Has an interactable interface
-				// 	InteractableActor->StartFocus();
-				// }
-				// FocusedActor = HitActor;
 			}
 			////////////////////////////
 		}
@@ -130,18 +112,6 @@ void UInteractionComponent::TraceForward()
 		{
 			FocusOnActor(false, FocusedActor);
 			FocusedActor = nullptr;
-
-			// v1
-			// if(FocusedActor != nullptr)
-			// {
-			// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-			// 	if(InteractableActor)
-			// 	{
-			// 		InteractableActor->EndFocus();
-			// 	}
-			// }
-			// FocusedActor = nullptr;
-			
 			// //Reset Aim Assist
 			// LookUpDownRate = LookRateDefault;
 			// LookLeftRightRate = LookRateDefault;
@@ -152,16 +122,6 @@ void UInteractionComponent::TraceForward()
 	{
 		FocusOnActor(false, FocusedActor);
 		FocusedActor = nullptr;
-		// v1
-		// if(FocusedActor != nullptr)
-		// {
-		// 	IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
-		// 	if (InteractableActor != nullptr)
-		// 	{
-		// 		InteractableActor->EndFocus();
-		// 		FocusedActor = nullptr;
-		// 	}
-		// }
 	}
 }
 //v2
@@ -183,8 +143,6 @@ void UInteractionComponent::FocusOnActor(bool bStartFocus, AActor* ActorToFocus)
 		}
 	}
 }
-
-
 
 void UInteractionComponent::Use()
 {

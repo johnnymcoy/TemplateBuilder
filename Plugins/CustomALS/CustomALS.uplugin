@@ -46,6 +46,10 @@
 		{
 			"Name": "WeaponSystem",
 			"Enabled": true
+		},
+		{
+			"Name": "Interaction",
+			"Enabled": true
 		}
 	]
 }

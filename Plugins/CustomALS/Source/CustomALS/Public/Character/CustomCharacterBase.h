@@ -38,6 +38,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
 	class UCharacterShootingComponent* ShootingComponent;
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
+	class UInteractionComponent* InteractionComponent;
+
+	
 	// Health Component Functions 
 	UFUNCTION()
 	virtual void OnHealthChanged(class UHealthComponentBase* HealthComponent, float Health, float MaxHealth, const class UDamageType* DamageType);
@@ -49,12 +53,14 @@ protected:
 	virtual void OnShieldBreak();
 	UFUNCTION()
 	virtual void OnDeath(AActor* OwningActor);
-	
-private:
 
+	
 	
 	bool bIsNPC;
 	bool bIsDead;
+private:
+
+	
 
 private:
 	

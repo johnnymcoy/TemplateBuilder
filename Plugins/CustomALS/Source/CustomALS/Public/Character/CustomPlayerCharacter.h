@@ -19,6 +19,12 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
+	// Parent Functions
+	virtual void AimPressedAction() override;
+	virtual void AimReleasedAction() override;
+
+	
 
 
 };
