@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "Character/ALSCharacter.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/CustomCharacter.h"
 #include "CustomCharacterBase.generated.h"
 
 UCLASS()
-class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter
+class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter
 {
 	GENERATED_BODY()
 
@@ -24,6 +25,11 @@ public:
 	bool IsDead() const;
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const;
+
+	// Character Interface
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const override;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -54,14 +60,33 @@ protected:
 	UFUNCTION()
 	virtual void OnDeath(AActor* OwningActor);
 
+
 	
 	
 	bool bIsNPC;
 	bool bIsDead;
+
+	
 private:
+
+	///////////////// Input Functions ////////////////////
+	// virtual void AimPressedAction() override;
+	// virtual void AimReleasedAction() override;
+
+	void FirePressedAction();
+	// void FireReleasedAction();
+	// void ReloadPressedAction();
+	//
+	// void SwapWeaponPressedAction();
+	// void SwapWeaponReleasedAction();
+	//
+	// void SwitchAutoModePressedAction();
+	// void ThrowWeaponPressedAction();
+	
+	/////////////////  //////////////////// ////////////////////
+
 
 	
 
-private:
 	
 };

@@ -6,7 +6,7 @@
 #include "UObject/Interface.h"
 #include "DialogueInterface.generated.h"
 
-UINTERFACE(MinimalAPI)
+UINTERFACE(MinimalAPI, meta = (CannotImplementInterfaceInBlueprint))
 class UDialogueInterface : public UInterface
 {
 	GENERATED_BODY()
@@ -19,10 +19,11 @@ class DIALOGUECOMPONENT_API IDialogueInterface
 
 public:
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Dialogue)
-	bool StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants);
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	virtual bool StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) = 0;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Dialogue)
-	void SelectDialogueOption(int32 Option);
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	virtual void SelectDialogueOption(int32 Option) = 0;
+
 
 };

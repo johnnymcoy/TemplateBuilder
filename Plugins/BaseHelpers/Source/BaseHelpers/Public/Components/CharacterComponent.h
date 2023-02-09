@@ -49,6 +49,10 @@ protected:
 	bool bIsComponentSetup;
 	
 	void LogMissingPointer(FString PointerName) const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
+	bool bDebuggingMode;
+
 private:
 
 	bool CheckComponentIsSetup(FString ComponentName);

@@ -41,9 +41,9 @@ void UDialogueComponent::InitialSetup()
 	// if(DialogueWidget != nullptr){UE_LOG(LogTemp, Error, TEXT("Dialogue Widget SUCCESS"));}
 }
 
-bool UDialogueComponent::StartDialogue_Implementation(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
+
+bool UDialogueComponent::StartDialogue(UDlgDialogue* Dialogue, const TArray<UObject*>& Participants)
 {
-	// UE_LOG(LogTemp, Warning, TEXT("Start Dialogue from Dialogue Component"));
 	ActiveContext = UDlgManager::StartDialogue(Dialogue, Participants);
 	DialogueWidget->Refresh(ActiveContext);
 	SetInputModeGameAndUI(true, nullptr, true);
@@ -51,7 +51,7 @@ bool UDialogueComponent::StartDialogue_Implementation(UDlgDialogue* Dialogue, co
 	return ActiveContext != nullptr;
 }
 
-void UDialogueComponent::SelectDialogueOption_Implementation(int32 Option)
+void UDialogueComponent::SelectDialogueOption(int32 Option)
 {
 	if(ActiveContext == nullptr){LogMissingPointer("Active Dialogue Context");return;}
 	bool bIsStillActive = ActiveContext->ChooseOption(Option);

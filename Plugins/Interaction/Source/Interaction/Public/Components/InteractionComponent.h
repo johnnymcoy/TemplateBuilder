@@ -13,8 +13,7 @@ class INTERACTION_API UInteractionComponent : public UCharacterComponent
 
 	
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
-	bool bDebuggingMode = true;
+	UInteractionComponent();
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float UseLength = 1000.0f;

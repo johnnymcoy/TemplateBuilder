@@ -34,16 +34,27 @@ class WEAPONSYSTEM_API UCharacterShootingComponent : public UCharacterComponent
 public:
 	UCharacterShootingComponent();
 
+	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
+
+
 	// Main Functions
 	void ShootGun();
 	void PullTrigger();
 	void StopShootGun();
+	
+	// void AimPressed(bool bRightShoulder);
+	// void AimReleased(bool bRightShoulder);
 
 	// HUD / UMG
-	void AimPressed(bool bRightShoulder);
-	void AimReleased(bool bRightShoulder);
+	void AimPressedAction();
+	void AimReleasedAction();
 	// // void MoveUMG(bool bRightShoulder);
 	// void SetupHUD();
+
+	// Reload
+	void Reload();
+	void SwitchAutoMode();
+
 
 	// Swaps / Pickups
 	void PickupWeapon(FWeaponData_T WeaponToPickup);
@@ -62,15 +73,23 @@ public:
 
 	void Death();
 
+	//Getters
+	UFUNCTION(BlueprintCallable, Category = "Player Stats")
+	FWeaponData_T GetCurrentWeaponData() const{return GetCurrentWeapon();};
+	UFUNCTION(BlueprintCallable, Category = "Player Stats")
+	FPlayerWeaponState GetPlayerWeaponState() const{return PlayerWeaponState;};
+
 
 protected:
 	virtual void BeginPlay() override;
 
 	
 	// less than 1 is Low, 5 Is Very high
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats | Weapon", meta=(UIMin = "0.1", UIMax = "10.0"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", meta=(UIMin = "0.1", UIMax = "10.0"))
 	float Accuracy = 1;
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Animations")
+	UAnimMontage* GetReloadAnimation(EWeaponName_T WeaponName);
 
 private:
 
@@ -79,6 +98,8 @@ private:
 	void CancelReload();
 
 	void AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
+
+
 	
 	
 	//Weapon Activated Functions
@@ -92,7 +113,7 @@ private:
 	TArray<FWeaponData_T> WeaponInventory;
 	int32 CurrentWeaponIndex = 0;
 
-	FWeaponData_T GetCurrentWeapon();
+	FWeaponData_T GetCurrentWeapon() const;
 
 	UPROPERTY()
 	AActor* OwnerActor;

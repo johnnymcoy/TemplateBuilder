@@ -5,6 +5,12 @@
 #include "Interfaces/InteractionInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
+UInteractionComponent::UInteractionComponent()
+{
+	SetIsReplicatedByDefault(true);
+	bDebuggingMode = true;
+}
+
 void UInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -14,6 +20,7 @@ void UInteractionComponent::BeginPlay()
 		GetOwner()->GetWorldTimerManager().SetTimer(TraceForwardTimerHandle, this, &UInteractionComponent::TraceForward, TraceTickRate, true);
 	}
 }
+
 
 void UInteractionComponent::StartTraceForward()
 {
@@ -146,7 +153,7 @@ void UInteractionComponent::FocusOnActor(bool bStartFocus, AActor* ActorToFocus)
 
 void UInteractionComponent::Use()
 {
-	StartTraceForward();
+	TraceForward();
 	if(FocusedActor != nullptr)
 	{
 		IInteractionInterface* InteractableActor = Cast<IInteractionInterface>(FocusedActor);
@@ -162,5 +169,4 @@ void UInteractionComponent::Use()
 	// 		// UE_LOG(LogTemp,Warning, TEXT("NO Focused Actor"));
 	// 	}
 	// }
-	StopTraceForward();
 }

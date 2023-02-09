@@ -24,6 +24,10 @@ protected:
 	virtual void AimPressedAction() override;
 	virtual void AimReleasedAction() override;
 
+	// Interaction
+	void UseAction();
+	
+
 	
 
 

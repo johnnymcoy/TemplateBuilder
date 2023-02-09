@@ -32,20 +32,21 @@ class DIALOGUECOMPONENT_API UDialogueComponent : public UCharacterComponent, pub
 {
 	GENERATED_BODY()
 
+public:
 	UDialogueComponent();
 
-	public:
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	bool GetIsInDialogue() const{return bIsInDialogue;}
 	
 	void InitialSetup();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Dialogue)
-	bool StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants);
-
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = Dialogue)
-	void SelectDialogueOption(int32 Option);
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	virtual bool StartDialogue(class UDlgDialogue* Dialogue, const TArray<UObject*>& Participants) override;
+	
+	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	virtual void SelectDialogueOption(int32 Option) override;
 	//bool?
+	
 protected:
 	virtual void BeginPlay() override;
 
