@@ -7,6 +7,8 @@
 #include "Interfaces/Weapon.h"
 #include "WeaponFramework.generated.h"
 
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAmmoChanged, float, Health, float, MaxHealth,const class UDamageType*, DamageType);
+
 UCLASS()
 class WEAPONSYSTEM_API AWeaponFramework : public AActor, public IWeapon
 {
@@ -15,16 +17,23 @@ class WEAPONSYSTEM_API AWeaponFramework : public AActor, public IWeapon
 public:	
 	AWeaponFramework();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
+	bool bDebuggingMode;
+
+	// UPROPERTY(BlueprintAssignable, Category = "Ammo")
+	// FOnAmmoChanged OnAmmoChanged;
+
+
 protected:
 	virtual void BeginPlay() override;
 
-	//Gun Visual Components//
+	//- Gun Visual Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USkeletalMeshComponent* GunMeshComponent; 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
 	USceneComponent* Muzzle;
 
-	// Interface Functions
+	//- Interface Functions
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void Fire(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy) override;
 	UFUNCTION(Server, Reliable)
@@ -47,29 +56,38 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual bool IsClipEmpty() override {return WeaponData.CurrentAmmo <= 0;};
-
+	
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void SetWeaponData(const FWeaponData_T in_WeaponData) override {WeaponData = in_WeaponData;};
 	
-	// Blueprint Functions
+	//- Blueprint Functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta=(DisplayName = "Fire"))
 	void ReceiveFire(FHitResult Hit, APawn* InstigatorPawn);
 
 
-	//Multiplayer//
+	//- Multiplayer //
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
-	// UFUNCTION(Server, Reliable)
-	// void ServerSetReloading(bool bReloading);
-	// UFUNCTION(Server, Reliable)
-	// void ServerReload();
+	UFUNCTION(Server, Reliable)
+	void ServerSetReloading(bool bReloading);
+	UFUNCTION(Server, Reliable)
+	void ServerReload();
 
-	
+	// ? Temp Add to private later
+	// UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Weapon Data")
+	// FWeaponData_T WeaponData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Data")
+	FWeaponStats_T WeaponStats;
+
 private:
 
 	bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
+	void ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection);
 	
+
 	FWeaponData_T WeaponData;
-	FWeaponStats_T WeaponStats;
+	// FWeaponStats_T WeaponStats;
 
 	// Bullet Fire Data - turn to struct? Replicate?
 	// UPROPERTY(Replicated)
@@ -84,11 +102,12 @@ private:
 	TArray<AActor*> ActorsToIgnore;
 
 
-	
+	FTimerHandle ReloadTimerHandle;
 	bool bIsBeingReloaded;
 	bool CanShoot();
 	
 
 };
+
 
 

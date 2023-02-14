@@ -43,6 +43,10 @@ public:
 	//Get Weapon infos
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual FWeaponData_T GetWeaponData() = 0;
+	// todo maybe add in?
+	// UFUNCTION(BlueprintCallable, Category = "Weapons")
+	// virtual FWeaponStats_T GetWeaponStats() = 0;
+
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual bool IsInAutoMode() = 0;
 	UFUNCTION(BlueprintCallable, Category = "Weapon")

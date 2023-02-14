@@ -41,6 +41,7 @@ void ACustomPlayerCharacter::BeginPlay()
 	{
 		InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
+	
 }
 
 void ACustomPlayerCharacter::AimPressedAction()

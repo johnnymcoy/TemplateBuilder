@@ -27,7 +27,8 @@ public class WeaponSystem : ModuleRules
 			{
 				"Core",
 				"BaseHelpers",
-				"Interaction"
+				"Interaction",
+				"UMG"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

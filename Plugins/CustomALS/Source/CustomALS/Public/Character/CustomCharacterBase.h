@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "Character/ALSCharacter.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/CharacterWeaponPickups.h"
 #include "Interfaces/CustomCharacter.h"
 #include "CustomCharacterBase.generated.h"
 
 UCLASS()
-class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter
+class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter, public ICharacterWeaponPickups
 {
 	GENERATED_BODY()
 
@@ -26,10 +27,13 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const;
 
-	// Character Interface
+	//-  Character Interface
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const override;
 
+	//- Character Weapons Interface
+	UFUNCTION(BlueprintCallable, Category = "Pickups")
+	virtual void PickupGunEvent(const FWeaponData_T In_WeaponData) override;
 
 protected:
 	virtual void BeginPlay() override;

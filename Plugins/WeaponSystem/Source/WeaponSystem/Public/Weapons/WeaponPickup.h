@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Data/WeaponStructs.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/InteractionInterface.h"
 #include "WeaponPickup.generated.h"
@@ -13,6 +14,21 @@ class WEAPONSYSTEM_API AWeaponPickup : public AActor, public IInteractionInterfa
 	GENERATED_BODY()
 
 public:
+	AWeaponPickup();
+	
+	//- Visual Components
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Mesh")
+	class USkeletalMeshComponent* GunMesh;
+	
+	//- Weapon Data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
+	FWeaponData_T WeaponPickupData;
+
+	//- For when weapon is spawned
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	void WeaponDroppedEvent(FWeaponData_T DroppedWeaponData);
+
+
 	
 	// Interface Functions
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
@@ -33,6 +49,11 @@ public:
 	void ReceiveStartFocus();
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "End Focus"))
 	void ReceiveEndFocus();
+	
+protected:
+	virtual void BeginPlay() override;
+private:
+	void SetMesh();
 
 
 };

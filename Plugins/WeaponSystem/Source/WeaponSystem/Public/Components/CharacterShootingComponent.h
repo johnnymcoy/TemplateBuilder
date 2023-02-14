@@ -25,6 +25,10 @@ struct FPlayerWeaponState
 	bool bHasGun;
 };
 
+
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class WEAPONSYSTEM_API UCharacterShootingComponent : public UCharacterComponent
 {
@@ -36,6 +40,8 @@ public:
 
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 
+	UPROPERTY(BlueprintAssignable, Category = "Ammo")
+	FOnAmmoChangedSignature OnAmmoChanged;
 
 	// Main Functions
 	void ShootGun();
@@ -79,6 +85,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
 	FPlayerWeaponState GetPlayerWeaponState() const{return PlayerWeaponState;};
 
+	//? Temp Vars 
+	//todo Empty AActor
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
+	AActor* CurrentWeapon;
+
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -96,6 +108,10 @@ private:
 	// Weapon Functions
 	void ReloadDelay();
 	void CancelReload();
+
+	//- Stored to be able to call function on 
+	UPROPERTY()
+	UAnimMontage* ReloadAnimation;
 
 	void AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
 
@@ -117,8 +133,6 @@ private:
 
 	UPROPERTY()
 	AActor* OwnerActor;
-	//todo Empty AActor
-	AActor* CurrentWeapon;
 
 
 	// AutoMatic Weapon fire Handler

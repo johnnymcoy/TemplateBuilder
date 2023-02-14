@@ -29,11 +29,11 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 
 	// Shooting
 	ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
-	ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+	// ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 
 	// Interaction
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
-	InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+	// InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 
 
 	// Deafults for some of the ALS character - from the BP 
@@ -64,6 +64,15 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 void ACustomCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	if(ShootingComponent != nullptr)
+	{
+		ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+	}
+	if(InteractionComponent != nullptr)
+	{
+		InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+	}
+
 	
 }
 
@@ -123,7 +132,7 @@ void ACustomCharacterBase::FirePressedAction()
 		if(!ShootingComponent->GetPlayerWeaponState().bIsHolstered)
 		{
 			ShootingComponent->ShootGun();
-			//ShootGun();
+			//! ShootGun();
 		}
 		else
 		{
@@ -139,7 +148,7 @@ void ACustomCharacterBase::FirePressedAction()
 	}
 }
 
-// void ACustomCharacterBase::FireReleasedAction()
+// ! void ACustomCharacterBase::FireReleasedAction()
 // {
 // 	if(ShootingComponent != nullptr)
 // 	{
@@ -191,6 +200,12 @@ void ACustomCharacterBase::FirePressedAction()
 void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_DialogueComponent) const
 {
 	Out_DialogueComponent = DialogueComponent;
+}
+
+void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
+{
+	UE_LOG(LogTemp,Warning, TEXT("Pickup Gun -- Character base"));
+	ShootingComponent->PickupWeapon(In_WeaponData);
 }
 
 

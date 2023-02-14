@@ -67,7 +67,8 @@ struct FWeaponData_T
 	float ReloadTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Extra Stats")
 	float Recoil;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode")
+	//1 = Very Fast, 250 Slow i.e. Sniper// 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AutoMode", meta = (ClampMin = "1", ClampMax = "250", UIMin = "1", UIMax = "250"))
 	float FireRate;
 
 
@@ -89,6 +90,9 @@ struct FWeaponData_T
 		}
 		return true;
 	}
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+	bool bIsValid = IsValid();
+	
 	// Returns Remaining Ammo
 	int32 AddAmmo(const int32 AmountToAdd)
 	{
