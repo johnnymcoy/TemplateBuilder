@@ -19,6 +19,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
 	bool bDebuggingMode;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
+	bool bInfiniteAmmo;
 
 	// UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	// FOnAmmoChanged OnAmmoChanged;
@@ -59,6 +61,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void SetWeaponData(const FWeaponData_T in_WeaponData) override {WeaponData = in_WeaponData;};
+	
+	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) override {GunMeshComponent->SkeletalMesh = SkeletalMesh;};
+
 	
 	//- Blueprint Functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta=(DisplayName = "Fire"))

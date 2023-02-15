@@ -34,12 +34,12 @@ void ACustomPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 	if(DialogueComponent != nullptr)
 	{
-		DialogueComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+		DialogueComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 		DialogueComponent->InitialSetup();
 	}
 	if(InteractionComponent != nullptr)
 	{
-		InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
 	
 }

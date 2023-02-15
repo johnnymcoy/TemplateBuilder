@@ -26,8 +26,13 @@ struct FPlayerWeaponState
 };
 
 
+// DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, float, CurrentWeaponIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, float, CurrentAmmo, float, TotalAmmo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState, bool, bIsInAutoMode);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBulletShot, float, RecoilAmount);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class WEAPONSYSTEM_API UCharacterShootingComponent : public UCharacterComponent
@@ -39,9 +44,15 @@ public:
 	UCharacterShootingComponent();
 
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
-
+	UPROPERTY(BlueprintAssignable, Category = "Weapons")
+	FOnWeaponEqiupped OnWeaponEqiupped;
 	UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	FOnAmmoChangedSignature OnAmmoChanged;
+	UPROPERTY(BlueprintAssignable, Category = "Ammo")
+	FOnWeaponStateChanged OnWeaponStateChanged;
+
+	UPROPERTY(BlueprintAssignable, Category = "Recoil")
+	FOnBulletShot OnBulletShot;
 
 	// Main Functions
 	void ShootGun();
@@ -128,6 +139,13 @@ private:
 	// Swaps / Pickups
 	TArray<FWeaponData_T> WeaponInventory;
 	int32 CurrentWeaponIndex = 0;
+	
+	/** Last time the camera action button is pressed */
+	float SwapWeaponPressedTime = 0.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "Switch Weapons")
+	float SwapWeaponHoldTime = 0.2f;
+
+	bool bSwapWeaponPressed = false;
 
 	FWeaponData_T GetCurrentWeapon() const;
 
@@ -138,6 +156,7 @@ private:
 	// AutoMatic Weapon fire Handler
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle ReloadTimerHandle;
+	FTimerHandle WeaponSwapTimerHandle;
 
 	
 	FPlayerWeaponState PlayerWeaponState;

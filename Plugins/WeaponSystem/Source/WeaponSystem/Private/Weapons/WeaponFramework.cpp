@@ -61,7 +61,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 	if(!CanShoot())	{return;}
 	ActorsToIgnore.Emplace(GetOwner());
 
-	if(bDebuggingMode){WeaponData.CurrentAmmo++;}
+	if(bInfiniteAmmo){WeaponData.CurrentAmmo++;}
 	WeaponData.CurrentAmmo--;
 	
 	FHitResult Hit;
@@ -120,6 +120,8 @@ void AWeaponFramework::ServerShoot_Implementation()
 		}
 		ActorsToIgnore.Remove(Hit.GetActor()); //Remove as the var is kept
 	}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Current Ammo: %i"), WeaponData.CurrentAmmo);}
+
 	//todo temp
 	// EPhysicalSurface SurfaceType = SurfaceType_Default;
 	// SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
@@ -239,6 +241,7 @@ void AWeaponFramework::ServerReload_Implementation()
 			WeaponData.CurrentAmmo = WeaponData.CurrentAmmo + WeaponData.TotalAmmoCount;
 			WeaponData.TotalAmmoCount = 0;
 		}
+		if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Current Ammo: %i"), WeaponData.CurrentAmmo);}
 	}
 	GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 	ServerSetReloading(false);

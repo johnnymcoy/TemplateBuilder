@@ -56,7 +56,6 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	FallingTraceSettings.ForwardTraceRadius = 30.0f;
 	FallingTraceSettings.DownwardTraceRadius = 30.0f;
 	bRagdollOnLand = true;
-
 	
 	
 }
@@ -66,11 +65,11 @@ void ACustomCharacterBase::BeginPlay()
 	Super::BeginPlay();
 	if(ShootingComponent != nullptr)
 	{
-		ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+		ShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
 	if(InteractionComponent != nullptr)
 	{
-		InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
+		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
 
 	
@@ -204,7 +203,7 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 
 void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
-	UE_LOG(LogTemp,Warning, TEXT("Pickup Gun -- Character base"));
+	// UE_LOG(LogTemp,Warning, TEXT("Pickup Gun -- Character base"));
 	ShootingComponent->PickupWeapon(In_WeaponData);
 }
 

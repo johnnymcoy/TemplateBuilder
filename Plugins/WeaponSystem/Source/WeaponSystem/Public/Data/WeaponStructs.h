@@ -2,6 +2,10 @@
 #include "CoreMinimal.h"
 #include "WeaponStructs.generated.h"
 
+
+DECLARE_LOG_CATEGORY_EXTERN(LogWeaponSystem, Warning, All);
+
+
 UENUM(BlueprintType)
 enum class EWeaponName_T : uint8
 {

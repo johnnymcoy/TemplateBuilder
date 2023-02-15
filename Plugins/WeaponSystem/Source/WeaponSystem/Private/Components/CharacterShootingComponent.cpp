@@ -4,6 +4,9 @@
 #include "Components/CharacterShootingComponent.h"
 #include "Interfaces/Weapon.h"
 
+//- Custom log Category 
+DEFINE_LOG_CATEGORY(LogWeaponSystem);
+
 UCharacterShootingComponent::UCharacterShootingComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -35,26 +38,26 @@ void UCharacterShootingComponent::BeginPlay()
 	}
 	//? Temp for testing
 	PlayerWeaponState.bIsHolstered = false;
-	OnAmmoChanged.Broadcast(WeaponInventory);
+	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
 }
 // void UCharacterShootingComponent::AimPressed(bool bRightShoulder)
 
 void UCharacterShootingComponent::AimPressedAction()
 {
 	PlayerWeaponState.bIsAiming = true;
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Aim Pressed"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Aim Pressed"));}
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
 		// Weapon->MoveUMG(!bRightShoulder);
 		// Weapon->FadeInUMG(PlayerWeaponState.bIsAiming);
-		// UE_LOG(LogTemp, Warning, TEXT("Fade UMG - ShootingComponent"));
+		// UE_LOG(LogWeaponSystem, Warning, TEXT("Fade UMG - ShootingComponent"));
 	}
 }
 
 void UCharacterShootingComponent::AimReleasedAction()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Aim Released"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Aim Released"));}
 
 	PlayerWeaponState.bIsAiming = false;
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
@@ -62,13 +65,13 @@ void UCharacterShootingComponent::AimReleasedAction()
 	{
 		// Weapon->MoveUMG(!bRightShoulder);
 		// Weapon->FadeInUMG(PlayerWeaponState.bIsAiming);
-		// UE_LOG(LogTemp, Warning, TEXT("Fade UMG - ShootingComponent"));
+		// UE_LOG(LogWeaponSystem, Warning, TEXT("Fade UMG - ShootingComponent"));
 	}
 }
 
 void UCharacterShootingComponent::Reload()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Reload Pressed"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Reload Pressed"));}
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
@@ -111,7 +114,8 @@ void UCharacterShootingComponent::Reload()
 
 		}
 		//? Testing HUD update
-		OnAmmoChanged.Broadcast(WeaponInventory);
+		// - Update HUD elements // 
+		OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
 	}
 
 
@@ -128,7 +132,7 @@ void UCharacterShootingComponent::Reload()
 	// 	// 		if(ReloadTime <= 0.5)
 	// 	// 		{
 	// 	// 			ReloadTime = 1.0;
-	// 	// 			UE_LOG(LogTemp,Warning, TEXT("ReloadTime is too slow, set to Default"));
+	// 	// 			UE_LOG(LogWeaponSystem,Warning, TEXT("ReloadTime is too slow, set to Default"));
 	// 	// 			//todo: Have check for Server? make sure theres a default
 	// 	// 		}
 	// 	// 		CurrentWeapon->Reload(ReloadTime);
@@ -149,6 +153,12 @@ void UCharacterShootingComponent::ReloadDelay()
 	OwnerActor->GetWorldTimerManager().ClearTimer(ReloadTimerHandle);
 	if(!PlayerWeaponState.bIsReloading){return;}
 	PlayerWeaponState.bIsReloading = false;
+	// - Update HUD elements //
+	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+	if(Weapon != nullptr)
+	{
+		OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
+	}
 
 	//- Update Hud elements 
 	// todo Move this to update hud
@@ -181,7 +191,7 @@ void UCharacterShootingComponent::CancelReload()
 
 void UCharacterShootingComponent::SwitchAutoMode()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Switch Auto mode"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Switch Auto mode"));}
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
@@ -192,16 +202,12 @@ void UCharacterShootingComponent::SwitchAutoMode()
 		// todo
 		// UpdateWeaponHUD();
 		//? Testing HUD update
-		OnAmmoChanged.Broadcast(WeaponInventory);
+		OnWeaponStateChanged.Broadcast(PlayerWeaponState, Weapon->GetWeaponData().bIsInAutoMode);
 	}
 }
 
 void UCharacterShootingComponent::ShootGun()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Shoot Gun"));}
-
-	// TODO Rewrite, the gun should do all this
-	// if(CurrentWeaponData.CurrentAmmo <= 0){return;};
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
@@ -220,20 +226,18 @@ void UCharacterShootingComponent::ShootGun()
 		}
 	}
 }
+
 void UCharacterShootingComponent::StopShootGun()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Stop Shooting Gun"));}
-
 	OwnerActor->GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
 }
 
-
 void UCharacterShootingComponent::PullTrigger()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Pull Trigger"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Pull Trigger"));}
 
 	//todo Accuracy in auto is same as first bullet
-	// UE_LOG(LogTemp, Warning, TEXT("Accuracy: %f"), Accuracy);
+	// UE_LOG(LogWeaponSystem, Warning, TEXT("Accuracy: %f"), Accuracy);
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
@@ -259,17 +263,15 @@ void UCharacterShootingComponent::PullTrigger()
 		}
 		else
 		{
-			if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("BlindFire"));};
+			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("BlindFire"));};
 			Weapon->BlindFireWeapon();
 			// Blindfire Animation
 			//Gun needs a blindfire Function that then goes into GetTraceParams
 			//Gun interface also needs function
 		}
 		Recoil();
-		//? Testing HUD update
-		OnAmmoChanged.Broadcast(WeaponInventory);
-
-		// UpdateWeaponHUD();
+		// - Update HUD elements // 
+		OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
 		//todo Accuracy in auto is same as first bullet
 	}
 }
@@ -279,57 +281,53 @@ void UCharacterShootingComponent::Recoil()
 	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 	if(Weapon != nullptr)
 	{
-		float RecoilAmount = Weapon->GetWeaponData().Recoil;
+		const float RecoilAmount = Weapon->GetWeaponData().Recoil;
 		float RecoilTotal;
 		// Todo get rid of magic number (4 & 8 multiplier)
 		if(PlayerWeaponState.bIsAiming){RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 4)) / Accuracy);}
 		else{RecoilTotal = (FMath::RandRange(RecoilAmount, (RecoilAmount * 8)) / Accuracy);}
-		// OnBulletShot.Broadcast(RecoilTotal);
+		OnBulletShot.Broadcast(RecoilTotal);
 	}
 }
 
 float UCharacterShootingComponent::CalculateAccuracy()
 {
 	float CalculatedAccuracy = Accuracy;
+	//todo get the Stance from somewhere.. 
 	// if(Stance == EALSStance::Crounching)
 	{
 		// CalculatedAccuracy = (CalculatedAccuracy * 1.5f);
 	}
 	if(OwnerActor->GetActorTimeDilation() < 1)
 	{
-		// CalculatedAccuracy = (CalculatedAccuracy * 2.0f);	
+		CalculatedAccuracy = (CalculatedAccuracy * 2.0f);	
 	}
 	if(!PlayerWeaponState.bIsAiming) // BlindFire
 	{
-		// CalculatedAccuracy = (CalculatedAccuracy * 0.5f);
+		CalculatedAccuracy = (CalculatedAccuracy * 0.5f);
 	}
 	if(GetIsNPC())
 	{
-		// CalculatedAccuracy = (CalculatedAccuracy * 0.25f);
+		CalculatedAccuracy = (CalculatedAccuracy * 0.25f);
 	}
-
 	return CalculatedAccuracy;
 }
 
 
 void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
 {
-	// Is Weapon Valid?
-	if(!WeaponToPickup.IsValid())
-	{
-		LogMissingPointer("Invalid Weapon data to Pickup");
-		return;
-	}
+	//-  Is Weapon Valid //
+	if(!WeaponToPickup.IsValid()){LogMissingPointer("Invalid Weapon data to Pickup");return;}
 	//? // Run on Server
 	// if(GetOwnerRole() != ROLE_Authority)
 	// {
 	// 	// ServerPickupWeapon(WeaponToPickup)
 	// 	return;
 	// }
-	// Do we have any weapon?
+	//- Do we have any weapons already? 
 	if(!PlayerWeaponState.bHasGun && WeaponInventory.Num() == 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("First Pickup"));
+		UE_LOG(LogWeaponSystem, Warning, TEXT("First Pickup"));
 		AddWeaponToInventory(WeaponToPickup);
 		EquipWeapon(WeaponToPickup);
 	}
@@ -337,7 +335,7 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
 	{
 		for(int32 i = 0; i < WeaponInventory.Num(); i++)
 		{
-			// UE_LOG(LogTemp,Warning,TEXT("For Loop %i"), i);
+			// UE_LOG(LogWeaponSystem,Warning,TEXT("For Loop %i"), i);
 			// Do we already have this weapon
 			// //Doesn;t Work, Checks First weapon pistol against first weapon holding rifle even if second weapon is pistol
 			if(WeaponToPickup.WeaponType != WeaponInventory[i].WeaponType)
@@ -352,6 +350,41 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
 		}
 	}
 }
+
+void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
+{
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Equip Weapon"));}
+	//todo not sure about < role
+	// if(GetOwnerRole() < ROLE_Authority)
+	// {
+	// ServerEquipWeapon(WeaponData);
+	// }
+	PlayerWeaponState.bHasGun = true;
+	PlayerWeaponState.bIsHolstered = false;
+
+	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+	if(Weapon != nullptr)
+	{
+		Weapon->SetWeaponData(WeaponToEquip);
+		// CurrentWeapon->GunChildActorReference->SetChildActorClass(CurrentWeaponData.WeaponClass);
+		FName SocketName;
+		if(WeaponToEquip.bIsLeftHand)
+		{SocketName = TEXT("VB LHS_ik_hand_gun");}
+		else
+		{SocketName = TEXT("VB RHS_ik_hand_gun");}
+		Weapon->SetWeaponMesh(WeaponToEquip.MeshForPickup);
+		CurrentWeapon->AttachToComponent(GetOwnerMesh(), FAttachmentTransformRules::KeepWorldTransform, SocketName);
+		CurrentWeapon->GetRootComponent()->SetRelativeLocation(WeaponToEquip.WeaponOffset);
+		CurrentWeapon->GetRootComponent()->SetRelativeRotation(WeaponToEquip.RotationOffset);
+		CurrentWeapon->SetOwner(GetOwner());
+
+
+		//? ALS->ClearHeldObject();	
+
+		OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	}
+}
+
 
 void UCharacterShootingComponent::AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex)
 {
@@ -368,55 +401,117 @@ void UCharacterShootingComponent::AddAmmo(const int32 AmountToAdd, const int32 W
 
 void UCharacterShootingComponent::AddWeaponToInventory(FWeaponData_T NewWeapon)
 {
-	WeaponInventory.Add(NewWeapon);
+	WeaponInventory.Emplace(NewWeapon);
+	if(WeaponInventory.Num() > 0)
+	{
+		PlayerWeaponState.bHasGun = true;
+	}
+	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Weapons: %i"), WeaponInventory.Num());}
+	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
 }
 
 void UCharacterShootingComponent::RemoveWeaponFromInventory(int32 WeaponToRemove)
 {
 	WeaponInventory.RemoveAt(WeaponToRemove);
+	if(WeaponInventory.Num() == 0)
+	{
+		PlayerWeaponState.bHasGun = false;
+		PlayerWeaponState.bIsHolstered = true;
+	}
+	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Weapons: %i"), WeaponInventory.Num());}
 }
 
-void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
+void UCharacterShootingComponent::SwapWeaponPressed()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Equip Weapon"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Swap Weapon Pressed"));}
+	if(bSwapWeaponPressed){return;}
+	CancelReload();
+	UWorld* World = GetWorld();
+	if(World == nullptr){LogMissingPointer("UWorld");return;}
+	
+	bSwapWeaponPressed = true;
+	SwapWeaponPressedTime = World->GetTimeSeconds();
+	OwnerActor->GetWorldTimerManager().SetTimer(WeaponSwapTimerHandle, this, &UCharacterShootingComponent::HolsterWeapon, SwapWeaponHoldTime, false);
 }
 
 
 void UCharacterShootingComponent::SwapWeapon()
 {
+	bSwapWeaponPressed = false;
+	if(!PlayerWeaponState.bHasGun){return;}
+	if(PlayerWeaponState.bIsHolstered){return;}
+	
+	
 	CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
-	// UE_LOG(LogTemp,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);
+	EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+	
+	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);}
 }
 
-void UCharacterShootingComponent::SwapWeaponPressed()
-{
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Swap Weapon Pressed"));}
-}
 
 void UCharacterShootingComponent::SwapWeaponReleased()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Swap Weapon Released"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Swap Weapon Released"));}
+	UWorld* World = GetWorld();
+	if(World == nullptr){LogMissingPointer("UWorld");return;}
+	
+	//- If we have only tapped the button (Pressed time is less than hold time)
+	if(World->GetTimeSeconds() - SwapWeaponPressedTime <= SwapWeaponHoldTime)
+	{
+		SwapWeapon();
+		//- Prevent from Holstering Weapon
+		OwnerActor->GetWorldTimerManager().ClearTimer(WeaponSwapTimerHandle);
+	}
+
 }
 
 void UCharacterShootingComponent::HolsterWeapon()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Holster Weapon"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Holster Weapon"));}
+	bSwapWeaponPressed = false;
+	OwnerActor->GetWorldTimerManager().ClearTimer(WeaponSwapTimerHandle);
+	if(!PlayerWeaponState.bIsHolstered)
+	{
+		PlayerWeaponState.bIsHolstered = true;
+		// todo bIsInAutoMode
+		OnWeaponStateChanged.Broadcast(PlayerWeaponState, false);
+		// OnStateChange.Broadcast(EALSOverlayState::Default)
+		// SetChildActorClass(EmptyWeaponData.WeaponClass);
+		//ClearHeldObject();
+	}
+	else
+	{
+		if(WeaponInventory.Num() == 0){UE_LOG(LogWeaponSystem, Warning, TEXT("No Weapons in Inventory"));return;}
+		PlayerWeaponState.bIsHolstered = false;
+		if(WeaponInventory[CurrentWeaponIndex].IsValid())
+		{
+			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Unholster + Equip Weapon"));}
+			EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+			// EquipWeapon();
+		}
+		else{UE_LOG(LogTemp,Warning, TEXT("InvalidWeaponData (Holster)"));}
+
+		
+	}
 }
 
 void UCharacterShootingComponent::ThrowWeapon(FWeaponData_T WeaponToThrow)
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Throw Weapon"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Throw Weapon"));}
 }
 
 void UCharacterShootingComponent::DropWeapon()
 {
-	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Drop Weapon"));}
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Drop Weapon"));}
 	FTransform Transform;
 	FVector ThrowForce;
 	// GetThrowStats(Transform, ThrowForce);
 	// if(WeaponToSpawn == nullptr)
 	// {
-	// 	UE_LOG(LogTemp,Error, TEXT("Weapon To Spawn Not Set"));
+	// 	UE_LOG(LogWeaponSystem,Error, TEXT("Weapon To Spawn Not Set"));
 	// 	return; 
 	// }
 	// RemoveWeaponFromInventory(GetCurrentWeapon());
