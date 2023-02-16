@@ -202,7 +202,7 @@ void UCharacterShootingComponent::SwitchAutoMode()
 		// todo
 		// UpdateWeaponHUD();
 		//? Testing HUD update
-		OnWeaponStateChanged.Broadcast(PlayerWeaponState, Weapon->GetWeaponData().bIsInAutoMode);
+		OnWeaponStateChanged.Broadcast(PlayerWeaponState);
 	}
 }
 
@@ -333,22 +333,73 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
 	}
 	else
 	{
+		// if(PlayerHasWeaponOfType(WeaponToPickup.WeaponType))
+		// {
+		// 	// AddAmmo(WeaponToPickup.TotalAmmoCount, i);
+		// }
+		// else
+		// {
+		// 	AddWeaponToInventory(WeaponToPickup);
+		// 	SwapWeapon();
+		// }
+		//! v2
+		bool bHasWeaponOfType = false;
+		int32 Index = 0;
 		for(int32 i = 0; i < WeaponInventory.Num(); i++)
 		{
-			// UE_LOG(LogWeaponSystem,Warning,TEXT("For Loop %i"), i);
-			// Do we already have this weapon
-			// //Doesn;t Work, Checks First weapon pistol against first weapon holding rifle even if second weapon is pistol
-			if(WeaponToPickup.WeaponType != WeaponInventory[i].WeaponType)
+			if(WeaponToPickup.WeaponType == WeaponInventory[i].WeaponType)
 			{
-				
-			}
-			else if(WeaponToPickup.WeaponType == WeaponInventory[i].WeaponType)
-			{
-				AddAmmo(WeaponToPickup.TotalAmmoCount, i);
+				bHasWeaponOfType = true;
+				Index = i;
+				// AddAmmo(WeaponToPickup.TotalAmmoCount, i);
 				//Add Ammo
 			}
+			else
+			{
+				// AddWeaponToInventory(WeaponToPickup);
+				// SwapWeapon();
+			}
+		}
+		//-  Do we already have this weapon // 
+		if(bHasWeaponOfType)
+		{
+			AddAmmo(WeaponToPickup.TotalAmmoCount, Index);
+		}
+		else
+		{
+			CurrentWeaponIndex = WeaponInventory.Num() - 1;
+			AddWeaponToInventory(WeaponToPickup);
+			SwapWeapon();
+		}
+		// Weapon 1 Eqiupped, Pick up Weapon no 3 
+		
+			
+			// // old method . Doesn;t Work, Checks First weapon pistol against first weapon holding rifle even if second weapon is pistol
+			// if(WeaponToPickup.WeaponType != WeaponInventory[i].WeaponType)
+			// {
+			// 	// AddWeaponToInventory(WeaponToPickup);
+			// 	// SwapWeapon();
+			// }
+			// else if(WeaponToPickup.WeaponType == WeaponInventory[i].WeaponType)
+			// {
+			// 	AddAmmo(WeaponToPickup.TotalAmmoCount, i);
+			// 	//Add Ammo
+			// }
+		// }
+	}
+}
+
+// Change to retrun &bool and &index 
+bool UCharacterShootingComponent::PlayerHasWeaponOfType(EWeaponName_T WeaponType)
+{
+	for(const FWeaponData_T& WeaponData : WeaponInventory)
+	{
+		if(WeaponData.WeaponType == WeaponType)
+		{
+			return true;
 		}
 	}
+	return false;
 }
 
 void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
@@ -424,6 +475,7 @@ void UCharacterShootingComponent::RemoveWeaponFromInventory(int32 WeaponToRemove
 
 void UCharacterShootingComponent::SwapWeaponPressed()
 {
+	StopShootGun();
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Swap Weapon Pressed"));}
 	if(bSwapWeaponPressed){return;}
 	CancelReload();
@@ -440,14 +492,12 @@ void UCharacterShootingComponent::SwapWeapon()
 {
 	bSwapWeaponPressed = false;
 	if(!PlayerWeaponState.bHasGun){return;}
-	if(PlayerWeaponState.bIsHolstered){return;}
 	
 	
 	CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
+	//? Should still swap if Holstered, but don't equip 
+	if(PlayerWeaponState.bIsHolstered){return;}
 	EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
-	
-	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-	
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);}
 }
 
@@ -475,17 +525,22 @@ void UCharacterShootingComponent::HolsterWeapon()
 	OwnerActor->GetWorldTimerManager().ClearTimer(WeaponSwapTimerHandle);
 	if(!PlayerWeaponState.bIsHolstered)
 	{
+		//- Holster // 
 		PlayerWeaponState.bIsHolstered = true;
+		CurrentWeapon->SetActorHiddenInGame(true);
 		// todo bIsInAutoMode
-		OnWeaponStateChanged.Broadcast(PlayerWeaponState, false);
+		
+		OnWeaponStateChanged.Broadcast(PlayerWeaponState);
 		// OnStateChange.Broadcast(EALSOverlayState::Default)
 		// SetChildActorClass(EmptyWeaponData.WeaponClass);
 		//ClearHeldObject();
 	}
 	else
 	{
+		//- UnHolster // 
 		if(WeaponInventory.Num() == 0){UE_LOG(LogWeaponSystem, Warning, TEXT("No Weapons in Inventory"));return;}
 		PlayerWeaponState.bIsHolstered = false;
+		CurrentWeapon->SetActorHiddenInGame(false);
 		if(WeaponInventory[CurrentWeaponIndex].IsValid())
 		{
 			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Unholster + Equip Weapon"));}

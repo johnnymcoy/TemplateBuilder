@@ -9,6 +9,9 @@
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Components/InteractionComponent.h"
 
+DEFINE_LOG_CATEGORY(LogCustomCharacters);
+
+
 ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectInitializer)
 	: AALSCharacter(ObjectInitializer)
 {
@@ -29,6 +32,8 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 
 	// Shooting
 	ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
+	ShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
+	ShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
 	// ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 
 	// Interaction
@@ -203,14 +208,63 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 
 void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
-	// UE_LOG(LogTemp,Warning, TEXT("Pickup Gun -- Character base"));
 	ShootingComponent->PickupWeapon(In_WeaponData);
+	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
+	SetOverlayState(WeaponOverlayState);
+	ClearHeldObject();
+}
+
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////-				Shooting Component Bind		  //////////////////////////
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
+void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, float CurrentWeaponIndex)
+{
+	UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon Equipped Custom Character"));
+
+	if(Weapons.IsValidIndex(CurrentWeaponIndex))
+	{
+		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
+		SetOverlayState(WeaponOverlayState);
+		ClearHeldObject();
+	}
+}
+
+void ACustomCharacterBase::WeaponStateChanged(FPlayerWeaponState PlayerWeaponState)
+{
+	UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon State Changed Custom Character"));
+	if(PlayerWeaponState.bIsHolstered)
+	{
+		SetOverlayState(EALSOverlayState::Default);
+		ClearHeldObject();
+	}
 }
 
 
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-//////////////////////////				Health						  //////////////////////////
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//- Helper Function // 
+EALSOverlayState ACustomCharacterBase::WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay)
+{
+	switch (WeaponOverlay)
+	{
+	case EWeaponOverlay::PistolOneHanded:
+		return EALSOverlayState::PistolOneHanded;
+	case EWeaponOverlay::PistolTwoHanded:
+		return EALSOverlayState::PistolTwoHanded;
+	case EWeaponOverlay::Shotgun:
+		return EALSOverlayState::Shotgun;
+	case EWeaponOverlay::Rifle:
+		return EALSOverlayState::Rifle;
+	default:
+		UE_LOG(LogTemp,Warning,TEXT("No Weapon Overlay Set"));
+		return EALSOverlayState::PistolOneHanded;
+	}
+}
+
+
+
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////-				Health						  //////////////////////////
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
 void ACustomCharacterBase::OnHealthChanged(UHealthComponentBase* HealthComponent, float Health, float MaxHealth,
                                            const UDamageType* DamageType)

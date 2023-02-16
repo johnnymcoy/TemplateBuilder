@@ -7,30 +7,12 @@
 #include "Data/WeaponStructs.h"
 #include "CharacterShootingComponent.generated.h"
 
-USTRUCT(BlueprintType)
-struct FPlayerWeaponState
-{
-	GENERATED_USTRUCT_BODY()    
-	UPROPERTY(BlueprintReadWrite)
-	bool bPrimaryEquipped;
-	UPROPERTY(BlueprintReadWrite)
-	bool bSecondaryEquipped;
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsReloading;
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsHolstered;
-	UPROPERTY(BlueprintReadWrite)
-	bool bIsAiming;
-	UPROPERTY(BlueprintReadWrite)
-	bool bHasGun;
-};
-
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, float, CurrentWeaponIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, float, CurrentAmmo, float, TotalAmmo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState, bool, bIsInAutoMode);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBulletShot, float, RecoilAmount);
 
@@ -123,6 +105,9 @@ private:
 	//- Stored to be able to call function on 
 	UPROPERTY()
 	UAnimMontage* ReloadAnimation;
+
+	
+	bool PlayerHasWeaponOfType(EWeaponName_T WeaponType);
 
 	void AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
 

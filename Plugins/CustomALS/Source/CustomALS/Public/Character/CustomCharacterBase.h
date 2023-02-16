@@ -9,6 +9,9 @@
 #include "Interfaces/CustomCharacter.h"
 #include "CustomCharacterBase.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogCustomCharacters, Display, All);
+
+
 UCLASS()
 class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter, public ICharacterWeaponPickups
 {
@@ -34,6 +37,13 @@ public:
 	//- Character Weapons Interface
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	virtual void PickupGunEvent(const FWeaponData_T In_WeaponData) override;
+
+
+	//- Shooting Component Bind //
+	UFUNCTION()
+	void WeaponEquipped(TArray<FWeaponData_T> Weapons, float CurrentWeaponIndex);
+	UFUNCTION()
+	void WeaponStateChanged(struct FPlayerWeaponState PlayerWeaponState);
 
 protected:
 	virtual void BeginPlay() override;
@@ -65,6 +75,8 @@ protected:
 	virtual void OnDeath(AActor* OwningActor);
 
 
+	//- Helper function to convert the weapon overlay to ALS //
+	EALSOverlayState WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay);
 	
 	
 	bool bIsNPC;
@@ -94,3 +106,4 @@ private:
 
 	
 };
+

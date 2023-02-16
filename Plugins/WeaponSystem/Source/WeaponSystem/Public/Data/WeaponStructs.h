@@ -3,7 +3,7 @@
 #include "WeaponStructs.generated.h"
 
 
-DECLARE_LOG_CATEGORY_EXTERN(LogWeaponSystem, Warning, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogWeaponSystem, Display, All);
 
 
 UENUM(BlueprintType)
@@ -30,6 +30,36 @@ enum class EWeaponName_T : uint8
 	//todo Add more
 };
 
+UENUM(BlueprintType)
+enum class EWeaponOverlay : uint8
+{
+	PistolOneHanded,
+	PistolTwoHanded,
+	Rifle,
+	Shotgun,
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerWeaponState
+{
+	GENERATED_USTRUCT_BODY()    
+	UPROPERTY(BlueprintReadWrite)
+	bool bPrimaryEquipped;
+	UPROPERTY(BlueprintReadWrite)
+	bool bSecondaryEquipped;
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsReloading;
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsHolstered;
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsAiming;
+	UPROPERTY(BlueprintReadWrite)
+	bool bHasGun;
+	UPROPERTY(BlueprintReadWrite)
+	bool bIsWeaponInAutoMode;
+
+};
+
 
 USTRUCT(BlueprintType)
 struct FWeaponData_T
@@ -38,6 +68,9 @@ struct FWeaponData_T
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	EWeaponName_T WeaponType;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
+	EWeaponOverlay WeaponOverlay;
+	
 	//Overlay (Animation Pose i.e. Shotgun, 2 Handed Pistol, Rifle)
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gun Basics")
 	// EALSOverlayState OverlayState;

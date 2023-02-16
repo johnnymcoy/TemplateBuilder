@@ -55,7 +55,8 @@ void AWeaponFramework::ServerFire_Implementation(const FVector in_Location, cons
 		// PlayDryFire();
 	}
 }
-// Formally Shoot();
+
+//- Formally Shoot();
 void AWeaponFramework::ServerShoot_Implementation()
 {
 	if(!CanShoot())	{return;}
@@ -66,7 +67,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 	
 	FHitResult Hit;
 	FVector ShotDirection;
-	bool bSuccess = LineTrace(Hit, ShotDirection);
+	bool bSuccess = LineTrace(Hit, ShotDirection, FLinearColor::Red);
 
 	//- Defaults for Impact Effects
 	//? FVector TracerEndPoint = Hit.TraceEnd;
@@ -88,6 +89,9 @@ void AWeaponFramework::ServerShoot_Implementation()
 	{
 		//- Check if Anything is between the player and where they should be shooting //
 		//- i.e. can see someone around the corner but gun is pointed at the wall //
+
+		//todo Change this to Linetrace Function, TraceLocation = Hit.Location
+		// way to change just the end
 		FHitResult HitCheck;
 		ActorsToIgnore.Add(Hit.GetActor());
 
@@ -103,7 +107,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 			true, ActorsToIgnore,
 			DrawDebugType, HitCheck,
 			true, FLinearColor::Blue,
-			FLinearColor::Blue, 3.0f))
+			FLinearColor::Blue, DrawDebugTime))
 		{
 			BlindFireWeapon();
 		}
@@ -187,27 +191,56 @@ void AWeaponFramework::ApplyDamageToActor(const FHitResult& Hit, FVector ShotDir
 	// }
 }
 
+void AWeaponFramework::CalculateBulletSpread(FVector& NewBulletSpread)
+{
+	float OwnerSpeed = GetOwner()->GetVelocity().Size();
+	//- Still // 
+	if(OwnerSpeed < 10)
+	{
+		if(WeaponData.bHasAutoMode && !WeaponData.bIsInAutoMode) {OwnerSpeed = 0.75f;}
+		else{OwnerSpeed = 1.0f;}
+	}
+	//- Moving // 
+	else
+	{
+		if(WeaponData.bHasAutoMode && !WeaponData.bIsInAutoMode) {OwnerSpeed = 1.5f;}
+		else{OwnerSpeed = 1.75f;}
+	}
+	OwnerSpeed = (OwnerSpeed / AccuracyMultiplier);
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Owner Speed Multipler: %f"), OwnerSpeed);}
+	
+	// - Random Variation to X and Y axis //
+	const float Spread = WeaponStats.BulletSpread * OwnerSpeed; 
+	const float BulletX = FMath::RandRange((Spread * -1), Spread);
+	const float BulletY = FMath::RandRange((Spread * -1), Spread);
+	const float BulletZ = FMath::RandRange((Spread * -1), Spread);
+	NewBulletSpread = FVector(BulletX,BulletY,BulletZ);
+}
 
 
-
-bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection) 
+bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd) 
 {
 	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
-	//? FVector NewBulletSpread;
-	//? CalculateBulletSpread(NewBulletSpread);
+	FVector BulletSpread;
+	CalculateBulletSpread(BulletSpread);
 	ShotDirection = -TraceRotation.Vector();
-	const FVector LineEnd = ((ForwardVector * WeaponStats.GunRange) + TraceLocation);//? + NewBulletSpread;
+	const FVector LineEnd = ((ForwardVector * WeaponStats.GunRange) + TraceLocation) + BulletSpread;
 
 	EDrawDebugTrace::Type DrawDebugType;
 	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
 
-	return UKismetSystemLibrary::LineTraceSingle(this,
-		TraceLocation, LineEnd,
+	return UKismetSystemLibrary::LineTraceSingle(
+		this,
+		TraceLocation,
+		LineEnd,
 		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-	true, ActorsToIgnore,
-	DrawDebugType, Hit, true,
-	FLinearColor::Red,
-	FLinearColor::Red, 1.0f);
+	true,
+		ActorsToIgnore,
+		DrawDebugType,
+		Hit,
+		true,
+	Color,	Color,
+	DrawDebugTime);
 }
 
 
@@ -261,7 +294,36 @@ void AWeaponFramework::SwitchAutoMode()
 void AWeaponFramework::BlindFireWeapon()
 {
 	if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("Blindfire - Weapon Framework"));}
-
+	//! v2
+	//- Linetrace but from the MuzzleLocation //
+	//- V2 has the LineEnd calculated from the Muzzle Location  // 
+	TraceLocation = Muzzle->GetComponentLocation();
+	FHitResult BlindFireHit;
+	FVector ShotDirection;
+	LineTrace(BlindFireHit, ShotDirection, FLinearColor::Green);
+	
+	//! v1
+	// const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
+	// FVector BulletSpread;
+	// CalculateBulletSpread(BulletSpread);
+	// const FVector LineEnd = ((ForwardVector * GunRange) + TraceLocation) + BulletSpread;
+	// const FVector ShotDirection = -TraceRotation.Vector();
+	// const FVector MuzzleLocation = Muzzle->GetComponentLocation();
+	// FHitResult BlindFireHit;
+	// EDrawDebugTrace::Type DrawDebugType;
+	// if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
+	// UKismetSystemLibrary::LineTraceSingle(this, MuzzleLocation, LineEnd,
+	// 	UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
+	// 	true, ActorsToIgnore,
+	// 	DrawDebugType, BlindFireHit,
+	// 	true, FLinearColor::Green,
+	// 	FLinearColor::Green, DrawDebugTime
+	// 	);
+	//- Apply Damage //
+	if(BlindFireHit.GetActor() != nullptr)
+	{
+		ApplyDamageToActor(BlindFireHit, ShotDirection);
+	}
 }
 
 void AWeaponFramework::MoveUMG(bool bIsRightShoulder)

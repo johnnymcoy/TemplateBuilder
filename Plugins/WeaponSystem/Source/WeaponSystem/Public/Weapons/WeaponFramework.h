@@ -21,6 +21,8 @@ public:
 	bool bDebuggingMode;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
 	bool bInfiniteAmmo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
+	float DrawDebugTime = 2.0f;
 
 	// UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	// FOnAmmoChanged OnAmmoChanged;
@@ -63,7 +65,7 @@ protected:
 	virtual void SetWeaponData(const FWeaponData_T in_WeaponData) override {WeaponData = in_WeaponData;};
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) override {GunMeshComponent->SkeletalMesh = SkeletalMesh;};
+	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) override {GunMeshComponent->SetSkeletalMesh(SkeletalMesh);};
 
 	
 	//- Blueprint Functions
@@ -88,12 +90,17 @@ protected:
 
 private:
 
-	bool LineTrace(FHitResult& Hit, FVector& ShotDirection);
+	bool LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd = FVector::ZeroVector);
 	void ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection);
+	void CalculateBulletSpread(FVector& NewBulletSpread);
 	
 
 	FWeaponData_T WeaponData;
 	// FWeaponStats_T WeaponStats;
+
+	//todo add to proper location
+	float GunRange = 200000.0f;
+
 
 	// Bullet Fire Data - turn to struct? Replicate?
 	// UPROPERTY(Replicated)

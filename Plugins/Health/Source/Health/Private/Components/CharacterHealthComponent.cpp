@@ -25,7 +25,10 @@ void UCharacterHealthComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	// todo Check Dynamic Multiplayer
-	MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
+	if(GetOwnerRole() == ROLE_Authority)
+	{
+		MyOwner->OnTakePointDamage.AddDynamic(this, &UCharacterHealthComponent::TakePointDamage);
+	}
 	// todo
 	// if(GetOwnerRole() == ROLE_Authority && !GetIsNPC())
 	// {
