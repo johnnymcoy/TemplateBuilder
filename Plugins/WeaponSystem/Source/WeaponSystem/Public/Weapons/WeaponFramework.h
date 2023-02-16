@@ -64,9 +64,10 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void SetWeaponData(const FWeaponData_T in_WeaponData) override {WeaponData = in_WeaponData;};
 	
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) override {GunMeshComponent->SetSkeletalMesh(SkeletalMesh);};
-
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Weapons")
+	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) override;
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCastSetWeaponMesh(USkeletalMesh* SkeletalMesh);
 	
 	//- Blueprint Functions
 	UFUNCTION(BlueprintImplementableEvent, Category = "Weapon", meta=(DisplayName = "Fire"))
@@ -76,6 +77,7 @@ protected:
 	//- Multiplayer //
 	UFUNCTION(Server, Reliable, WithValidation)
 	void ServerShoot();
+
 	UFUNCTION(Server, Reliable)
 	void ServerSetReloading(bool bReloading);
 	UFUNCTION(Server, Reliable)
@@ -90,6 +92,7 @@ protected:
 
 private:
 
+
 	bool LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd = FVector::ZeroVector);
 	void ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection);
 	void CalculateBulletSpread(FVector& NewBulletSpread);
@@ -103,7 +106,8 @@ private:
 
 
 	// Bullet Fire Data - turn to struct? Replicate?
-	// UPROPERTY(Replicated)
+	// todo remove replicated.. Maybe bDebugging? 
+	UPROPERTY(Replicated)
 	FVector TraceLocation;
 	FRotator TraceRotation;
 	float AccuracyMultiplier;
@@ -121,6 +125,8 @@ private:
 	
 
 };
+
+
 
 
 

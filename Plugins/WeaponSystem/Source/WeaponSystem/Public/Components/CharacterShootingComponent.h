@@ -56,7 +56,8 @@ public:
 
 
 	// Swaps / Pickups
-	void PickupWeapon(FWeaponData_T WeaponToPickup);
+	void PickupWeapon(FWeaponData_T WeaponToPickup,bool& bWeaponWeHave);
+
 	void AddWeaponToInventory(FWeaponData_T NewWeapon);
 	void RemoveWeaponFromInventory(int32 WeaponToRemove);
 	void EquipWeapon(FWeaponData_T WeaponToEquip);
@@ -66,9 +67,16 @@ public:
 	void HolsterWeapon();
 	void ThrowWeapon(FWeaponData_T WeaponToThrow);
 	void DropWeapon();
+	//- Server //
+	UFUNCTION(Server, Reliable)
+	void ServerPickupWeapon(FWeaponData_T WeaponToPickup,bool bWeaponWeHave);
+	//- Helper Functions // 
+	UFUNCTION(Server, Reliable)
+	void ServerHideWeaponModel(bool bHidden);
+	// UFUNCTION(Server, Reliable)
+	// void ServerEquipWeapon(FWeaponData_T WeaponToEquip);
+
 	
-	// Helper Functions
-	void ClearWeapon();
 
 	void Death();
 
@@ -80,7 +88,8 @@ public:
 
 	//? Temp Vars 
 	//todo Empty AActor
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
+	//? Testing Replicated
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Weapons")
 	AActor* CurrentWeapon;
 
 

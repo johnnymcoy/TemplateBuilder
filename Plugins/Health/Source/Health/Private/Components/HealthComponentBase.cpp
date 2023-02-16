@@ -27,13 +27,12 @@ UHealthComponentBase::UHealthComponentBase()
 void UHealthComponentBase::BeginPlay()
 {
 	Super::BeginPlay();
+	MyOwner = GetOwner();
 	if(GetOwnerRole() == ROLE_Authority)
 	{
-		MyOwner = GetOwner();
 		if(MyOwner != nullptr)
 		{
 			MyOwner->OnTakeAnyDamage.AddDynamic(this, &UHealthComponentBase::TakeDamage);
-
 		}
 	}
 	if(MyOwner == nullptr)

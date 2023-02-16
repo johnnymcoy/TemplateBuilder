@@ -29,14 +29,16 @@ void UDialogueComponent::InitialSetup()
 {
 	if(GetIsNPC()){return;}
 	//Check values are valid
-	
-	if(DialogueWidgetClass == nullptr){	LogMissingPointer("Dialogue Widget Class");	return;}
-	if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Owner Player Controller");	return;}
-	
-	DialogueWidget = CreateWidget<UDialogueWidget>(GetOwnerPlayerController(), DialogueWidgetClass);
-	if(DialogueWidget == nullptr){LogMissingPointer("Dialogue Widget FAILED to create"); return;}
-	DialogueWidget->AddToViewport();
-	DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
+	if(GetOwnerRole() == ROLE_Authority)
+	{
+		if(DialogueWidgetClass == nullptr){	LogMissingPointer("Dialogue Widget Class");	return;}
+		if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Owner Player Controller");	return;}
+		
+		DialogueWidget = CreateWidget<UDialogueWidget>(GetOwnerPlayerController(), DialogueWidgetClass);
+		if(DialogueWidget == nullptr){LogMissingPointer("Dialogue Widget FAILED to create"); return;}
+		DialogueWidget->AddToViewport();
+		DialogueWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 	
 	// if(DialogueWidget != nullptr){UE_LOG(LogTemp, Error, TEXT("Dialogue Widget SUCCESS"));}
 }

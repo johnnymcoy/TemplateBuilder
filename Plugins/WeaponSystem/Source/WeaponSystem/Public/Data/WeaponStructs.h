@@ -140,19 +140,16 @@ struct FWeaponData_T
 			return 0;
 		}
 		// If the total ammo is less than max, && the amount to pickup will end up more than the Max ammo
-		else if(TotalAmmoCount < MaxAmmo && (TotalAmmoCount + AmountToAdd) > MaxAmmo)
+		if(TotalAmmoCount < MaxAmmo && (TotalAmmoCount + AmountToAdd) > MaxAmmo)
 		{
 			TotalAmmoCount = MaxAmmo;
 			const int32 Remainder = (TotalAmmoCount + AmountToAdd) - MaxAmmo;
 			return Remainder;
 		}
-		else // Should only cover if the ammo is Already Max 
-		{
-			// todo:
-			// Should not Destory Actor *(From where it's called(old code))
-			return AmountToAdd;
-		}
-		return 0;
+		// Should only cover if the ammo is Already Max 
+		// todo:
+		// Should not Destory Actor *(From where it's called(old code))
+		return AmountToAdd;
 	}
 };
 

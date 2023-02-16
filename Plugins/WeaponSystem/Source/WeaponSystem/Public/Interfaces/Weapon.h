@@ -55,7 +55,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void SetWeaponData(const FWeaponData_T in_WeaponData) = 0;
 
-	UFUNCTION(BlueprintCallable, Category = "Weapons")
+	UFUNCTION(Server, Reliable, BlueprintCallable, Category = "Weapons")
 	virtual void SetWeaponMesh(USkeletalMesh* SkeletalMesh) = 0;
 
 

@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Net/UnrealNetwork.h"
 
 AWeaponFramework::AWeaponFramework()
 {
@@ -32,6 +33,7 @@ void AWeaponFramework::BeginPlay()
 
 void AWeaponFramework::Fire(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy)
 {
+	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Fire - Weapon Framework "));}
 	ServerFire(in_Location, in_Rotation, ActorToIgnore, in_Accuracy);
 }
 
@@ -39,6 +41,7 @@ void AWeaponFramework::Fire(const FVector in_Location,const FRotator in_Rotation
 void AWeaponFramework::ServerFire_Implementation(const FVector in_Location, const FRotator in_Rotation,
 	const AActor* ActorToIgnore, const float in_Accuracy)
 {
+	if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("ServerFire Implementation"));}
 	if(CanShoot())
 	{
 		TraceLocation = in_Location;
@@ -59,6 +62,8 @@ void AWeaponFramework::ServerFire_Implementation(const FVector in_Location, cons
 //- Formally Shoot();
 void AWeaponFramework::ServerShoot_Implementation()
 {
+	if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("ServerShoot Implementation"));}
+
 	if(!CanShoot())	{return;}
 	ActorsToIgnore.Emplace(GetOwner());
 
@@ -144,6 +149,38 @@ bool AWeaponFramework::ServerShoot_Validate()
 	return true;
 }
 
+// bool AWeaponFramework::ServerLineTrace_Implementation(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color,
+// 	FVector CustomLineEnd)
+// {
+// 	LineTrace(Hit,ShotDirection,Color, CustomLineEnd);
+// }
+
+bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd) 
+{
+	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
+	FVector BulletSpread;
+	CalculateBulletSpread(BulletSpread);
+	ShotDirection = -TraceRotation.Vector();
+	const FVector LineEnd = ((ForwardVector * WeaponStats.GunRange) + TraceLocation) + BulletSpread;
+
+	EDrawDebugTrace::Type DrawDebugType;
+	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
+
+	return UKismetSystemLibrary::LineTraceSingle(
+		this,
+		TraceLocation,
+		LineEnd,
+		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
+	true,
+		ActorsToIgnore,
+		DrawDebugType,
+		Hit,
+		true,
+	Color,	Color,
+	DrawDebugTime);
+}
+
+
 // BUG When not in auto mode, Apply point damage will not add impulse to the actor??
 void AWeaponFramework::ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection)
 {
@@ -216,33 +253,6 @@ void AWeaponFramework::CalculateBulletSpread(FVector& NewBulletSpread)
 	const float BulletZ = FMath::RandRange((Spread * -1), Spread);
 	NewBulletSpread = FVector(BulletX,BulletY,BulletZ);
 }
-
-
-bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd) 
-{
-	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
-	FVector BulletSpread;
-	CalculateBulletSpread(BulletSpread);
-	ShotDirection = -TraceRotation.Vector();
-	const FVector LineEnd = ((ForwardVector * WeaponStats.GunRange) + TraceLocation) + BulletSpread;
-
-	EDrawDebugTrace::Type DrawDebugType;
-	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
-
-	return UKismetSystemLibrary::LineTraceSingle(
-		this,
-		TraceLocation,
-		LineEnd,
-		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-	true,
-		ActorsToIgnore,
-		DrawDebugType,
-		Hit,
-		true,
-	Color,	Color,
-	DrawDebugTime);
-}
-
 
 void AWeaponFramework::Reload(float ReloadTime)
 {
@@ -336,10 +346,33 @@ void AWeaponFramework::FadeInUMG(bool bIsAiming)
 	
 }
 
+void AWeaponFramework::MultiCastSetWeaponMesh_Implementation(USkeletalMesh* SkeletalMesh)
+{
+	GunMeshComponent->SetSkeletalMesh(SkeletalMesh);
+}
+
+void AWeaponFramework::SetWeaponMesh_Implementation(USkeletalMesh* SkeletalMesh)
+{
+	GunMeshComponent->SetSkeletalMesh(SkeletalMesh);
+	MultiCastSetWeaponMesh(SkeletalMesh);
+}
+
 bool AWeaponFramework::CanShoot() 
 {
 	if(bIsBeingReloaded) return false;
 	if(WeaponData.CurrentAmmo <= 0) return false; 
 	return true; 
+}
+
+void AWeaponFramework::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	//todo not it.. 
+	DOREPLIFETIME(AWeaponFramework, TraceLocation);
+
+	// DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
+	// DOREPLIFETIME(AWeaponBase, TraceLocation);
+	// DOREPLIFETIME(AWeaponBase, GunWeaponData);
+	// DOREPLIFETIME(AWeaponBase, GunWeaponStats);
 }
 

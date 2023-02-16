@@ -3,6 +3,7 @@
 
 #include "Components/CharacterShootingComponent.h"
 #include "Interfaces/Weapon.h"
+#include "Net/UnrealNetwork.h"
 
 //- Custom log Category 
 DEFINE_LOG_CATEGORY(LogWeaponSystem);
@@ -314,34 +315,25 @@ float UCharacterShootingComponent::CalculateAccuracy()
 }
 
 
-void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
+void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup,bool& bWeaponWeHave)
 {
 	//-  Is Weapon Valid //
 	if(!WeaponToPickup.IsValid()){LogMissingPointer("Invalid Weapon data to Pickup");return;}
 	//? // Run on Server
-	// if(GetOwnerRole() != ROLE_Authority)
-	// {
-	// 	// ServerPickupWeapon(WeaponToPickup)
-	// 	return;
-	// }
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		ServerPickupWeapon(WeaponToPickup, bWeaponWeHave);
+	}
 	//- Do we have any weapons already? 
 	if(!PlayerWeaponState.bHasGun && WeaponInventory.Num() == 0)
 	{
 		UE_LOG(LogWeaponSystem, Warning, TEXT("First Pickup"));
 		AddWeaponToInventory(WeaponToPickup);
 		EquipWeapon(WeaponToPickup);
+		bWeaponWeHave = false;
 	}
 	else
 	{
-		// if(PlayerHasWeaponOfType(WeaponToPickup.WeaponType))
-		// {
-		// 	// AddAmmo(WeaponToPickup.TotalAmmoCount, i);
-		// }
-		// else
-		// {
-		// 	AddWeaponToInventory(WeaponToPickup);
-		// 	SwapWeapon();
-		// }
 		//! v2
 		bool bHasWeaponOfType = false;
 		int32 Index = 0;
@@ -351,42 +343,27 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup)
 			{
 				bHasWeaponOfType = true;
 				Index = i;
-				// AddAmmo(WeaponToPickup.TotalAmmoCount, i);
-				//Add Ammo
-			}
-			else
-			{
-				// AddWeaponToInventory(WeaponToPickup);
-				// SwapWeapon();
 			}
 		}
 		//-  Do we already have this weapon // 
 		if(bHasWeaponOfType)
 		{
+			bWeaponWeHave = true;
 			AddAmmo(WeaponToPickup.TotalAmmoCount, Index);
 		}
 		else
 		{
+			bWeaponWeHave = false;
 			CurrentWeaponIndex = WeaponInventory.Num() - 1;
 			AddWeaponToInventory(WeaponToPickup);
 			SwapWeapon();
 		}
-		// Weapon 1 Eqiupped, Pick up Weapon no 3 
-		
-			
-			// // old method . Doesn;t Work, Checks First weapon pistol against first weapon holding rifle even if second weapon is pistol
-			// if(WeaponToPickup.WeaponType != WeaponInventory[i].WeaponType)
-			// {
-			// 	// AddWeaponToInventory(WeaponToPickup);
-			// 	// SwapWeapon();
-			// }
-			// else if(WeaponToPickup.WeaponType == WeaponInventory[i].WeaponType)
-			// {
-			// 	AddAmmo(WeaponToPickup.TotalAmmoCount, i);
-			// 	//Add Ammo
-			// }
-		// }
 	}
+}
+
+void UCharacterShootingComponent::ServerPickupWeapon_Implementation(FWeaponData_T WeaponToPickup, bool bWeaponWeHave)
+{
+	PickupWeapon(WeaponToPickup, bWeaponWeHave);
 }
 
 // Change to retrun &bool and &index 
@@ -406,9 +383,9 @@ void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
 {
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Equip Weapon"));}
 	//todo not sure about < role
-	// if(GetOwnerRole() < ROLE_Authority)
+	// if(GetOwnerRole() != ROLE_Authority)
 	// {
-	// ServerEquipWeapon(WeaponData);
+	// 	ServerEquipWeapon(WeaponToEquip);
 	// }
 	PlayerWeaponState.bHasGun = true;
 	PlayerWeaponState.bIsHolstered = false;
@@ -429,25 +406,24 @@ void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
 		CurrentWeapon->GetRootComponent()->SetRelativeRotation(WeaponToEquip.RotationOffset);
 		CurrentWeapon->SetOwner(GetOwner());
 
-
-		//? ALS->ClearHeldObject();	
-
 		OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
 	}
 }
 
-
 void UCharacterShootingComponent::AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex)
 {
 	WeaponInventory[WeaponIndex].AddAmmo(AmountToAdd);
-	// Update WBP
-	// IWeaponInterface* CurrentWeapon = Cast<IWeaponInterface>(GunChildActorReference->GetChildActor());
-	// if(CurrentWeapon)
-	// {
-	// 	CurrentWeapon->SetWeaponData(CurrentWeaponData);
-	// 	UpdateWeaponHUD();
-	// 	// PickupGunWBP(CurrentWeaponData);
-	// }
+	//- If We're holding the weapon we need to add ammo to, update the guns ammo counter //
+	if(CurrentWeaponIndex == WeaponIndex)
+	{
+		IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+		if(Weapon != nullptr)
+		{
+			Weapon->SetWeaponData(WeaponInventory[CurrentWeaponIndex]);
+		}
+	}
+	
+	//todo  Update WBP
 }
 
 void UCharacterShootingComponent::AddWeaponToInventory(FWeaponData_T NewWeapon)
@@ -527,7 +503,16 @@ void UCharacterShootingComponent::HolsterWeapon()
 	{
 		//- Holster // 
 		PlayerWeaponState.bIsHolstered = true;
-		CurrentWeapon->SetActorHiddenInGame(true);
+		ServerHideWeaponModel(true);
+		if(CurrentWeapon != nullptr)
+		{
+			CurrentWeapon->SetActorHiddenInGame(true);
+		}
+
+		// if(CurrentWeapon != nullptr)
+		// {
+		// 	CurrentWeapon->SetActorHiddenInGame(true);
+		// }
 		// todo bIsInAutoMode
 		
 		OnWeaponStateChanged.Broadcast(PlayerWeaponState);
@@ -539,8 +524,12 @@ void UCharacterShootingComponent::HolsterWeapon()
 	{
 		//- UnHolster // 
 		if(WeaponInventory.Num() == 0){UE_LOG(LogWeaponSystem, Warning, TEXT("No Weapons in Inventory"));return;}
+		ServerHideWeaponModel(false);
 		PlayerWeaponState.bIsHolstered = false;
-		CurrentWeapon->SetActorHiddenInGame(false);
+		if(CurrentWeapon != nullptr)
+		{
+			CurrentWeapon->SetActorHiddenInGame(false);
+		}
 		if(WeaponInventory[CurrentWeaponIndex].IsValid())
 		{
 			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Unholster + Equip Weapon"));}
@@ -576,9 +565,14 @@ void UCharacterShootingComponent::DropWeapon()
 }
 
 
-void UCharacterShootingComponent::ClearWeapon()
+
+
+void UCharacterShootingComponent::ServerHideWeaponModel_Implementation(bool bHidden)
 {
-	
+	if(CurrentWeapon != nullptr)
+	{
+		CurrentWeapon->SetActorHiddenInGame(bHidden);
+	}
 }
 
 // todo Test for bugs if null
@@ -590,6 +584,7 @@ FWeaponData_T UCharacterShootingComponent::GetCurrentWeapon() const
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////					Death					  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+
 
 void UCharacterShootingComponent::Death()
 {
@@ -605,3 +600,8 @@ void UCharacterShootingComponent::Death()
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
+void UCharacterShootingComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UCharacterShootingComponent, CurrentWeapon);
+}

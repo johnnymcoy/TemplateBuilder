@@ -61,6 +61,7 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	FallingTraceSettings.ForwardTraceRadius = 30.0f;
 	FallingTraceSettings.DownwardTraceRadius = 30.0f;
 	bRagdollOnLand = true;
+	SkeletalMesh->SetHiddenInGame(true);
 	
 	
 }
@@ -208,10 +209,13 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 
 void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
-	ShootingComponent->PickupWeapon(In_WeaponData);
-	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
-	SetOverlayState(WeaponOverlayState);
-	ClearHeldObject();
+	bool bWeaponWeHave;
+	ShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
+	if(!bWeaponWeHave)
+	{
+		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
+		SetOverlayState(WeaponOverlayState);
+	}
 }
 
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -226,7 +230,6 @@ void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, float C
 	{
 		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
 		SetOverlayState(WeaponOverlayState);
-		ClearHeldObject();
 	}
 }
 
@@ -236,7 +239,6 @@ void ACustomCharacterBase::WeaponStateChanged(FPlayerWeaponState PlayerWeaponSta
 	if(PlayerWeaponState.bIsHolstered)
 	{
 		SetOverlayState(EALSOverlayState::Default);
-		ClearHeldObject();
 	}
 }
 
