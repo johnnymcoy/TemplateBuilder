@@ -75,7 +75,8 @@ void AWeaponFramework::ServerShoot_Implementation()
 	bool bSuccess = LineTrace(Hit, ShotDirection, FLinearColor::Red);
 
 	//- Defaults for Impact Effects
-	//? FVector TracerEndPoint = Hit.TraceEnd;
+	FVector TracerEndPoint = Hit.TraceEnd;
+	
 	if(!bSuccess){UE_LOG(LogTemp,Warning,TEXT("Error in Linetrace"));return;}
 	
 	//- Check how close the gun is to the hit location
@@ -130,7 +131,18 @@ void AWeaponFramework::ServerShoot_Implementation()
 		ActorsToIgnore.Remove(Hit.GetActor()); //Remove as the var is kept
 	}
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Current Ammo: %i"), WeaponData.CurrentAmmo);}
+	
+	// EPhysicalSurface SurfaceType = SurfaceType_Default;
+	// SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
 
+	//- v1 Replication? 
+	// if(HasAuthority())
+	// {
+	// 	HitScanTrace.TraceTo = TracerEndPoint;
+	// 	// HitScanTrace.SurfaceType = SurfaceType;
+	// 	HitScanTrace.a++;
+	//
+	// }
 	//todo temp
 	// EPhysicalSurface SurfaceType = SurfaceType_Default;
 	// SurfaceType = UPhysicalMaterial::DetermineSurfaceType(Hit.PhysMaterial.Get());
@@ -254,6 +266,11 @@ void AWeaponFramework::CalculateBulletSpread(FVector& NewBulletSpread)
 	NewBulletSpread = FVector(BulletX,BulletY,BulletZ);
 }
 
+// void AWeaponFramework::OnRep_HitScanTrace()
+// {
+// 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("On Rep, HitScan Trace"));}
+// }
+
 void AWeaponFramework::Reload(float ReloadTime)
 {
 	if(WeaponData.CurrentAmmo >= WeaponData.ClipSize){return;}
@@ -364,15 +381,15 @@ bool AWeaponFramework::CanShoot()
 	return true; 
 }
 
-void AWeaponFramework::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-{
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	//todo not it.. 
-	DOREPLIFETIME(AWeaponFramework, TraceLocation);
-
-	// DOREPLIFETIME_CONDITION(AWeaponBase, HitScanTrace, COND_SkipOwner);
-	// DOREPLIFETIME(AWeaponBase, TraceLocation);
-	// DOREPLIFETIME(AWeaponBase, GunWeaponData);
-	// DOREPLIFETIME(AWeaponBase, GunWeaponStats);
-}
-
+// void AWeaponFramework::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+// {
+// 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+// 	//todo not it.. 
+// 	// DOREPLIFETIME(AWeaponFramework, bDebuggingMode);
+//
+// 	// DOREPLIFETIME_CONDITION(AWeaponFramework, HitScanTrace, COND_SkipOwner);
+// 	// DOREPLIFETIME(AWeaponBase, TraceLocation);
+// 	// DOREPLIFETIME(AWeaponBase, GunWeaponData);
+// 	// DOREPLIFETIME(AWeaponBase, GunWeaponStats);
+// }
+//

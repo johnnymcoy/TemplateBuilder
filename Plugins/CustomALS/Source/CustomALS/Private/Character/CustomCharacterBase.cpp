@@ -211,6 +211,7 @@ void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
 	bool bWeaponWeHave;
 	ShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
+	if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
 	if(!bWeaponWeHave)
 	{
 		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
@@ -225,7 +226,7 @@ void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, float CurrentWeaponIndex)
 {
 	UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon Equipped Custom Character"));
-
+	if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
 	if(Weapons.IsValidIndex(CurrentWeaponIndex))
 	{
 		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);

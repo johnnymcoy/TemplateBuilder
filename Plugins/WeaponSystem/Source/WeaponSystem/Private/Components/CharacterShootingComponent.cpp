@@ -508,6 +508,7 @@ void UCharacterShootingComponent::HolsterWeapon()
 		{
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
+		OnWeaponStateChanged.Broadcast(PlayerWeaponState);
 
 		// if(CurrentWeapon != nullptr)
 		// {
@@ -515,8 +516,6 @@ void UCharacterShootingComponent::HolsterWeapon()
 		// }
 		// todo bIsInAutoMode
 		
-		OnWeaponStateChanged.Broadcast(PlayerWeaponState);
-		// OnStateChange.Broadcast(EALSOverlayState::Default)
 		// SetChildActorClass(EmptyWeaponData.WeaponClass);
 		//ClearHeldObject();
 	}
@@ -537,8 +536,6 @@ void UCharacterShootingComponent::HolsterWeapon()
 			// EquipWeapon();
 		}
 		else{UE_LOG(LogTemp,Warning, TEXT("InvalidWeaponData (Holster)"));}
-
-		
 	}
 }
 
@@ -561,7 +558,6 @@ void UCharacterShootingComponent::DropWeapon()
 	// RemoveWeaponFromInventory(GetCurrentWeapon());
 	FActorSpawnParameters SpawnParameters;
 	// AActor* DroppedWeapon = GetWorld()->SpawnActor<AActor>(WeaponToSpawn, Transform.GetLocation(), Transform.GetRotation(), SpawnParameters);
-	
 }
 
 
@@ -576,9 +572,13 @@ void UCharacterShootingComponent::ServerHideWeaponModel_Implementation(bool bHid
 }
 
 // todo Test for bugs if null
-FWeaponData_T UCharacterShootingComponent::GetCurrentWeapon() const
+void UCharacterShootingComponent::GetCurrentWeaponData(FWeaponData_T& CurrentWeaponData) const
 {
-	return WeaponInventory[CurrentWeaponIndex];
+	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+	if(Weapon != nullptr)
+	{
+		CurrentWeaponData = Weapon->GetWeaponData();
+	}
 }
 
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -588,13 +588,15 @@ FWeaponData_T UCharacterShootingComponent::GetCurrentWeapon() const
 
 void UCharacterShootingComponent::Death()
 {
-	if(PlayerWeaponState.bHasGun)
-	{
-		ThrowWeapon(GetCurrentWeapon());
-	}
-	// GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
-	SetActive(false);
+	// if(PlayerWeaponState.bHasGun)
+	// {
+	// 	ThrowWeapon(GetCurrentWeapon());
+	// }
+	// // GunChildActorReference->SetChildActorClass(EmptyWeaponData.WeaponClass);
+	// SetActive(false);
 }
+
+
 
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////

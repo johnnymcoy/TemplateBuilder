@@ -11,7 +11,7 @@
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, float, CurrentWeaponIndex);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, float, CurrentAmmo, float, TotalAmmo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, int32, CurrentAmmo, int32, TotalAmmo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBulletShot, float, RecoilAmount);
@@ -82,7 +82,7 @@ public:
 
 	//Getters
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
-	FWeaponData_T GetCurrentWeaponData() const{return GetCurrentWeapon();};
+	void GetCurrentWeaponData(FWeaponData_T& CurrentWeaponData) const;
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
 	FPlayerWeaponState GetPlayerWeaponState() const{return PlayerWeaponState;};
 
@@ -141,7 +141,7 @@ private:
 
 	bool bSwapWeaponPressed = false;
 
-	FWeaponData_T GetCurrentWeapon() const;
+	// FWeaponData_T GetCurrentWeapon() const;
 
 	UPROPERTY()
 	AActor* OwnerActor;

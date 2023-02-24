@@ -9,6 +9,21 @@
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnAmmoChanged, float, Health, float, MaxHealth,const class UDamageType*, DamageType);
 
+
+// USTRUCT()
+// struct FHitScanTraceResult
+// {
+// 	GENERATED_BODY()
+//
+// 	UPROPERTY()
+// 	int a;
+// 	// UPROPERTY()
+// 	// TEnumAsByte<EPhysicalSurface> SurfaceType;
+// 	UPROPERTY()
+// 	FVector_NetQuantize TraceTo;
+// };
+
+
 UCLASS()
 class WEAPONSYSTEM_API AWeaponFramework : public AActor, public IWeapon
 {
@@ -104,10 +119,18 @@ private:
 	//todo add to proper location
 	float GunRange = 200000.0f;
 
+	
+	//Server Playing the Effects
+	// UPROPERTY(ReplicatedUsing=OnRep_HitScanTrace)
+	// FHitScanTraceResult HitScanTrace;
+	// UFUNCTION()
+	// void OnRep_HitScanTrace();
+
 
 	// Bullet Fire Data - turn to struct? Replicate?
+	
 	// todo remove replicated.. Maybe bDebugging? 
-	UPROPERTY(Replicated)
+	UPROPERTY()
 	FVector TraceLocation;
 	FRotator TraceRotation;
 	float AccuracyMultiplier;
