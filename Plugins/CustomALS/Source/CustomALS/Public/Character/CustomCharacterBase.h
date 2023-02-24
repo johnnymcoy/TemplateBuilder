@@ -41,7 +41,7 @@ public:
 
 	//- Shooting Component Bind //
 	UFUNCTION()
-	void WeaponEquipped(TArray<FWeaponData_T> Weapons, float CurrentWeaponIndex);
+	virtual void WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex);
 	UFUNCTION()
 	void WeaponStateChanged(struct FPlayerWeaponState PlayerWeaponState);
 
@@ -55,9 +55,12 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue")
 	class UDialogueComponent* DialogueComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
-	class UCharacterShootingComponent* ShootingComponent;
-	
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
+	// class UCharacterShootingComponent* ShootingComponent;
+
+	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
+	// class UCharacterShootingComponent* ShootingComponent;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
 	class UInteractionComponent* InteractionComponent;
 
@@ -82,6 +85,7 @@ protected:
 	bool bIsNPC;
 	bool bIsDead;
 
+	virtual void FirePressedAction();
 	
 private:
 
@@ -89,7 +93,6 @@ private:
 	// virtual void AimPressedAction() override;
 	// virtual void AimReleasedAction() override;
 
-	void FirePressedAction();
 	// void FireReleasedAction();
 	// void ReloadPressedAction();
 	//

@@ -31,9 +31,9 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	DialogueComponent->SetupComponent(nullptr, nullptr, Controller, bIsNPC, bIsDead);
 
 	// Shooting
-	ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
-	ShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
-	ShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
+	// ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
+	// ShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
+	// ShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
 	// ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 
 	// Interaction
@@ -69,10 +69,10 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 void ACustomCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	if(ShootingComponent != nullptr)
-	{
-		ShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
-	}
+	// if(ShootingComponent != nullptr)
+	// {
+	// 	ShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
+	// }
 	if(InteractionComponent != nullptr)
 	{
 		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
@@ -84,10 +84,10 @@ void ACustomCharacterBase::BeginPlay()
 void ACustomCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if(ShootingComponent != nullptr)
-	{
-		ShootingComponent->SetupPlayerInputComponent(PlayerInputComponent);
-	}
+	// if(ShootingComponent != nullptr)
+	// {
+	// 	ShootingComponent->SetupPlayerInputComponent(PlayerInputComponent);
+	// }
 	PlayerInputComponent->BindAction("ShootAction", IE_Pressed, this, &ACustomCharacterBase::FirePressedAction);
 	// PlayerInputComponent->BindAction("ShootAction", IE_Released, this, &ACustomCharacterBase::FireReleasedAction);
 	// PlayerInputComponent->BindAction("AimAction", IE_Pressed, this, &ACustomCharacterBase::AimPressedAction);
@@ -131,26 +131,26 @@ void ACustomCharacterBase::Tick(float DeltaTime)
 
 void ACustomCharacterBase::FirePressedAction()
 {
-	if(MantleTimeline->IsPlaying()){return;}
-	if(ShootingComponent != nullptr)
-	{
-		if(!ShootingComponent->GetPlayerWeaponState().bIsHolstered)
-		{
-			ShootingComponent->ShootGun();
-			//! ShootGun();
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Melee Mode?"));
-			//MeleeFunction();
-			//Setoverlay State to melee;
-			//punch
-			//Linetrace the punch 
-			//add force to hit
-			//set timer so can't double press, or check before the animation finishes 
-			// Could have it held down continues to hit? like auto mode on a gun? although why would you not just hold it then.. 
-		}
-	}
+	// if(MantleTimeline->IsPlaying()){return;}
+	// if(ShootingComponent != nullptr)
+	// {
+	// 	if(!ShootingComponent->GetPlayerWeaponState().bIsHolstered)
+	// 	{
+	// 		ShootingComponent->ShootGun();
+	// 		//! ShootGun();
+	// 	}
+	// 	else
+	// 	{
+	// 		UE_LOG(LogTemp, Warning, TEXT("Melee Mode?"));
+	// 		//MeleeFunction();
+	// 		//Setoverlay State to melee;
+	// 		//punch
+	// 		//Linetrace the punch 
+	// 		//add force to hit
+	// 		//set timer so can't double press, or check before the animation finishes 
+	// 		// Could have it held down continues to hit? like auto mode on a gun? although why would you not just hold it then.. 
+	// 	}
+	// }
 }
 
 // ! void ACustomCharacterBase::FireReleasedAction()
@@ -209,29 +209,29 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 
 void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
-	bool bWeaponWeHave;
-	ShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
-	if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
-	if(!bWeaponWeHave)
-	{
-		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
-		SetOverlayState(WeaponOverlayState);
-	}
+	// bool bWeaponWeHave;
+	// ShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
+	// if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
+	// if(!bWeaponWeHave)
+	// {
+	// 	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
+	// 	SetOverlayState(WeaponOverlayState);
+	// }
 }
 
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////-				Shooting Component Bind		  //////////////////////////
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
-void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, float CurrentWeaponIndex)
+void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex)
 {
-	UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon Equipped Custom Character"));
-	if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
-	if(Weapons.IsValidIndex(CurrentWeaponIndex))
-	{
-		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
-		SetOverlayState(WeaponOverlayState);
-	}
+	// UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon Equipped Custom Character"));
+	// if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
+	// if(Weapons.IsValidIndex(CurrentWeaponIndex))
+	// {
+	// 	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
+	// 	SetOverlayState(WeaponOverlayState);
+	// }
 }
 
 void ACustomCharacterBase::WeaponStateChanged(FPlayerWeaponState PlayerWeaponState)

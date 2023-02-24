@@ -38,11 +38,12 @@ void UCharacterShootingComponent::BeginPlay()
 		PlayerWeaponState.bIsHolstered = !Weapon->GetWeaponData().IsValid();
 	}
 	//? Temp for testing
-	PlayerWeaponState.bIsHolstered = false;
-	OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	// PlayerWeaponState.bIsHolstered = false;
+	// OnWeaponEqiupped.Broadcast(WeaponInventory, CurrentWeaponIndex);
 }
-// void UCharacterShootingComponent::AimPressed(bool bRightShoulder)
 
+
+// void UCharacterShootingComponent::AimPressed(bool bRightShoulder)
 void UCharacterShootingComponent::AimPressedAction()
 {
 	PlayerWeaponState.bIsAiming = true;

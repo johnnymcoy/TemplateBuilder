@@ -10,7 +10,7 @@
 
 // DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, float, CurrentWeaponIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, int32, CurrentWeaponIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, int32, CurrentAmmo, int32, TotalAmmo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState);
 
@@ -48,7 +48,7 @@ public:
 	void AimPressedAction();
 	void AimReleasedAction();
 	// // void MoveUMG(bool bRightShoulder);
-	// void SetupHUD();
+	
 
 	// Reload
 	void Reload();

@@ -18,11 +18,26 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
+	//- Components // 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
+	class UPlayerCharacterShootingComponent* PlayerShootingComponent;
+
+	
 	virtual void BeginPlay() override;
+
+
 	
 	// Parent Functions
 	virtual void AimPressedAction() override;
 	virtual void AimReleasedAction() override;
+	virtual void FirePressedAction() override;
+	
+
+	//- Character Weapons Interface
+	virtual void PickupGunEvent(const FWeaponData_T In_WeaponData) override;
+	//- Shooting Component Bind //
+	virtual void WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex) override;
+
 
 	// Interaction
 	void UseAction();

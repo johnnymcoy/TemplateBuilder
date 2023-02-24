@@ -9,20 +9,17 @@ bool UWeaponSystemWidget::Initialize()
 {
 	bool Success = Super::Initialize();
 	if(!Success) return false;
-	// if (!ensure(HealthBar != nullptr)) return false;
-	// if (!ensure(ShieldBar != nullptr)) return false;
 	return true;
 
 }
 
-void UWeaponSystemWidget::SetHolstered(bool In_bIsHolstered)
+void UWeaponSystemWidget::SetPlayerWeaponState(FPlayerWeaponState WeaponState)
 {
-	
-}
-
-void UWeaponSystemWidget::SetAutoMode(bool In_bIsInAutoMode)
-{
-	
+	OnAutoModeChanged.Broadcast(WeaponState.bIsWeaponInAutoMode);
+	OnIsAimingChanged.Broadcast(WeaponState.bIsAiming);
+	OnIsReloadingChanged.Broadcast(WeaponState.bIsReloading);
+	OnHolsteredChanged.Broadcast(WeaponState.bIsHolstered);
+	OnHasGunChanged.Broadcast(WeaponState.bHasGun);
 }
 
 void UWeaponSystemWidget::UpdateWeapon(FWeaponData_T Weapon)
@@ -40,9 +37,10 @@ void UWeaponSystemWidget::UpdateAmmo(int32 CurrentAmmo, int32 TotalAmmo)
 
 }
 
-void UWeaponSystemWidget::UpdateWeapons(TArray<FWeaponData_T> Weapons)
+void UWeaponSystemWidget::UpdateWeapons(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex)
 {
-	
+	WeaponsInventory = Weapons;
+	CurrentWeaponEquipped = CurrentWeaponIndex;
 }
 
 

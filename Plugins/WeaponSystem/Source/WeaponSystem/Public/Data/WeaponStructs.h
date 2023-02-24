@@ -42,11 +42,13 @@ enum class EWeaponOverlay : uint8
 USTRUCT(BlueprintType)
 struct FPlayerWeaponState
 {
-	GENERATED_USTRUCT_BODY()    
+	GENERATED_USTRUCT_BODY()
+	// todo Remove Primary and Secondary
 	UPROPERTY(BlueprintReadWrite)
 	bool bPrimaryEquipped;
 	UPROPERTY(BlueprintReadWrite)
 	bool bSecondaryEquipped;
+	
 	UPROPERTY(BlueprintReadWrite)
 	bool bIsReloading;
 	UPROPERTY(BlueprintReadWrite)
