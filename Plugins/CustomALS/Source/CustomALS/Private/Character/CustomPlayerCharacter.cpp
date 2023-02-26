@@ -17,8 +17,9 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 	// ShootingComponent = CreateDefaultSubobject<UPlayerCharacterShootingComponent>("PlayerShootingComponent");
 
 	PlayerShootingComponent = CreateDefaultSubobject<UPlayerCharacterShootingComponent>("PlayerShootingComponent");
-	PlayerShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
+	PlayerShootingComponent->OnWeaponEquipped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
 	PlayerShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
+	PlayerShootingComponent->SetThrowPoint(ThrowPoint);
 
 	
 }
@@ -58,6 +59,7 @@ void ACustomPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("UseAction", IE_Pressed, this, &ACustomPlayerCharacter::UseAction);
 	PlayerInputComponent->BindAction("AimAction", IE_Pressed, this, &ACustomPlayerCharacter::AimPressedAction);
 	PlayerInputComponent->BindAction("AimAction", IE_Released, this, &ACustomPlayerCharacter::AimReleasedAction);
+
 
 }
 

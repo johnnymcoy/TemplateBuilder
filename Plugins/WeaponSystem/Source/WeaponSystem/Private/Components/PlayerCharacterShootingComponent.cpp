@@ -5,12 +5,11 @@
 #include "Widgets/WeaponSystemWidget.h"
 #include "Widgets/CrosshairWidget.h"
 
-
 UPlayerCharacterShootingComponent::UPlayerCharacterShootingComponent()
 {
 	//- Bind Parent Functions To Widgets // 
 	OnAmmoChanged.AddDynamic(this, &UPlayerCharacterShootingComponent::AmmoChanged);
-	OnWeaponEqiupped.AddDynamic(this, &UPlayerCharacterShootingComponent::WeaponEquipped);
+	OnWeaponEquipped.AddDynamic(this, &UPlayerCharacterShootingComponent::WeaponEquipped);
 	OnWeaponStateChanged.AddDynamic(this, &UPlayerCharacterShootingComponent::WeaponStateChanged);
 	//- Crosshair Widget Function Bind //
 	OnBulletShot.AddDynamic(this, &UPlayerCharacterShootingComponent::BulletShot);
@@ -43,8 +42,8 @@ void UPlayerCharacterShootingComponent::UpdateCurrentWeapon()
 {
 	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
 	FWeaponData_T WeaponData;
-	GetCurrentWeaponData(WeaponData);
-	if(!WeaponData.IsValid()){LogMissingPointer("WeaponData Not Valid");return;}
+	const bool bValidWeapon = GetCurrentWeaponData(WeaponData);
+	if(!bValidWeapon){return;}
 	WeaponWidget->UpdateWeapon(WeaponData);
 }
 
@@ -52,7 +51,6 @@ void UPlayerCharacterShootingComponent::AmmoChanged(int32 CurrentAmmo, int32 Tot
 {
 	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
 	WeaponWidget->UpdateAmmo(CurrentAmmo,TotalAmmo);
-	
 }
 
 void UPlayerCharacterShootingComponent::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 in_CurrentWeaponIndex)

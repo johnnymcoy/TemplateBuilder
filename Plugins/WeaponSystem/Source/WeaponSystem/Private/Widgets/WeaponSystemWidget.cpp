@@ -10,7 +10,6 @@ bool UWeaponSystemWidget::Initialize()
 	bool Success = Super::Initialize();
 	if(!Success) return false;
 	return true;
-
 }
 
 void UWeaponSystemWidget::SetPlayerWeaponState(FPlayerWeaponState WeaponState)
@@ -41,6 +40,11 @@ void UWeaponSystemWidget::UpdateWeapons(TArray<FWeaponData_T> Weapons, int32 Cur
 {
 	WeaponsInventory = Weapons;
 	CurrentWeaponEquipped = CurrentWeaponIndex;
+	if(Weapons.IsValidIndex(CurrentWeaponIndex))
+	{
+		UpdateWeapon(Weapons[CurrentWeaponIndex]);
+	}
+	OnWeaponsChanged.Broadcast(Weapons, CurrentWeaponIndex);
 }
 
 

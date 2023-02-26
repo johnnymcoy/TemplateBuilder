@@ -8,8 +8,6 @@
 #include "CharacterShootingComponent.generated.h"
 
 
-// DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAmmoChangedSignature, TArray<FWeaponData_T>, Weapons);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponEqiupped, TArray<FWeaponData_T>, Weapons, int32, CurrentWeaponIndex);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAmmoChangedSignature, int32, CurrentAmmo, int32, TotalAmmo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWeaponStateChanged, FPlayerWeaponState, WeaponState);
@@ -26,8 +24,10 @@ public:
 	UCharacterShootingComponent();
 
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
+	void SetThrowPoint(USceneComponent* ThrowPointComponent){ThrowPoint = ThrowPointComponent;};
+
 	UPROPERTY(BlueprintAssignable, Category = "Weapons")
-	FOnWeaponEqiupped OnWeaponEqiupped;
+	FOnWeaponEqiupped OnWeaponEquipped;
 	UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	FOnAmmoChangedSignature OnAmmoChanged;
 	UPROPERTY(BlueprintAssignable, Category = "Ammo")
@@ -47,6 +47,7 @@ public:
 	// HUD / UMG
 	void AimPressedAction();
 	void AimReleasedAction();
+	void ThrowWeaponAction();
 	// // void MoveUMG(bool bRightShoulder);
 	
 
@@ -66,7 +67,10 @@ public:
 	void SwapWeapon();
 	void HolsterWeapon();
 	void ThrowWeapon(FWeaponData_T WeaponToThrow);
-	void DropWeapon();
+	void DropWeapon(FWeaponData_T WeaponToDrop);
+
+	void GetThrowStats(FTransform& OutTransform, FVector& OutThrowForce) const;
+	
 	//- Server //
 	UFUNCTION(Server, Reliable)
 	void ServerPickupWeapon(FWeaponData_T WeaponToPickup,bool bWeaponWeHave);
@@ -82,7 +86,10 @@ public:
 
 	//Getters
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
-	void GetCurrentWeaponData(FWeaponData_T& CurrentWeaponData) const;
+	bool GetCurrentWeaponData(FWeaponData_T& CurrentWeaponData) const;
+	UFUNCTION(BlueprintCallable, Category = "Player Stats")
+	void UpdateWeaponInventory();
+
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")
 	FPlayerWeaponState GetPlayerWeaponState() const{return PlayerWeaponState;};
 
@@ -104,6 +111,8 @@ protected:
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Animations")
 	UAnimMontage* GetReloadAnimation(EWeaponName_T WeaponName);
+
+	
 
 private:
 
@@ -134,10 +143,22 @@ private:
 	TArray<FWeaponData_T> WeaponInventory;
 	int32 CurrentWeaponIndex = 0;
 	
-	/** Last time the camera action button is pressed */
+	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
+	TSubclassOf<class AWeaponPickup> WeaponToSpawn;
+	UPROPERTY(EditDefaultsOnly, Category = "Stats")
+	float PickupThrowIntensity = 500;
+
+	
+	
+	//- Last time the camera action button is pressed //
 	float SwapWeaponPressedTime = 0.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Switch Weapons")
 	float SwapWeaponHoldTime = 0.2f;
+
+	//- Reload Animation Blend out time //
+	UPROPERTY(EditDefaultsOnly, Category = "Animations")
+	float AnimationBlendOutTime = 0.05f;
+
 
 	bool bSwapWeaponPressed = false;
 
@@ -145,6 +166,8 @@ private:
 
 	UPROPERTY()
 	AActor* OwnerActor;
+	UPROPERTY()
+	USceneComponent* ThrowPoint;
 
 
 	// AutoMatic Weapon fire Handler

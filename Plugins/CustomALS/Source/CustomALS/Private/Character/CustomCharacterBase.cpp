@@ -30,6 +30,9 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	DialogueComponent = CreateDefaultSubobject<UDialogueComponent>(TEXT("Dialogue"));
 	DialogueComponent->SetupComponent(nullptr, nullptr, Controller, bIsNPC, bIsDead);
 
+	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
+	ThrowPoint->SetupAttachment(GetMesh(), TEXT("head"));
+
 	// Shooting
 	// ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
 	// ShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);

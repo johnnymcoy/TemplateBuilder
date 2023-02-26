@@ -55,6 +55,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue")
 	class UDialogueComponent* DialogueComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickups")
+	USceneComponent* ThrowPoint;
+
+
 	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
 	// class UCharacterShootingComponent* ShootingComponent;
 

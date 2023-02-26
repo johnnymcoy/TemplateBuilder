@@ -13,6 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHolsteredChangedSignature, bool, 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHasGunChangedSignature, bool, bHasGun);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsAimingChangedSignature, bool, bIsAiming);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnIsReloadingChangedSignature, bool, bIsReloading);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnWeaponsChangedSignature,const TArray<FWeaponData_T> &, OutWeaponsInventory, int32, CurrentWeapon);
 
 
 
@@ -46,6 +47,8 @@ protected:
 	FOnIsAimingChangedSignature OnIsAimingChanged;
 	UPROPERTY(BlueprintAssignable, Category = "Weapons")
 	FOnIsReloadingChangedSignature OnIsReloadingChanged;
+	UPROPERTY(BlueprintAssignable, Category = "Weapons")
+	FOnWeaponsChangedSignature OnWeaponsChanged;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TArray<struct FWeaponData_T> WeaponsInventory;
