@@ -89,7 +89,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 	{
 		//- If the gun is too close to the Hit location
 		//- eg. gun against the wall 
-		BlindFireWeapon();
+		BlindFireWeapon(AccuracyMultiplier);
 	}
 	else
 	{
@@ -115,7 +115,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 			true, FLinearColor::Blue,
 			FLinearColor::Blue, DrawDebugTime))
 		{
-			BlindFireWeapon();
+			BlindFireWeapon(AccuracyMultiplier);
 		}
 		else
 		{
@@ -318,7 +318,7 @@ void AWeaponFramework::SwitchAutoMode()
 	WeaponData.bIsInAutoMode = !WeaponData.bIsInAutoMode;
 }
 
-void AWeaponFramework::BlindFireWeapon()
+void AWeaponFramework::BlindFireWeapon(const float in_Accuracy, const AActor* ActorToIgnore)
 {
 	if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("Blindfire - Weapon Framework"));}
 	//! v2
@@ -381,15 +381,16 @@ bool AWeaponFramework::CanShoot()
 	return true; 
 }
 
-// void AWeaponFramework::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
-// {
-// 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-// 	//todo not it.. 
-// 	// DOREPLIFETIME(AWeaponFramework, bDebuggingMode);
-//
-// 	// DOREPLIFETIME_CONDITION(AWeaponFramework, HitScanTrace, COND_SkipOwner);
-// 	// DOREPLIFETIME(AWeaponBase, TraceLocation);
-// 	// DOREPLIFETIME(AWeaponBase, GunWeaponData);
-// 	// DOREPLIFETIME(AWeaponBase, GunWeaponStats);
-// }
-//
+void AWeaponFramework::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeaponFramework, WeaponData);
+	//todo not it.. 
+	// DOREPLIFETIME(AWeaponFramework, bDebuggingMode);
+
+	// DOREPLIFETIME_CONDITION(AWeaponFramework, HitScanTrace, COND_SkipOwner);
+	// DOREPLIFETIME(AWeaponBase, TraceLocation);
+	// DOREPLIFETIME(AWeaponBase, GunWeaponStats);
+}
+
+

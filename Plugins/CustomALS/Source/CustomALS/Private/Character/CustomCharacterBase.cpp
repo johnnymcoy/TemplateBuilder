@@ -210,8 +210,9 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 	Out_DialogueComponent = DialogueComponent;
 }
 
-void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
+int32 ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
+	return 0;
 	// bool bWeaponWeHave;
 	// ShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
 	// if(ShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
@@ -220,6 +221,19 @@ void ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 	// 	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
 	// 	SetOverlayState(WeaponOverlayState);
 	// }
+}
+
+void ACustomCharacterBase::DestroyActor_Implementation(AActor* ActorToDestroy)
+{
+	DestroyActorOnClient(ActorToDestroy);
+}
+
+void ACustomCharacterBase::DestroyActorOnClient_Implementation(AActor* ActorToDestroy)
+{
+	if(ActorToDestroy != nullptr)
+	{
+		ActorToDestroy->Destroy();
+	}
 }
 
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////

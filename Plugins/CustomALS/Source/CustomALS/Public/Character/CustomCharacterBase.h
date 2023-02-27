@@ -36,7 +36,11 @@ public:
 
 	//- Character Weapons Interface
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
-	virtual void PickupGunEvent(const FWeaponData_T In_WeaponData) override;
+	virtual int32 PickupGunEvent(const FWeaponData_T In_WeaponData) override;
+	UFUNCTION(Server, Reliable)
+	virtual void DestroyActor(AActor* ActorToDestroy) override;
+	UFUNCTION(NetMulticast, Reliable)
+	virtual void DestroyActorOnClient(AActor* ActorToDestroy) override;
 
 
 	//- Shooting Component Bind //

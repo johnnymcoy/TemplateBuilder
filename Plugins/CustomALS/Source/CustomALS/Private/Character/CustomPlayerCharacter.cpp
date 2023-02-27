@@ -20,8 +20,6 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 	PlayerShootingComponent->OnWeaponEquipped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
 	PlayerShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
 	PlayerShootingComponent->SetThrowPoint(ThrowPoint);
-
-	
 }
 
 void ACustomPlayerCharacter::BeginPlay()
@@ -30,8 +28,11 @@ void ACustomPlayerCharacter::BeginPlay()
 	if(PlayerShootingComponent != nullptr)
 	{
 		PlayerShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
-		PlayerShootingComponent->SetupWeaponWidget();
-		PlayerShootingComponent->SetupWeaponCrosshairWidget();
+		if(IsLocallyControlled())
+		{
+			PlayerShootingComponent->SetupWeaponWidget();
+			PlayerShootingComponent->SetupWeaponCrosshairWidget();
+		}
 	}
 	if(DialogueComponent != nullptr)
 	{
@@ -42,8 +43,8 @@ void ACustomPlayerCharacter::BeginPlay()
 	{
 		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
-	
 }
+
 void ACustomPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -123,21 +124,27 @@ void ACustomPlayerCharacter::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32
 		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
 		SetOverlayState(WeaponOverlayState);
 	}
-	
 }
 
-void ACustomPlayerCharacter::PickupGunEvent(const FWeaponData_T In_WeaponData)
+int32 ACustomPlayerCharacter::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
-	Super::PickupGunEvent(In_WeaponData);
-	bool bWeaponWeHave;
-	PlayerShootingComponent->PickupWeapon(In_WeaponData, bWeaponWeHave);
-	if(PlayerShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
-	if(!bWeaponWeHave)
-	{
-		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
-		SetOverlayState(WeaponOverlayState);
-	}
-
+	// Super::PickupGunEvent(In_WeaponData);
+	// Todo could remove WeaponWeHave and just have int32 Remaining
+	int32 RemainingAmmo = 0;
+	PlayerShootingComponent->PickupWeapon(In_WeaponData, RemainingAmmo);
+	// if(bWeaponWeHave)
+	// {
+	// 	return RemainingAmmo;
+	// }
+	return RemainingAmmo;
+	return 0;
+	
+	// if(PlayerShootingComponent->GetPlayerWeaponState().bIsHolstered){return;}
+	// if(!bWeaponWeHave)
+	// {
+	// 	const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(In_WeaponData.WeaponOverlay);
+	// 	SetOverlayState(WeaponOverlayState);
+	// }
 }
 
 void ACustomPlayerCharacter::UseAction()

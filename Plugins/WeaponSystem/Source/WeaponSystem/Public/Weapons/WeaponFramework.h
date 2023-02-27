@@ -64,7 +64,7 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	virtual void SwitchAutoMode() override;
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	virtual void BlindFireWeapon() override;
+	virtual void BlindFireWeapon(const float in_Accuracy, const AActor* ActorToIgnore = nullptr) override;
 	virtual void MoveUMG(bool bIsRightShoulder) override;
 	virtual void FadeInUMG(bool bIsAiming) override;
 
@@ -112,7 +112,7 @@ private:
 	void ApplyDamageToActor(const FHitResult& Hit, FVector ShotDirection);
 	void CalculateBulletSpread(FVector& NewBulletSpread);
 	
-
+	UPROPERTY(Replicated)
 	FWeaponData_T WeaponData;
 	// FWeaponStats_T WeaponStats;
 

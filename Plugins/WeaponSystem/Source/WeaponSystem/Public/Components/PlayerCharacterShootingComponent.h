@@ -13,10 +13,16 @@ class WEAPONSYSTEM_API UPlayerCharacterShootingComponent : public UCharacterShoo
 public:
 
 	UPlayerCharacterShootingComponent();
-	
+
+	UFUNCTION()
 	void SetupWeaponWidget();
-	
+	UFUNCTION(Client, Unreliable)
+	void ClientSetupWeaponWidget();
+	UFUNCTION()
 	void SetupWeaponCrosshairWidget();
+	UFUNCTION(Client, Unreliable)
+	void ClientSetupWeaponCrosshairWidget();
+
 
 protected:
 	virtual void BeginPlay() override;

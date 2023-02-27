@@ -23,60 +23,70 @@ class WEAPONSYSTEM_API UCharacterShootingComponent : public UCharacterComponent
 public:
 	UCharacterShootingComponent();
 
+	//-		Setup Functions		//
 	void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent);
 	void SetThrowPoint(USceneComponent* ThrowPointComponent){ThrowPoint = ThrowPointComponent;};
 
+	//-		Delegates			//
 	UPROPERTY(BlueprintAssignable, Category = "Weapons")
 	FOnWeaponEqiupped OnWeaponEquipped;
 	UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	FOnAmmoChangedSignature OnAmmoChanged;
 	UPROPERTY(BlueprintAssignable, Category = "Ammo")
 	FOnWeaponStateChanged OnWeaponStateChanged;
-
 	UPROPERTY(BlueprintAssignable, Category = "Recoil")
 	FOnBulletShot OnBulletShot;
-
-	// Main Functions
+	
+	//-		Main Functions		//
 	void ShootGun();
 	void PullTrigger();
 	void StopShootGun();
 	
+	// HUD / UMG
 	// void AimPressed(bool bRightShoulder);
 	// void AimReleased(bool bRightShoulder);
+	// void MoveUMG(bool bRightShoulder);
 
-	// HUD / UMG
+	//-		Input Functions		//
 	void AimPressedAction();
 	void AimReleasedAction();
 	void ThrowWeaponAction();
-	// // void MoveUMG(bool bRightShoulder);
 	
 
-	// Reload
+	//-			Reload			//
 	void Reload();
 	void SwitchAutoMode();
 
 
-	// Swaps / Pickups
-	void PickupWeapon(FWeaponData_T WeaponToPickup,bool& bWeaponWeHave);
-
-	void AddWeaponToInventory(FWeaponData_T NewWeapon);
-	void RemoveWeaponFromInventory(int32 WeaponToRemove);
+	//-		Swaps / Pickups		//
+	void PickupWeapon(FWeaponData_T WeaponToPickup, int32& RemainingAmmo);
 	void EquipWeapon(FWeaponData_T WeaponToEquip);
 	void SwapWeaponPressed();
 	void SwapWeaponReleased();
 	void SwapWeapon();
 	void HolsterWeapon();
+
+	//-			Throw 			//
 	void ThrowWeapon(FWeaponData_T WeaponToThrow);
 	void DropWeapon(FWeaponData_T WeaponToDrop);
 
 	void GetThrowStats(FTransform& OutTransform, FVector& OutThrowForce) const;
 	
-	//- Server //
+	//-			Server			 //
 	UFUNCTION(Server, Reliable)
-	void ServerPickupWeapon(FWeaponData_T WeaponToPickup,bool bWeaponWeHave);
-	//- Helper Functions // 
+	void ServerShootGun();
+	UFUNCTION(Server, Reliable)
+	void ServerStopShootGun();
+
+	UFUNCTION(Server, Reliable)
+	void ServerPickupWeapon(FWeaponData_T WeaponToPickup, int32 RemainingAmmo);
+	UFUNCTION(Server, Reliable)
+	void ServerThrowWeapon(FWeaponData_T WeaponToThrow);
+	//-		Helper Functions	 // 
 	UFUNCTION(Server, Reliable)
 	void ServerHideWeaponModel(bool bHidden);
+
+	
 	// UFUNCTION(Server, Reliable)
 	// void ServerEquipWeapon(FWeaponData_T WeaponToEquip);
 
@@ -105,18 +115,25 @@ protected:
 	virtual void BeginPlay() override;
 
 	
-	// less than 1 is Low, 5 Is Very high
+	//- less than 1 is Low, 5 Is Very high //
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats", meta=(UIMin = "0.1", UIMax = "10.0"))
 	float Accuracy = 1;
 
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Animations")
 	UAnimMontage* GetReloadAnimation(EWeaponName_T WeaponName);
 
-	
+	void AddWeaponToInventory(FWeaponData_T NewWeapon);
+	void RemoveWeaponFromInventory(int32 WeaponToRemove);
+	// UFUNCTION(Server, Unreliable)
+	// void ServerAddWeaponToInventory(FWeaponData_T NewWeapon);
+	// UFUNCTION(Server, Unreliable)
+	// void ServerRemoveWeaponFromInventory(int32 WeaponToRemove);
+
+
 
 private:
 
-	// Weapon Functions
+	//-		Weapon Functions	//
 	void ReloadDelay();
 	void CancelReload();
 
@@ -124,59 +141,55 @@ private:
 	UPROPERTY()
 	UAnimMontage* ReloadAnimation;
 
-	
+	//-		Helper Functions	//
 	bool PlayerHasWeaponOfType(EWeaponName_T WeaponType);
-
-	void AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
+	int32 AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
 
 
 	
 	
-	//Weapon Activated Functions
+	//- Weapon Activated Functions	//
 	void Recoil();
 	//TODO need to get from Character
 	// void CalculateAccuracy();
-	
 	float CalculateAccuracy();
 
-	// Swaps / Pickups
+	//? Testing out replication for the inventory
+	//- Replicated Stats	// 
+	UPROPERTY(Replicated)
 	TArray<FWeaponData_T> WeaponInventory;
+	// UPROPERTY(Replicated)
 	int32 CurrentWeaponIndex = 0;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Spawning")
-	TSubclassOf<class AWeaponPickup> WeaponToSpawn;
-	UPROPERTY(EditDefaultsOnly, Category = "Stats")
-	float PickupThrowIntensity = 500;
+	// UPROPERTY(Replicated)
+	FPlayerWeaponState PlayerWeaponState;
+	// Swaps / Pickups
 
-	
+	//-		Weapon Spawning/ Pickup			//
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	TSubclassOf<class AWeaponPickup> WeaponToSpawn;
+	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
+	float PickupThrowIntensity = 500;
+	UPROPERTY()
+	USceneComponent* ThrowPoint;
+
 	
 	//- Last time the camera action button is pressed //
 	float SwapWeaponPressedTime = 0.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "Switch Weapons")
 	float SwapWeaponHoldTime = 0.2f;
+	bool bSwapWeaponPressed = false;
 
 	//- Reload Animation Blend out time //
 	UPROPERTY(EditDefaultsOnly, Category = "Animations")
 	float AnimationBlendOutTime = 0.05f;
 
-
-	bool bSwapWeaponPressed = false;
-
-	// FWeaponData_T GetCurrentWeapon() const;
-
 	UPROPERTY()
 	AActor* OwnerActor;
-	UPROPERTY()
-	USceneComponent* ThrowPoint;
 
-
-	// AutoMatic Weapon fire Handler
+	//-			Timers			//
+	//- Automatic Weapon fire	//
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle ReloadTimerHandle;
 	FTimerHandle WeaponSwapTimerHandle;
-
-	
-	FPlayerWeaponState PlayerWeaponState;
-
 	
 };

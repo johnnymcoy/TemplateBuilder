@@ -29,7 +29,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
 	virtual void SwitchAutoMode() = 0;
 	UFUNCTION(BlueprintCallable, Category = "Weapons")
-	virtual void BlindFireWeapon() = 0;
+	virtual void BlindFireWeapon(const float in_Accuracy, const AActor* ActorToIgnore = nullptr) = 0;
 
 	//Extra Functions
 	// UFUNCTION(Category = "Weapons")

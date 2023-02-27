@@ -9,6 +9,7 @@
 AWeaponPickup::AWeaponPickup()
 {
 	bReplicates = true;
+	SetReplicatingMovement(true);
 	GunMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Gun Mesh");
 	GunMesh->SetGenerateOverlapEvents(true);
 	GunMesh->SetCollisionProfileName(TEXT("DefaultPickup"));
@@ -53,8 +54,15 @@ void AWeaponPickup::OnInteract(AActor* Caller)
 		if(WeaponPickupData.MeshForPickup != nullptr)
 		{
 			SetOwner(Caller);
-			CharacterInteracting->PickupGunEvent(WeaponPickupData);
-			//todo  CharacterRef->DestroyActor(this);
+			int32 RemainingAmmo = CharacterInteracting->PickupGunEvent(WeaponPickupData);
+			if(RemainingAmmo)
+			{
+				WeaponPickupData.TotalAmmoCount = RemainingAmmo;
+			}
+			else
+			{
+				CharacterInteracting->DestroyActor(this);
+			}
 		}
 	}
 	ReceiveOnInteract(Caller);

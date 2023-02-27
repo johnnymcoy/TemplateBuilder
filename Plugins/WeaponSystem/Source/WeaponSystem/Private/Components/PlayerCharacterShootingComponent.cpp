@@ -13,9 +13,10 @@ UPlayerCharacterShootingComponent::UPlayerCharacterShootingComponent()
 	OnWeaponStateChanged.AddDynamic(this, &UPlayerCharacterShootingComponent::WeaponStateChanged);
 	//- Crosshair Widget Function Bind //
 	OnBulletShot.AddDynamic(this, &UPlayerCharacterShootingComponent::BulletShot);
+	SetIsReplicatedByDefault(true);
 }
 
-void UPlayerCharacterShootingComponent::SetupWeaponWidget()
+void UPlayerCharacterShootingComponent::ClientSetupWeaponWidget_Implementation()
 {
 	if(WeaponWidgetClass == nullptr){LogMissingPointer("Weapon Widget Class");return;}
 	if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Owner Player Controller"); return;}
@@ -24,7 +25,17 @@ void UPlayerCharacterShootingComponent::SetupWeaponWidget()
 	WeaponWidget->AddToViewport();	
 }
 
+void UPlayerCharacterShootingComponent::SetupWeaponWidget()
+{
+	ClientSetupWeaponWidget();
+}
+
 void UPlayerCharacterShootingComponent::SetupWeaponCrosshairWidget()
+{
+	ClientSetupWeaponCrosshairWidget();
+}
+
+void UPlayerCharacterShootingComponent::ClientSetupWeaponCrosshairWidget_Implementation()
 {
 	if(CrosshairWidgetClass == nullptr){LogMissingPointer("Crosshair Widget Class");return;}
 	if(GetOwnerPlayerController() == nullptr){LogMissingPointer("Owner Player Controller"); return;}
@@ -40,34 +51,50 @@ void UPlayerCharacterShootingComponent::BeginPlay()
 
 void UPlayerCharacterShootingComponent::UpdateCurrentWeapon()
 {
-	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
-	FWeaponData_T WeaponData;
-	const bool bValidWeapon = GetCurrentWeaponData(WeaponData);
-	if(!bValidWeapon){return;}
-	WeaponWidget->UpdateWeapon(WeaponData);
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
+		FWeaponData_T WeaponData;
+		const bool bValidWeapon = GetCurrentWeaponData(WeaponData);
+		if(!bValidWeapon){return;}
+		WeaponWidget->UpdateWeapon(WeaponData);
+	}
 }
 
 void UPlayerCharacterShootingComponent::AmmoChanged(int32 CurrentAmmo, int32 TotalAmmo)
 {
-	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
-	WeaponWidget->UpdateAmmo(CurrentAmmo,TotalAmmo);
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
+		WeaponWidget->UpdateAmmo(CurrentAmmo,TotalAmmo);
+	}
 }
 
 void UPlayerCharacterShootingComponent::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 in_CurrentWeaponIndex)
 {
-	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
-	WeaponWidget->UpdateWeapons(Weapons, in_CurrentWeaponIndex);
+	//? OwnerRole removes errors, but the server player can't update there widget 
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
+		WeaponWidget->UpdateWeapons(Weapons, in_CurrentWeaponIndex);
+	}
 }
 
 void UPlayerCharacterShootingComponent::WeaponStateChanged(FPlayerWeaponState WeaponState)
 {
-	if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
-	WeaponWidget->SetPlayerWeaponState(WeaponState);
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		if(WeaponWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
+		WeaponWidget->SetPlayerWeaponState(WeaponState);
+	}
 }
 
 void UPlayerCharacterShootingComponent::BulletShot(float RecoilAmount)
 {
-	if(CrosshairWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
-	CrosshairWidget->SetGunRecoil(RecoilAmount);
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		if(CrosshairWidget == nullptr){LogMissingPointer("Weapon Widget"); return;}
+		CrosshairWidget->SetGunRecoil(RecoilAmount);
+	}
 }
 

@@ -22,9 +22,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
 	class UPlayerCharacterShootingComponent* PlayerShootingComponent;
 
-	
 	virtual void BeginPlay() override;
-
 
 	
 	// Parent Functions
@@ -34,7 +32,7 @@ protected:
 	
 
 	//- Character Weapons Interface
-	virtual void PickupGunEvent(const FWeaponData_T In_WeaponData) override;
+	virtual int32 PickupGunEvent(const FWeaponData_T In_WeaponData) override;
 	//- Shooting Component Bind //
 	virtual void WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex) override;
 
