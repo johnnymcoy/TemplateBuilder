@@ -4,6 +4,7 @@
 #include "Weapons/WeaponPickup.h"
 
 #include "Interfaces/CharacterWeaponPickups.h"
+#include "Net/UnrealNetwork.h"
 
 
 AWeaponPickup::AWeaponPickup()
@@ -83,3 +84,9 @@ void AWeaponPickup::EndFocus()
 	ReceiveEndFocus();
 }
 
+void AWeaponPickup::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AWeaponPickup, WeaponPickupData);
+
+}

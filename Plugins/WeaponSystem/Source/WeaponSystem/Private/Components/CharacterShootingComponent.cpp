@@ -126,7 +126,8 @@ void UCharacterShootingComponent::Reload()
 
 		}
 		//? Testing HUD update
-		// - Update HUD elements // 
+		// - Update HUD elements //
+		// OnRep_WeaponInventory();
 		OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
 	}
 
@@ -230,6 +231,7 @@ void UCharacterShootingComponent::ShootGun()
 		}
 	}
 }
+
 //? // Run on Server
 void UCharacterShootingComponent::ServerShootGun_Implementation()
 {
@@ -259,6 +261,11 @@ void UCharacterShootingComponent::StopShootGun()
 		ServerStopShootGun();
 	}
 	OwnerActor->GetWorldTimerManager().ClearTimer(ShootingTimerHandle);
+	// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+	// if(Weapon != nullptr)
+	// {
+	// 	OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
+	// }
 }
 
 void UCharacterShootingComponent::ServerStopShootGun_Implementation()
@@ -311,8 +318,10 @@ void UCharacterShootingComponent::PullTrigger()
 			//Gun needs a blindfire Function that then goes into GetTraceParams
 		}
 		Recoil();
-		// - Update HUD elements // 
-		OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
+		// - Update HUD elements //
+		// OnRep_WeaponInventory();
+		UpdateHUD();
+		// OnAmmoChanged.Broadcast(Weapon->GetWeaponData().CurrentAmmo, Weapon->GetWeaponData().TotalAmmoCount);
 	}
 }
 
@@ -392,9 +401,11 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup, int
 	//-  Is Weapon Valid //
 	if(!WeaponToPickup.IsValid()){LogMissingPointer("Invalid Weapon data to Pickup");return;}
 	//? // Run on Server
+	//? Move all things like changing the WeaponInventory to the server function only then remove return; 
 	if(GetOwnerRole() != ROLE_Authority)
 	{
 		ServerPickupWeapon(WeaponToPickup, RemainingAmmo);
+		// return;
 	}
 	//-		If It's our first weapon pickup		// 
 	if(!PlayerWeaponState.bHasGun && WeaponInventory.Num() == 0)
@@ -403,7 +414,6 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup, int
 		AddWeaponToInventory(WeaponToPickup);
 		EquipWeapon(WeaponToPickup);
 		RemainingAmmo = 0;
-		// bWeaponWeHave = false;
 		ServerHideWeaponModel(false);
 	}
 	else
@@ -440,11 +450,9 @@ void UCharacterShootingComponent::PickupWeapon(FWeaponData_T WeaponToPickup, int
 
 void UCharacterShootingComponent::ServerPickupWeapon_Implementation(FWeaponData_T WeaponToPickup, int32 RemainingAmmo)
 {
-	UE_LOG(LogWeaponSystem, Warning, TEXT("Server Pickup Weapon"));
 	PickupWeapon(WeaponToPickup, RemainingAmmo);
 }
 
-// Change to retrun &bool and &index 
 bool UCharacterShootingComponent::PlayerHasWeaponOfType(EWeaponName_T WeaponType)
 {
 	for(const FWeaponData_T& WeaponData : WeaponInventory)
@@ -465,9 +473,11 @@ void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
 {
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Equip Weapon"));}
 	//todo not sure about < role
+	//? Test with return ? 
 	// if(GetOwnerRole() != ROLE_Authority)
 	// {
 	// 	ServerEquipWeapon(WeaponToEquip);
+	// 	// return;
 	// }
 	PlayerWeaponState.bHasGun = true;
 	PlayerWeaponState.bIsHolstered = false;
@@ -488,11 +498,16 @@ void UCharacterShootingComponent::EquipWeapon(FWeaponData_T WeaponToEquip)
 		CurrentWeapon->GetRootComponent()->SetRelativeLocation(WeaponToEquip.WeaponOffset);
 		CurrentWeapon->GetRootComponent()->SetRelativeRotation(WeaponToEquip.RotationOffset);
 		CurrentWeapon->SetOwner(GetOwner());
-
 	}
 	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
 	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
 }
+
+// void UCharacterShootingComponent::ServerEquipWeapon_Implementation(FWeaponData_T WeaponToEquip)
+// {
+// 	EquipWeapon(WeaponToEquip);
+// }
+
 
 //-													//
 //-						Add Ammo					//
@@ -512,78 +527,6 @@ int32 UCharacterShootingComponent::AddAmmo(const int32 AmountToAdd, const int32 
 	}
 	return Remainder;
 }
-
-void UCharacterShootingComponent::AddWeaponToInventory(FWeaponData_T NewWeapon)
-{
-	// if(GetOwnerRole() > ROLE_Authority)
-	// {
-	// 	ServerAddWeaponToInventory(NewWeapon);
-	// }
-	WeaponInventory.Emplace(NewWeapon);
-	if(WeaponInventory.Num() > 0)
-	{
-		PlayerWeaponState.bHasGun = true;
-		if(!PlayerWeaponState.bIsHolstered)
-		{
-			ServerHideWeaponModel(false);
-		}
-	}
-	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-}
-
-void UCharacterShootingComponent::RemoveWeaponFromInventory(int32 WeaponToRemove)
-{
-	// if(GetOwnerRole() > ROLE_Authority)
-	// {
-	// 	ServerRemoveWeaponFromInventory(WeaponToRemove);
-	// }
-	if(WeaponInventory.Num() > 0)
-	{
-		if(WeaponInventory.IsValidIndex(WeaponToRemove))
-		{
-			WeaponInventory.RemoveAt(WeaponToRemove);
-		}
-	}
-	if(WeaponInventory.Num() == 0)
-	{
-		PlayerWeaponState.bHasGun = false;
-		PlayerWeaponState.bIsHolstered = true;
-		ServerHideWeaponModel(true);
-	}
-	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-}
-
-// void UCharacterShootingComponent::ServerAddWeaponToInventory_Implementation(FWeaponData_T NewWeapon)
-// {
-// 	WeaponInventory.Emplace(NewWeapon);
-// 	if(WeaponInventory.Num() > 0)
-// 	{
-// 		PlayerWeaponState.bHasGun = true;
-// 		if(!PlayerWeaponState.bIsHolstered)
-// 		{
-// 			ServerHideWeaponModel(false);
-// 		}
-// 	}
-// 	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-// }
-//
-// void UCharacterShootingComponent::ServerRemoveWeaponFromInventory_Implementation(int32 WeaponToRemove)
-// {
-// 	if(WeaponInventory.Num() > 0)
-// 	{
-// 		if(WeaponInventory.IsValidIndex(WeaponToRemove))
-// 		{
-// 			WeaponInventory.RemoveAt(WeaponToRemove);
-// 		}
-// 	}
-// 	if(WeaponInventory.Num() == 0)
-// 	{
-// 		PlayerWeaponState.bHasGun = false;
-// 		PlayerWeaponState.bIsHolstered = true;
-// 		ServerHideWeaponModel(true);
-// 	}
-// 	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-// }
 
 //-													//
 //-					Swap Weapons					//
@@ -617,36 +560,62 @@ void UCharacterShootingComponent::SwapWeapon()
 	// }
 
 	//! Problem code...
-	// When swapping weapons the data is not being stored correctly 
+	// When swapping weapons the data is not being stored correctly
+	if(GetOwnerRole() != ROLE_Authority)
+	{
+		Server_SwapWeapon();
+	}
+	else
+	{
+		if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+		{
+			// BUG swapping weapon while holstered will overtake weapons
+			// BUG also Picking up will overtake weapons when on index less than total !!!!!!!!!!!!!!!!!!!
+			//? Update the data of the weapon in our inventory before switching
+			IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+			if(Weapon != nullptr)
+			{
+				WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
+			}
+
+			//v1
+			// UpdateWeaponInventory();
+			// FWeaponData_T WeaponData;
+			// GetCurrentWeaponData(WeaponData);
+			// WeaponInventory[CurrentWeaponIndex] = WeaponData;
+		}
+		// int32 LastWeaponIndex = CurrentWeaponIndex;
+		CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
+		
+		// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+		// if(Weapon != nullptr)
+		// {
+		// 	WeaponInventory[LastWeaponIndex] = Weapon->GetWeaponData();
+		// }
+		//? Should still swap if Holstered, but don't equip
+		bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
+		EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+		if(bReholsterWeapon)
+		{
+			HolsterWeapon();
+		}
+		if(bDebuggingMode){UE_LOG(LogWeaponSystem,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);}
+	}
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+}
+
+void UCharacterShootingComponent::Server_SwapWeapon_Implementation()
+{
 	if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
 	{
-		// BUG swapping weapon while holstered will overtake weapons
-		// BUG also Picking up will overtake weapons when on index less than total !!!!!!!!!!!!!!!!!!!
-		//? Update the data of the weapon in our inventory before switching
 		IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
 		if(Weapon != nullptr)
 		{
 			WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
 		}
-
-		//v1
-		// UpdateWeaponInventory();
-		// FWeaponData_T WeaponData;
-		// GetCurrentWeaponData(WeaponData);
-		// WeaponInventory[CurrentWeaponIndex] = WeaponData;
+		CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
 	}
-	// int32 LastWeaponIndex = CurrentWeaponIndex;
-	CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
-	
-	// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
-	// if(Weapon != nullptr)
-	// {
-	// 	WeaponInventory[LastWeaponIndex] = Weapon->GetWeaponData();
-	// }
-
-	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
-	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-	//? Should still swap if Holstered, but don't equip
 	bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
 	EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
 	if(bReholsterWeapon)
@@ -654,6 +623,8 @@ void UCharacterShootingComponent::SwapWeapon()
 		HolsterWeapon();
 	}
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);}
+
+
 }
 
 
@@ -669,6 +640,154 @@ void UCharacterShootingComponent::SwapWeaponReleased()
 		SwapWeapon();
 		//- Prevent from Holstering Weapon
 		OwnerActor->GetWorldTimerManager().ClearTimer(WeaponSwapTimerHandle);
+	}
+}
+
+//-													//
+//-					Weapon Inventory				//
+//-													//
+
+void UCharacterShootingComponent::AddWeaponToInventory(FWeaponData_T NewWeapon)
+{
+	// if(GetOwnerRole() != ROLE_Authority)
+	// {
+	// 	ServerAddWeaponToInventory(NewWeapon);
+	// 	return;
+	// }
+	WeaponInventory.Emplace(NewWeapon);
+	if(WeaponInventory.Num() > 0)
+	{
+		PlayerWeaponState.bHasGun = true;
+		if(!PlayerWeaponState.bIsHolstered)
+		{
+			ServerHideWeaponModel(false);
+		}
+	}
+	UpdateHUD();
+	// OnRep_WeaponInventory();
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+}
+
+void UCharacterShootingComponent::RemoveWeaponFromInventory(int32 WeaponToRemove)
+{
+	// if(GetOwnerRole() != ROLE_Authority)
+	// {
+	// 	ServerRemoveWeaponFromInventory(WeaponToRemove);
+	// 	UpdateHUD();
+	// 	return;
+	// }
+	if(WeaponInventory.Num() > 0)
+	{
+		if(WeaponInventory.IsValidIndex(WeaponToRemove))
+		{
+			WeaponInventory.RemoveAt(WeaponToRemove);
+		}
+	}
+	if(WeaponInventory.Num() == 0)
+	{
+		//? Client not holstering when throwing weapon 
+		PlayerWeaponState.bHasGun = false;
+		PlayerWeaponState.bIsHolstered = true;
+		ServerHideWeaponModel(true);
+	}
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	// OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+	// OnRep_WeaponInventory();
+	UpdateHUD();
+}
+
+void UCharacterShootingComponent::UpdateHUD()
+{
+	if(OwnerActor == nullptr){return;}
+	OwnerActor->GetWorldTimerManager().SetTimer(UpdatedHUDTImerHandle, this, &UCharacterShootingComponent::DelayedUpdateHUD, 0.01f, false);
+	// UpdateWeaponInventory();
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	// OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+}
+//? not sure if need this, may just use on rep
+void UCharacterShootingComponent::DelayedUpdateHUD()
+{
+	UpdateWeaponInventory();
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+}
+
+void UCharacterShootingComponent::OnRep_WeaponInventory()
+{
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+	// if(OwnerActor == nullptr){return;}
+	// OwnerActor->GetWorldTimerManager().SetTimer(UpdatedHUDTImerHandle, this, &UCharacterShootingComponent::UpdateHUD, 0.1f, false);
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+}
+
+void UCharacterShootingComponent::OnRep_CurrentWeaponIndex()
+{
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+}
+
+void UCharacterShootingComponent::OnRep_PlayerWeaponState()
+{
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+
+	// if(OwnerActor == nullptr){return;}
+	// OwnerActor->GetWorldTimerManager().SetTimer(UpdatedHUDTImerHandle, this, &UCharacterShootingComponent::UpdateHUD, 0.1f, false);
+	// OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+}
+
+void UCharacterShootingComponent::ServerAddWeaponToInventory_Implementation(FWeaponData_T NewWeapon)
+{
+	// AddWeaponToInventory(NewWeapon);
+	// WeaponInventory.Emplace(NewWeapon);
+	// if(WeaponInventory.Num() > 0)
+	// {
+	// 	PlayerWeaponState.bHasGun = true;
+	// 	if(!PlayerWeaponState.bIsHolstered)
+	// 	{
+	// 		ServerHideWeaponModel(false);
+	// 	}
+	// }
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+}
+
+bool UCharacterShootingComponent::ServerAddWeaponToInventory_Validate(FWeaponData_T NewWeapon)
+{
+	return true;
+}
+
+void UCharacterShootingComponent::ServerRemoveWeaponFromInventory_Implementation(int32 WeaponToRemove)
+{
+	RemoveWeaponFromInventory(WeaponToRemove);
+	// if(WeaponInventory.Num() > 0)
+	// {
+	// 	if(WeaponInventory.IsValidIndex(WeaponToRemove))
+	// 	{
+	// 		WeaponInventory.RemoveAt(WeaponToRemove);
+	// 	}
+	// }
+	// if(WeaponInventory.Num() == 0)
+	// {
+	// 	PlayerWeaponState.bHasGun = false;
+	// 	PlayerWeaponState.bIsHolstered = true;
+	// 	ServerHideWeaponModel(true);
+	// }
+	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+}
+
+bool UCharacterShootingComponent::ServerRemoveWeaponFromInventory_Validate(int32 WeaponToRemove)
+{
+	return true;
+}
+
+void UCharacterShootingComponent::UpdateWeaponInventory()
+{
+	if(!WeaponInventory.IsValidIndex(CurrentWeaponIndex)){return;}
+	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+	if(Weapon != nullptr)
+	{
+		WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
 	}
 }
 
@@ -726,9 +845,9 @@ void UCharacterShootingComponent::HolsterWeapon()
 
 void UCharacterShootingComponent::ThrowWeaponAction()
 {
-	FWeaponData_T WeaponData;
 	//? needs to check if valid, maybe also check Index
-	UpdateWeaponInventory();
+	// UpdateWeaponInventory();
+	FWeaponData_T WeaponData;
 	const bool bValidWeapon = GetCurrentWeaponData(WeaponData);
 	if(bValidWeapon)
 	{
@@ -736,70 +855,139 @@ void UCharacterShootingComponent::ThrowWeaponAction()
 	}
 }
 
-//? Does this need to have an input? - Maybe if we want to throw a certain weapon //
+//-------------------------------------
+
 void UCharacterShootingComponent::ThrowWeapon(FWeaponData_T WeaponToThrow)
 {
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Throw Weapon"));}
 	if(!WeaponToThrow.IsValid()){LogMissingPointer("Weapon to throw Not Valid");return;}
-	//? Moved above going to server function
 	if(!PlayerWeaponState.bHasGun){return;}
 	if(GetOwnerRole() != ROLE_Authority)
 	{
 		ServerThrowWeapon(WeaponToThrow);
-		return;
 	}
-	CancelReload();
-	DropWeapon(WeaponToThrow);
-	bSwapWeaponPressed = false;
-
-	//v2
-	//! Problem code...
-	// When swapping weapons the data is not being stored correctly 
-	if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+	else
 	{
-		// BUG swapping weapon while holstered will overtake weapons
-		// BUG also Picking up will overtake weapons when on index less than total
-		//? Update the data of the weapon in our inventory before switching
-		// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
-		// if(Weapon != nullptr)
-		// {
-		// 	WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
-		// }
-
-		//v1
+		
+		CancelReload();
 		// UpdateWeaponInventory();
-		FWeaponData_T WeaponData;
-		GetCurrentWeaponData(WeaponData);
-		WeaponInventory[CurrentWeaponIndex] = WeaponData;
-	}
-	// int32 LastWeaponIndex = CurrentWeaponIndex;
-	CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
-	
-	// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
-	// if(Weapon != nullptr)
-	// {
-	// 	WeaponInventory[LastWeaponIndex] = Weapon->GetWeaponData();
-	// }
 
-	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
-	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-	
-	//? Should still swap if Holstered, but don't equip
-	bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
-	EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
-	if(bReholsterWeapon)
-	{
-		HolsterWeapon();
-	}
-	if(bDebuggingMode){UE_LOG(LogWeaponSystem,Warning,TEXT("Current Weapon: %i"), CurrentWeaponIndex);}
+		//v2
+		//! Problem code...
+		// When swapping weapons the data is not being stored correctly 
+		if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+		{
+			// BUG swapping weapon while holstered will overtake weapons
+			// BUG also Picking up will overtake weapons when on index less than total
+			//? Update the data of the weapon in our inventory before switching
+			// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+			// if(Weapon != nullptr)
+			// {
+			// 	WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
+			// }
 
-	//v1
-	// SwapWeapon();
+			//v1
+			// UpdateWeaponInventory();
+
+			
+			// FWeaponData_T WeaponData;
+			// GetCurrentWeaponData(WeaponData);
+			// WeaponInventory[CurrentWeaponIndex] = WeaponData;
+			DropWeapon(WeaponToThrow);
+
+			//? Move to index check?
+			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("CurrentWeaponIndex: %i Weapons: %i"), CurrentWeaponIndex, WeaponInventory.Num());}
+			//! Problem code for clients
+			// if(WeaponInventory.Num() != 0)
+			// {
+			// 	CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
+			// }
+			// if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("CurrentWeaponIndex: %i Weapons: %i"), CurrentWeaponIndex, WeaponInventory.Num());}
+
+			// int32 LastWeaponIndex = CurrentWeaponIndex;
+		
+			// IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
+			// if(Weapon != nullptr)
+			// {
+			// 	WeaponInventory[LastWeaponIndex] = Weapon->GetWeaponData();
+			// }
+
+		
+			// //? Should still swap if Holstered, but don't equip
+			// bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
+			// if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+			// {
+			// 	EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+			// }
+			// if(bReholsterWeapon)
+			// {
+			// 	HolsterWeapon();
+			// }
+			// OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+			// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+		}
+		if(WeaponInventory.Num() != 0)
+		{
+			if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("CurrentWeaponIndex: %i Weapons: %i"), CurrentWeaponIndex, WeaponInventory.Num());}
+			//? For clients throwing works when index is at 0
+			if(CurrentWeaponIndex == 0)
+			{
+				// UpdateWeaponInventory();
+				CurrentWeaponIndex = 0;
+			}
+			//? Bug: will equip the same weapon if index is anything but 0
+			else
+			{
+				CurrentWeaponIndex--;
+				// CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
+			}
+		}
+		bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
+		if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+		{
+			EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+		}
+		if(bReholsterWeapon)
+		{
+			HolsterWeapon();
+		}
+	}
 }
 
 void UCharacterShootingComponent::ServerThrowWeapon_Implementation(FWeaponData_T WeaponToThrow)
 {
 	ThrowWeapon(WeaponToThrow);
+	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	// if(!WeaponToThrow.IsValid()){LogMissingPointer("Weapon to throw Not Valid");return;}
+	// if(!PlayerWeaponState.bHasGun){return;}
+	// CancelReload();
+	// UpdateWeaponInventory();
+	// if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+	// {
+	// 	FWeaponData_T WeaponData;
+	// 	GetCurrentWeaponData(WeaponData);
+	// 	WeaponInventory[CurrentWeaponIndex] = WeaponData;
+	// 	DropWeapon(WeaponToThrow);
+	// 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("CurrentWeaponIndex: %i Weapons: %i"), CurrentWeaponIndex, WeaponInventory.Num());}
+	// 	//! Problem code for clients
+	// 	if(WeaponInventory.Num() != 0)
+	// 	{
+	// 		CurrentWeaponIndex = (CurrentWeaponIndex + 1) % WeaponInventory.Num();
+	// 	}
+	// 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("CurrentWeaponIndex: %i Weapons: %i"), CurrentWeaponIndex, WeaponInventory.Num());}
+	// 	bool bReholsterWeapon = PlayerWeaponState.bIsHolstered;
+	// 	if(WeaponInventory.IsValidIndex(CurrentWeaponIndex))
+	// 	{
+	// 		EquipWeapon(WeaponInventory[CurrentWeaponIndex]);
+	// 	}
+	// 	if(bReholsterWeapon)
+	// 	{
+	// 		HolsterWeapon();
+	// 	}
+	// 	// OnWeaponStateChanged.Broadcast(PlayerWeaponState);
+	// 	// OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
+	// }
 }
 
 
@@ -807,20 +995,33 @@ void UCharacterShootingComponent::DropWeapon(FWeaponData_T WeaponToDrop)
 {
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Drop Weapon"));}
 	if(WeaponToSpawn == nullptr){LogMissingPointer("Weapon To Spawn");return;}
+	//? Check
+	RemoveWeaponFromInventory(CurrentWeaponIndex);
+	Server_SpawnWeapon(WeaponToDrop);
+}
+
+void UCharacterShootingComponent::Server_SpawnWeapon_Implementation(FWeaponData_T WeaponSpawned)
+{
+	if(WeaponToSpawn == nullptr){LogMissingPointer("Weapon To Spawn");return;}
 	FTransform Transform;
 	FVector ThrowForce;
 	GetThrowStats(Transform, ThrowForce);
-	//? Check
-	RemoveWeaponFromInventory(CurrentWeaponIndex);
-	
 	const FActorSpawnParameters SpawnParameters;
 	AWeaponPickup* DroppedWeapon = GetWorld()->SpawnActor<AWeaponPickup>(WeaponToSpawn, Transform.GetLocation(), Transform.GetRotation().Rotator(), SpawnParameters);
 	//- Set the WeaponData of the Spawned Actor // 
-	DroppedWeapon->WeaponDroppedEvent(WeaponToDrop);
+	DroppedWeapon->WeaponDroppedEvent(WeaponSpawned);
 	DroppedWeapon->GunMesh->AddImpulse(ThrowForce, NAME_None, true);
-	OnWeaponEquipped.Broadcast(WeaponInventory, CurrentWeaponIndex);
-	OnWeaponStateChanged.Broadcast(PlayerWeaponState);
 }
+
+bool UCharacterShootingComponent::Server_SpawnWeapon_Validate(FWeaponData_T WeaponSpawned)
+{
+	return true;
+}
+
+
+//-													//
+//-						Helpers						//
+//-													//
 
 void UCharacterShootingComponent::GetThrowStats(FTransform& OutTransform, FVector& OutThrowForce) const
 {
@@ -834,11 +1035,11 @@ void UCharacterShootingComponent::GetThrowStats(FTransform& OutTransform, FVecto
 	Rotation.Pitch = UKismetMathLibrary::RandomFloatInRange(-180.0f, 180.0f);
 	OutTransform.SetRotation(Rotation.Quaternion());
 	//- Calculate Force // 
-	FRotator ThrowRotation = ThrowPoint->GetComponentRotation();
-	FVector ForwardVector = (FRotationMatrix(ThrowRotation).GetScaledAxis(EAxis::X));
-	float OwnerVelocity =(GetOwner()->GetVelocity().Size() / 5);
+	const FRotator ThrowRotation = ThrowPoint->GetComponentRotation();
+	const FVector ForwardVector = (FRotationMatrix(ThrowRotation).GetScaledAxis(EAxis::X));
+	const float OwnerVelocity =(GetOwner()->GetVelocity().Size() / 5);
 	//- Added in Accuracy to have greater control of throw and velocity for some momentum
-	FVector FullThrowForce = ForwardVector * (PickupThrowIntensity / Accuracy + OwnerVelocity);
+	const FVector FullThrowForce = ForwardVector * (PickupThrowIntensity / Accuracy + OwnerVelocity);
 	OutThrowForce = FullThrowForce;
 }
 
@@ -851,16 +1052,6 @@ void UCharacterShootingComponent::ServerHideWeaponModel_Implementation(bool bHid
 	if(CurrentWeapon != nullptr)
 	{
 		CurrentWeapon->SetActorHiddenInGame(bHidden);
-	}
-}
-
-void UCharacterShootingComponent::UpdateWeaponInventory()
-{
-	if(!WeaponInventory.IsValidIndex(CurrentWeaponIndex)){return;}
-	IWeapon* Weapon = Cast<IWeapon>(CurrentWeapon);
-	if(Weapon != nullptr)
-	{
-		WeaponInventory[CurrentWeaponIndex] = Weapon->GetWeaponData();
 	}
 }
 
@@ -915,6 +1106,9 @@ void UCharacterShootingComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME(UCharacterShootingComponent, CurrentWeapon)
 	DOREPLIFETIME(UCharacterShootingComponent, WeaponInventory);
+	DOREPLIFETIME(UCharacterShootingComponent, PlayerWeaponState);
+	DOREPLIFETIME(UCharacterShootingComponent, CurrentWeaponIndex);
+
 	// DOREPLIFETIME(UCharacterShootingComponent, CurrentWeaponIndex);
 
 	// DOREPLIFETIME_CONDITION(UCharacterShootingComponent, CurrentWeaponIndex, COND_OwnerOnly);

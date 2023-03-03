@@ -122,6 +122,12 @@ void ACustomPlayerCharacter::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32
 	if(Weapons.IsValidIndex(CurrentWeaponIndex))
 	{
 		const EALSOverlayState WeaponOverlayState = WeaponStateToOverlayState(Weapons[CurrentWeaponIndex].WeaponOverlay);
+		if(!HasAuthority())
+		{
+			
+		}
+		Server_SetOverlayState(WeaponOverlayState);
+		//? No owning connection (Server changed weapons, other clients can't do server function)
 		SetOverlayState(WeaponOverlayState);
 	}
 }

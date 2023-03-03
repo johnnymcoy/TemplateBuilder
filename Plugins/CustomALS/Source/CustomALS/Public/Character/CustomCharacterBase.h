@@ -48,6 +48,8 @@ public:
 	virtual void WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 CurrentWeaponIndex);
 	UFUNCTION()
 	void WeaponStateChanged(struct FPlayerWeaponState PlayerWeaponState);
+	// UFUNCTION()
+	// void Multicast_WeaponStateChanged();
 
 protected:
 	virtual void BeginPlay() override;
@@ -87,7 +89,7 @@ protected:
 
 
 	//- Helper function to convert the weapon overlay to ALS //
-	EALSOverlayState WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay);
+	static EALSOverlayState WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay);
 	
 	
 	bool bIsNPC;

@@ -253,16 +253,21 @@ void ACustomCharacterBase::WeaponEquipped(TArray<FWeaponData_T> Weapons, int32 C
 
 void ACustomCharacterBase::WeaponStateChanged(FPlayerWeaponState PlayerWeaponState)
 {
-	UE_LOG(LogCustomCharacters, Warning, TEXT("Weapon State Changed Custom Character"));
 	if(PlayerWeaponState.bIsHolstered)
 	{
+		if(!HasAuthority())
+		{
+			
+		}
+
+		Server_SetOverlayState(EALSOverlayState::Default);
 		SetOverlayState(EALSOverlayState::Default);
 	}
 }
 
 
 //- Helper Function // 
-EALSOverlayState ACustomCharacterBase::WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay)
+EALSOverlayState ACustomCharacterBase::WeaponStateToOverlayState(const EWeaponOverlay WeaponOverlay)
 {
 	switch (WeaponOverlay)
 	{

@@ -77,9 +77,14 @@ public:
 	void ServerShootGun();
 	UFUNCTION(Server, Reliable)
 	void ServerStopShootGun();
+	UFUNCTION(Server, Reliable)
+	void Server_SwapWeapon();
 
 	UFUNCTION(Server, Reliable)
 	void ServerPickupWeapon(FWeaponData_T WeaponToPickup, int32 RemainingAmmo);
+	// UFUNCTION(Server, Reliable)
+	// void ServerEquipWeapon(FWeaponData_T WeaponToEquip);
+
 	UFUNCTION(Server, Reliable)
 	void ServerThrowWeapon(FWeaponData_T WeaponToThrow);
 	//-		Helper Functions	 // 
@@ -122,13 +127,6 @@ protected:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Animations")
 	UAnimMontage* GetReloadAnimation(EWeaponName_T WeaponName);
 
-	void AddWeaponToInventory(FWeaponData_T NewWeapon);
-	void RemoveWeaponFromInventory(int32 WeaponToRemove);
-	// UFUNCTION(Server, Unreliable)
-	// void ServerAddWeaponToInventory(FWeaponData_T NewWeapon);
-	// UFUNCTION(Server, Unreliable)
-	// void ServerRemoveWeaponFromInventory(int32 WeaponToRemove);
-
 
 
 private:
@@ -145,8 +143,6 @@ private:
 	bool PlayerHasWeaponOfType(EWeaponName_T WeaponType);
 	int32 AddAmmo(const int32 AmountToAdd, const int32 WeaponIndex);
 
-
-	
 	
 	//- Weapon Activated Functions	//
 	void Recoil();
@@ -154,15 +150,38 @@ private:
 	// void CalculateAccuracy();
 	float CalculateAccuracy();
 
+	
+	//-		Weapon Inventory		//
+	void AddWeaponToInventory(FWeaponData_T NewWeapon);
+	void RemoveWeaponFromInventory(int32 WeaponToRemove);
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void ServerAddWeaponToInventory(FWeaponData_T NewWeapon);
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void ServerRemoveWeaponFromInventory(int32 WeaponToRemove);
+
+	UFUNCTION(Server, Unreliable, WithValidation)
+	void Server_SpawnWeapon(FWeaponData_T WeaponSpawned);
+
+	//-		HUD delay Update	//
+	void UpdateHUD();
+	void DelayedUpdateHUD();
+
 	//? Testing out replication for the inventory
 	//- Replicated Stats	// 
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing=OnRep_WeaponInventory)
 	TArray<FWeaponData_T> WeaponInventory;
-	// UPROPERTY(Replicated)
+	UFUNCTION()
+	void OnRep_WeaponInventory();
+	
+	UPROPERTY(ReplicatedUsing=OnRep_CurrentWeaponIndex)
 	int32 CurrentWeaponIndex = 0;
-	// UPROPERTY(Replicated)
+	UFUNCTION()
+	void OnRep_CurrentWeaponIndex();
+	
+	UPROPERTY(ReplicatedUsing=OnRep_PlayerWeaponState)
 	FPlayerWeaponState PlayerWeaponState;
-	// Swaps / Pickups
+	UFUNCTION()
+	void OnRep_PlayerWeaponState();
 
 	//-		Weapon Spawning/ Pickup			//
 	UPROPERTY(EditDefaultsOnly, Category = "Pickup")
@@ -191,5 +210,6 @@ private:
 	FTimerHandle ShootingTimerHandle;
 	FTimerHandle ReloadTimerHandle;
 	FTimerHandle WeaponSwapTimerHandle;
+	FTimerHandle UpdatedHUDTImerHandle;
 	
 };

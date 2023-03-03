@@ -21,12 +21,14 @@ public:
 	class USkeletalMeshComponent* GunMesh;
 	
 	//- Weapon Data
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pickup")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	FWeaponData_T WeaponPickupData;
 
 	//-	For when weapon is spawned	//
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void WeaponDroppedEvent(FWeaponData_T DroppedWeaponData);
+	// UFUNCTION(Server, Unreliable,  Category = "Interaction")
+	// void Server_WeaponDroppedEvent(FWeaponData_T DroppedWeaponData);
 
 
 	
