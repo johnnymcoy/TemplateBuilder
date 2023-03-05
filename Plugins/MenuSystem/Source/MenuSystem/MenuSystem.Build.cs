@@ -25,7 +25,7 @@ public class MenuSystem : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-				"Core",
+				"Core", "OnlineSubsystem","UMG"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

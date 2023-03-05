@@ -4,11 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "ServerRowWidget.generated.h"
-
+#include "ServerRowMenuSystemWidget.generated.h"
 
 UCLASS()
-class TEMPLATEBUILDER_API UServerRowWidget : public UUserWidget
+class MENUSYSTEM_API UServerRowMenuSystemWidget : public UUserWidget
 {
 	GENERATED_BODY()
 	
@@ -24,9 +23,7 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* ServerPingText;
 
-
-
-	void Setup(class UMainMenuWidget* Parent, uint32 Index);
+	void Setup(class UMainMenuSystemWidget* Parent, uint32 Index);
 
 	void SetAsSelected(bool bIsSelected);
 	
@@ -38,12 +35,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FLinearColor SelectedColor;
-	
 private:
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ServerSelectButton;
 	UPROPERTY()
-	class UMainMenuWidget* MainMenu;
+	class UMainMenuSystemWidget* MainMenu;
 	uint32 IndexNumber;
 	FLinearColor DefaultColor;
 

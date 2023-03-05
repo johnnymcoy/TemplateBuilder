@@ -14,6 +14,15 @@ UPlayerCharacterShootingComponent::UPlayerCharacterShootingComponent()
 	//- Crosshair Widget Function Bind //
 	OnBulletShot.AddDynamic(this, &UPlayerCharacterShootingComponent::BulletShot);
 	SetIsReplicatedByDefault(true);
+
+	//- Get Default BP Classes for Widgets		//
+	ConstructorHelpers::FClassFinder<UWeaponSystemWidget> WeaponWidgetBPClass(TEXT("/WeaponSystem/Widgets/WeaponSystemWidget_WBP"));
+	if (!ensure(WeaponWidgetBPClass.Class != nullptr)) return;
+	WeaponWidgetClass = WeaponWidgetBPClass.Class;
+	
+	ConstructorHelpers::FClassFinder<UCrosshairWidget> CrosshairWidgetBPClass(TEXT("/WeaponSystem/Widgets/CrosshairWidget_WBP"));
+	if (!ensure(CrosshairWidgetBPClass.Class != nullptr)) return;
+	CrosshairWidgetClass = CrosshairWidgetBPClass.Class;
 }
 
 void UPlayerCharacterShootingComponent::ClientSetupWeaponWidget_Implementation()
