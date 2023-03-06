@@ -14,8 +14,8 @@ class MENUSYSTEM_API UMainMenuSystemWidget : public UMenuSystemWidget
 
 public:
 	UMainMenuSystemWidget();
+	virtual void SetServerList(TArray<FServerRow> ServerInfo) override;
 
-	virtual void SetServerList(TArray<struct FServerRowData> ServerInfo) override;
 
 	void SelectIndex(uint32 Index);
 	
@@ -39,7 +39,7 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float GameVersion = 0.11;
+	float GameVersion = 0.01;
 	
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UButton* StartScreenButton;
@@ -52,7 +52,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	int32 MenuPageIndex = 0;
 	UPROPERTY(BlueprintReadWrite)
-	int32 CampainPageIndex = 0;
+	int32 CampaignPageIndex = 0;
 	UPROPERTY(BlueprintReadWrite)
 	int32 MultiplayerPageIndex = 0;
 
@@ -62,6 +62,8 @@ protected:
 	class UWidget* MainMenu;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	bool bIsControllerInput;
+
+	
 	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	// class UWidget* JoinMenu;
 	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -79,8 +81,6 @@ protected:
 private:
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
-
-
 	
 	UPROPERTY(meta = (BindWidget))
 	class UButton* SearchServersButton;
