@@ -53,8 +53,20 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debugging")
 	bool bDebuggingMode;
 
+	//- Play Animation //
+	UFUNCTION(Server, Unreliable)
+	void Server_PlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::Duration, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
+	UFUNCTION(Server, Unreliable)
+	void Server_StopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
+	float LastAnimationDuration = 0.0f;
 private:
 
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_PlayMontageAnimation(UAnimMontage* MontageToPlay, float InPlayRate = 1.0f, EMontagePlayReturnType ReturnValueType = EMontagePlayReturnType::Duration, float InTimeToStartMontageAt = 0.0f, bool bStopAllMontages = true);
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_StopMontageAnimation(float InBlendOutTime, const UAnimMontage* Montage);
+	
 	bool CheckComponentIsSetup(FString ComponentName);
 	bool bIsNPC;
 	bool bIsDead;

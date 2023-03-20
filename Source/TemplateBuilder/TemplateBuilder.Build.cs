@@ -29,7 +29,8 @@ public class TemplateBuilder : ModuleRules
 			"Interaction", 
 			"CustomALS", 
 			"MenuSystem",
-			"WeaponSystem"
+			"WeaponSystem",
+			"AIToolKit"
 			
 		});
 

@@ -210,6 +210,26 @@ void ACustomCharacterBase::GetDialogueComponent(UDialogueComponent*& Out_Dialogu
 	Out_DialogueComponent = DialogueComponent;
 }
 
+void ACustomCharacterBase::OnInteract(AActor* Caller)
+{
+	
+}
+
+void ACustomCharacterBase::OnPickUp(AActor* Caller)
+{
+	
+}
+
+void ACustomCharacterBase::StartFocus()
+{
+	
+}
+
+void ACustomCharacterBase::EndFocus()
+{
+	
+}
+
 int32 ACustomCharacterBase::PickupGunEvent(const FWeaponData_T In_WeaponData)
 {
 	return 0;

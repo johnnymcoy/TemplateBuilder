@@ -6,6 +6,9 @@
 #include "Components/CharacterComponent.h"
 #include "InteractionComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTraceEvent, FHitResult, HitResult);
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INTERACTION_API UInteractionComponent : public UCharacterComponent
 {
@@ -14,6 +17,9 @@ class INTERACTION_API UInteractionComponent : public UCharacterComponent
 	
 public:
 	UInteractionComponent();
+	
+	UPROPERTY(BlueprintAssignable, Category = "Interaction")
+	FOnTraceEvent OnTraceEventHit;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Interaction")
 	float UseLength = 1000.0f;
@@ -31,7 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void StopTraceForward();
 	UFUNCTION(BlueprintCallable)
-	void Use();
+	AActor* Use();
 
 protected:
 	virtual void BeginPlay() override;

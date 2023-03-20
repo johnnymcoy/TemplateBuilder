@@ -7,13 +7,14 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/CharacterWeaponPickups.h"
 #include "Interfaces/CustomCharacter.h"
+#include "Interfaces/InteractionInterface.h"
 #include "CustomCharacterBase.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogCustomCharacters, Display, All);
 
 
 UCLASS()
-class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter, public ICharacterWeaponPickups
+class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomCharacter, public ICharacterWeaponPickups, public IInteractionInterface
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,17 @@ public:
 	//-  Character Interface
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const override;
+
+	//-		Interaction Interface		//
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnInteract(AActor* Caller) override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void OnPickUp(AActor* Caller) override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void StartFocus() override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual void EndFocus() override;
+
 
 	//- Character Weapons Interface
 	UFUNCTION(BlueprintCallable, Category = "Pickups")

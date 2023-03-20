@@ -8,6 +8,7 @@
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Components/CharacterShootingComponent.h"
 #include "Components/PlayerCharacterShootingComponent.h"
+#include "Interfaces/CompanionInterface.h"
 
 
 ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -155,10 +156,15 @@ int32 ACustomPlayerCharacter::PickupGunEvent(const FWeaponData_T In_WeaponData)
 
 void ACustomPlayerCharacter::UseAction()
 {
-	// if(InteractionComponent != nullptr)
-	// {
-		InteractionComponent->Use();
-	// }
+	if(InteractionComponent != nullptr)
+	{
+		AActor* InteractionActor = InteractionComponent->Use();
+		if(InteractionActor != nullptr)
+		{
+			ICompanionInterface* Companion = Cast<ICompanionInterface>(InteractionActor);
+		}
+	}
+	
 	// if(GetLocalRole() < ROLE_Authority)
 	// {
 	// 	ServerUse();

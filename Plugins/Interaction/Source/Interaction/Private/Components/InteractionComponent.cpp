@@ -54,11 +54,7 @@ void UInteractionComponent::StopTraceForward()
 void UInteractionComponent::TraceForward()
 {
 	if(GetIsDead()){return;};
-	if(GetOwnerController() == nullptr)
-	{
-		LogMissingPointer("Owner Controller");
-		return;
-	}
+	if(GetOwnerController() == nullptr){LogMissingPointer("Owner Controller");return;}
 	FVector Location;
 	FRotator Rotation;
 	FHitResult Hit;
@@ -76,6 +72,8 @@ void UInteractionComponent::TraceForward()
 	//TODO: Aim Assist
 	if(bHit)
 	{
+		//- New //
+		OnTraceEventHit.Broadcast(Hit);
 		// Actor I'm looking at
 		AActor* HitActor = Hit.GetActor();
 		// If I'm looking at something
@@ -151,7 +149,7 @@ void UInteractionComponent::FocusOnActor(bool bStartFocus, AActor* ActorToFocus)
 	}
 }
 
-void UInteractionComponent::Use()
+AActor* UInteractionComponent::Use()
 {
 	TraceForward();
 	if(FocusedActor != nullptr)
@@ -161,7 +159,9 @@ void UInteractionComponent::Use()
 		{
 			InteractableActor->OnInteract(GetOwner());
 		}
+		return FocusedActor;
 	}
+	return nullptr;
 	// else
 	// {
 	// 	if(HasAuthority())

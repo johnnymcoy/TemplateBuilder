@@ -113,3 +113,27 @@ void UCharacterComponent::LogMissingPointer(FString PointerName) const
 	UE_LOG(LogTemp,Error, TEXT(" %s not set in %s of %s"), ToCStr(PointerName), ToCStr(GetName()), ToCStr(GetOwner()->GetName()));
 }
 
+void UCharacterComponent::Server_PlayMontageAnimation_Implementation(UAnimMontage* MontageToPlay, float InPlayRate,
+                                                                    EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
+{
+	LastAnimationDuration = MainAnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
+	Multicast_PlayMontageAnimation(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
+}
+
+void UCharacterComponent::Multicast_PlayMontageAnimation_Implementation(UAnimMontage* MontageToPlay, float InPlayRate,
+	EMontagePlayReturnType ReturnValueType, float InTimeToStartMontageAt, bool bStopAllMontages)
+{
+	MainAnimInstance->Montage_Play(MontageToPlay, InPlayRate, ReturnValueType, InTimeToStartMontageAt, bStopAllMontages);
+}
+
+void UCharacterComponent::Server_StopMontageAnimation_Implementation(float InBlendOutTime, const UAnimMontage* Montage)
+{
+	MainAnimInstance->Montage_Stop(InBlendOutTime, Montage);
+	Multicast_StopMontageAnimation(InBlendOutTime, Montage);
+}
+
+void UCharacterComponent::Multicast_StopMontageAnimation_Implementation(float InBlendOutTime,
+	const UAnimMontage* Montage)
+{
+	MainAnimInstance->Montage_Stop(InBlendOutTime, Montage);
+}

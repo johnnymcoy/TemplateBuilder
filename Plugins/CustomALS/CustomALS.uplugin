@@ -50,6 +50,10 @@
 		{
 			"Name": "Interaction",
 			"Enabled": true
+		},
+		{
+			"Name": "AIToolKit",
+			"Enabled": true
 		}
 	]
 }
