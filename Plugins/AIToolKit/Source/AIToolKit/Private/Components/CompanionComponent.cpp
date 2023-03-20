@@ -30,6 +30,10 @@ void UCompanionComponent::SetMasterActor(AActor* Master)
 		{
 			BlackboardComponent->SetValueAsObject(FName("Master"), MasterActor);
 		}
+		else
+		{
+			SetupBlackboard();
+		}
 	}
 }
 
@@ -50,6 +54,7 @@ void UCompanionComponent::UpdateCompanionState(ECompanionState NewState)
 	CompanionState = NewState;
 	if(BlackboardComponent != nullptr)
 	{
+		//todo Check this conversion works 
 		// uint8 byte = (uint8)CompanionState;
 		BlackboardComponent->SetValueAsEnum(FName("State"), (uint8)CompanionState);
 	}
