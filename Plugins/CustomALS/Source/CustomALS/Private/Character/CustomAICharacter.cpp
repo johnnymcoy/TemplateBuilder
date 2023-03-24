@@ -4,7 +4,6 @@
 #include "Character/CustomAICharacter.h"
 
 #include "Components/CompanionComponent.h"
-#include "Components/CompanionMasterComponent.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 
 ACustomAICharacter::ACustomAICharacter(const FObjectInitializer& ObjectInitializer)
@@ -37,14 +36,14 @@ void ACustomAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ACustomAICharacter::OnInteract(AActor* Caller)
 {
 	Super::OnInteract(Caller);
-	if(CompanionComponent != nullptr)
-	{
-		CompanionComponent->SetMasterActor(Caller);	
+	// if(CompanionComponent != nullptr)
+	// {
+	// 	CompanionComponent->SetMasterActor(Caller);	
 		// if(Caller->GetComponentByClass(UCompanionMasterComponent::StaticClass()))
 		// {
 		// }
-		CompanionComponent->Follow();
-	}
+		// CompanionComponent->Follow();
+	// }
 }
 
 void ACustomAICharacter::OnPickUp(AActor* Caller)

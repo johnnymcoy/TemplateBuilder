@@ -25,6 +25,6 @@ public:
 
 	// Used to start Dialogue 
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
-	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const = 0 ;
+	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const = 0;
 	
 };

@@ -20,7 +20,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable, Category="Companions")
-	void SetMasterActor(AActor* Master);
+	virtual void SetMaster(AActor* Master) override;
 	UFUNCTION(BlueprintCallable, Category="Companions")
 	void SetupBlackboard();
 

@@ -74,6 +74,10 @@ void UInteractionComponent::TraceForward()
 	{
 		//- New //
 		OnTraceEventHit.Broadcast(Hit);
+
+		CurrentHitResult = Hit;
+		CurrentTraceEnd = Hit.Location;
+		
 		// Actor I'm looking at
 		AActor* HitActor = Hit.GetActor();
 		// If I'm looking at something
@@ -169,4 +173,16 @@ AActor* UInteractionComponent::Use()
 	// 		// UE_LOG(LogTemp,Warning, TEXT("NO Focused Actor"));
 	// 	}
 	// }
+}
+
+FHitResult UInteractionComponent::GetHitResult()
+{
+	TraceForward();
+	return CurrentHitResult;
+}
+//! Possibly Deprecated? //  
+FVector UInteractionComponent::GetTraceEndLocation()
+{
+	TraceForward();
+	return CurrentTraceEnd;
 }

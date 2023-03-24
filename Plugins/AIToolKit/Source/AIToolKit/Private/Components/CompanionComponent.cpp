@@ -2,7 +2,6 @@
 
 
 #include "Components/CompanionComponent.h"
-
 #include "BehaviorTree/BlackboardComponent.h"
 
 UCompanionComponent::UCompanionComponent()
@@ -18,24 +17,6 @@ void UCompanionComponent::BeginPlay()
 	bHasMaster = (MasterActor != nullptr);
 }
 
-
-
-void UCompanionComponent::SetMasterActor(AActor* Master)
-{
-	if(Master != nullptr)
-	{
-		MasterActor = Master;
-		bHasMaster = true;
-		if(BlackboardComponent != nullptr)
-		{
-			BlackboardComponent->SetValueAsObject(FName("Master"), MasterActor);
-		}
-		else
-		{
-			SetupBlackboard();
-		}
-	}
-}
 
 void UCompanionComponent::SetupBlackboard()
 {
@@ -56,13 +37,30 @@ void UCompanionComponent::UpdateCompanionState(ECompanionState NewState)
 	{
 		//todo Check this conversion works 
 		// uint8 byte = (uint8)CompanionState;
-		BlackboardComponent->SetValueAsEnum(FName("State"), (uint8)CompanionState);
+		BlackboardComponent->SetValueAsEnum(FName("State"), static_cast<uint8>(CompanionState));
 	}
 }
 
 void UCompanionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
+
+void UCompanionComponent::SetMaster(AActor* Master)
+{
+	if(Master != nullptr)
+	{
+		MasterActor = Master;
+		bHasMaster = true;
+		if(BlackboardComponent != nullptr)
+		{
+			BlackboardComponent->SetValueAsObject(FName("Master"), MasterActor);
+		}
+		else
+		{
+			SetupBlackboard();
+		}
+	}
 }
 
 
@@ -113,14 +111,17 @@ void UCompanionComponent::GrabObject()
 	if(bUseGrabAnimation)
 	{
 		Server_PlayMontageAnimation(GrabAnimMontage, 1.0f, EMontagePlayReturnType::Duration, 0.0f, true);
-		//todo Bug test animation Duration time 
-	}		GetWorld()->GetTimerManager().SetTimer(GrabTimerHandle, this, &UCompanionComponent::OnGrabObject, 0.01f, false, LastAnimationDuration);
-
+		//todo Bug test animation Duration time
+		GetWorld()->GetTimerManager().SetTimer(GrabTimerHandle, this, &UCompanionComponent::OnGrabObject, 0.01f, false, LastAnimationDuration);
+		UE_LOG(LogTemp,Warning,TEXT("Animation Duration: %f"), LastAnimationDuration);
+	}	
 }
 
 void UCompanionComponent::OnGrabObject()
 {
-	
+	GetWorld()->GetTimerManager().ClearTimer(GrabTimerHandle);
+	UE_LOG(LogTemp,	Warning, TEXT("Grab Object"));
+
 }
 
 // Todo Attack function

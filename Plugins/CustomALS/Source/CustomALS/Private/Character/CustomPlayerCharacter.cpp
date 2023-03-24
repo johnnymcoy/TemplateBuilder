@@ -7,7 +7,9 @@
 #include "Components/InteractionComponent.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Components/CharacterShootingComponent.h"
+#include "Components/CompanionMasterComponent.h"
 #include "Components/PlayerCharacterShootingComponent.h"
+#include "Interfaces/AICharacter.h"
 #include "Interfaces/CompanionInterface.h"
 
 
@@ -21,6 +23,8 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 	PlayerShootingComponent->OnWeaponEquipped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
 	PlayerShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
 	PlayerShootingComponent->SetThrowPoint(ThrowPoint);
+
+	CompanionMasterComponentComponent = CreateDefaultSubobject<UCompanionMasterComponent>("CompanionMasterComponent");
 }
 
 void ACustomPlayerCharacter::BeginPlay()
@@ -33,6 +37,14 @@ void ACustomPlayerCharacter::BeginPlay()
 		{
 			PlayerShootingComponent->SetupWeaponWidget();
 			PlayerShootingComponent->SetupWeaponCrosshairWidget();
+		}
+	}
+	if(CompanionMasterComponentComponent != nullptr)
+	{
+		CompanionMasterComponentComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
+		if(IsLocallyControlled())
+		{
+			CompanionMasterComponentComponent->SetupCompanionWidget();
 		}
 	}
 	if(DialogueComponent != nullptr)
@@ -61,8 +73,6 @@ void ACustomPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("UseAction", IE_Pressed, this, &ACustomPlayerCharacter::UseAction);
 	PlayerInputComponent->BindAction("AimAction", IE_Pressed, this, &ACustomPlayerCharacter::AimPressedAction);
 	PlayerInputComponent->BindAction("AimAction", IE_Released, this, &ACustomPlayerCharacter::AimReleasedAction);
-
-
 }
 
 
@@ -156,14 +166,35 @@ int32 ACustomPlayerCharacter::PickupGunEvent(const FWeaponData_T In_WeaponData)
 
 void ACustomPlayerCharacter::UseAction()
 {
-	if(InteractionComponent != nullptr)
+	if(InteractionComponent == nullptr){UE_LOG(LogTemp,Error,TEXT("Missong Interaction Component"));return;}
+	if(CompanionMasterComponentComponent == nullptr){UE_LOG(LogTemp,Error,TEXT("Missong Interaction Component"));return;}
+
+	AActor* InteractionActor = InteractionComponent->Use();
+	
+	if(!CompanionMasterComponentComponent->GetIsCommandingCompanion())
 	{
-		AActor* InteractionActor = InteractionComponent->Use();
 		if(InteractionActor != nullptr)
 		{
-			ICompanionInterface* Companion = Cast<ICompanionInterface>(InteractionActor);
+			const IAICharacter* AICharacter = Cast<IAICharacter>(InteractionActor);
+			if(AICharacter != nullptr)
+			{
+				//- open Context Menu, and ask player what i'd like to do //
+				// AICharacter->Interact();
+				//- If i have clicked Command // 
+				CompanionMasterComponentComponent->SetCompanionToCommand(InteractionActor);
+			}
 		}
 	}
+	else
+	{
+		//? Temp, will need multiple context menus 
+		FHitResult Hit = InteractionComponent->GetHitResult();
+		CompanionMasterComponentComponent->CommandCompanion();
+		
+	}
+
+	
+	
 	
 	// if(GetLocalRole() < ROLE_Authority)
 	// {

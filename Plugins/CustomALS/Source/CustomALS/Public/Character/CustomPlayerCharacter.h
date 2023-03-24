@@ -21,6 +21,8 @@ protected:
 	//- Components // 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
 	class UPlayerCharacterShootingComponent* PlayerShootingComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Companion")
+	class UCompanionMasterComponent* CompanionMasterComponentComponent;
 
 	virtual void BeginPlay() override;
 

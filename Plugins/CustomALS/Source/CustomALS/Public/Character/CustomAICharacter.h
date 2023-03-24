@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Character/CustomCharacterBase.h"
+#include "Interfaces/AICharacter.h"
 #include "CustomAICharacter.generated.h"
 
 UCLASS()
-class CUSTOMALS_API ACustomAICharacter : public ACustomCharacterBase
+class CUSTOMALS_API ACustomAICharacter : public ACustomCharacterBase, public IAICharacter
 {
 	GENERATED_BODY()
 	

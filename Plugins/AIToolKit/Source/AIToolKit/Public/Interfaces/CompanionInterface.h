@@ -21,6 +21,8 @@ public:
 	
 	//-			Commands		//
 	UFUNCTION(BlueprintCallable, Category="Companions")
+	virtual void SetMaster(AActor* MasterActor) = 0;
+	UFUNCTION(BlueprintCallable, Category="Companions")
 	virtual void Follow() = 0;
 	UFUNCTION(BlueprintCallable, Category="Companions")
 	virtual void Fetch(UPrimitiveComponent* ComponentToGrab) = 0;

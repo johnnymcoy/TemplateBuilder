@@ -28,7 +28,8 @@ public class AIToolKit : ModuleRules
 				"Core",
 				"BaseHelpers",
 				"Interaction",
-				"AIModule"
+				"AIModule",
+				"UMG"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

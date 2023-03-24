@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/CharacterComponent.h"
-#include "Interfaces/CompanionInterface.h"
+// #include "Interfaces/CompanionInterface.h"
 #include "CompanionMasterComponent.generated.h"
 
 UCLASS()
@@ -14,17 +14,34 @@ class AITOOLKIT_API UCompanionMasterComponent : public UCharacterComponent
 
 public:
 
-	UFUNCTION(BlueprintCallable, Category="Companion|Master")
-	void CreateCompanionWidget();
+	UCompanionMasterComponent();
 
+	UFUNCTION(BlueprintCallable, Category="Companion|Master")
+	void SetupCompanionWidget();
+	
+	UFUNCTION(BlueprintCallable, Category="Companion")
+	void SetCompanionToCommand(AActor* NewCompanion);
+	
+	UFUNCTION(BlueprintCallable, Category="Companion")
+	void CommandCompanion(FHitResult HitResult);
+
+	UFUNCTION(BlueprintCallable, Category="Companion")
+	bool GetIsCommandingCompanion(){return bCommandingCompanion;}
 protected:
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
 	bool bCommandingCompanion;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
-	AActor* CompanionToCommand;
+	AActor* CompanionActor;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
+	class UCompanionWidget* CompanionWidget;
 private:
+	//- Widgets // 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UCompanionWidget> CompanionWidgetClass;
 
 
 };

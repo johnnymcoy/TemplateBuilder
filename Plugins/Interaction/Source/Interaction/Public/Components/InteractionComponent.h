@@ -38,6 +38,11 @@ public:
 	void StopTraceForward();
 	UFUNCTION(BlueprintCallable)
 	AActor* Use();
+	UFUNCTION(BlueprintCallable)
+	FHitResult GetHitResult();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTraceEndLocation();
 
 protected:
 	virtual void BeginPlay() override;
@@ -46,6 +51,11 @@ protected:
 private:
 	UPROPERTY()
 	AActor* FocusedActor;
+	UPROPERTY()
+	FVector CurrentTraceEnd = FVector::ZeroVector;
+	UPROPERTY()
+	FHitResult CurrentHitResult;
+	
 	FTimerHandle TraceForwardTimerHandle;
 
 	void FocusOnActor(bool bStartFocus, AActor* ActorToFocus);
