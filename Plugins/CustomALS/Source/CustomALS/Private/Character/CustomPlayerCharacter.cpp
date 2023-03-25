@@ -188,8 +188,7 @@ void ACustomPlayerCharacter::UseAction()
 	else
 	{
 		//? Temp, will need multiple context menus 
-		FHitResult Hit = InteractionComponent->GetHitResult();
-		CompanionMasterComponentComponent->CommandCompanion();
+		CompanionMasterComponentComponent->CommandCompanion(InteractionComponent->GetHitResult());
 		
 	}
 

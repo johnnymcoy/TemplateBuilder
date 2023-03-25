@@ -20,6 +20,7 @@ void ACustomAICharacter::BeginPlay()
 	{
 		CompanionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 		CompanionComponent->SetupBlackboard();
+		CompanionComponent->DisplayName = DisplayName;
 	}
 }
 

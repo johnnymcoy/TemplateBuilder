@@ -35,12 +35,15 @@ public:
 	virtual void Wait(FVector TargetLocation) override;
 	UFUNCTION(BlueprintCallable, Category="Companions")
 	virtual void GrabObject() override;
+	UFUNCTION(BlueprintCallable, Category="Companions")
+	virtual FString GetDisplayName() override;
 
 	//-			AI Interface					//
 	UFUNCTION(BlueprintCallable, Category="Companions")
 	virtual void Attack() override;
 
-	
+	FString DisplayName;
+
 protected:
 	virtual void BeginPlay() override;
 

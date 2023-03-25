@@ -32,6 +32,8 @@ public:
 	virtual void Wait(FVector TargetLocation) = 0;
 	UFUNCTION(BlueprintCallable, Category="Companions")
 	virtual void GrabObject() = 0;
+	UFUNCTION(BlueprintCallable, Category="Companions")
+	virtual FString GetDisplayName() = 0;
 
 	
 	// todo Move to Character Interface in Custom ALS

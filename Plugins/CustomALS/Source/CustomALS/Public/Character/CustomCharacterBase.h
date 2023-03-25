@@ -63,6 +63,7 @@ public:
 	// UFUNCTION()
 	// void Multicast_WeaponStateChanged();
 
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -85,6 +86,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
 	class UInteractionComponent* InteractionComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Name")
+	FString DisplayName;
 
 	
 	// Health Component Functions 
@@ -110,6 +114,7 @@ protected:
 	virtual void FirePressedAction();
 	
 private:
+	
 
 	///////////////// Input Functions ////////////////////
 	// virtual void AimPressedAction() override;

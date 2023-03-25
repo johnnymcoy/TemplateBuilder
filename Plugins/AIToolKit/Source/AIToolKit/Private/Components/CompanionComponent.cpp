@@ -102,7 +102,6 @@ void UCompanionComponent::Wait(FVector TargetLocation)
 	{
 		BlackboardComponent->SetValueAsVector(FName("WaitingLocation"), TargetLocation);
 	}
-
 }
 
 void UCompanionComponent::GrabObject()
@@ -115,6 +114,11 @@ void UCompanionComponent::GrabObject()
 		GetWorld()->GetTimerManager().SetTimer(GrabTimerHandle, this, &UCompanionComponent::OnGrabObject, 0.01f, false, LastAnimationDuration);
 		UE_LOG(LogTemp,Warning,TEXT("Animation Duration: %f"), LastAnimationDuration);
 	}	
+}
+
+FString UCompanionComponent::GetDisplayName()
+{
+	return DisplayName;
 }
 
 void UCompanionComponent::OnGrabObject()

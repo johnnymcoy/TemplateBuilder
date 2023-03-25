@@ -38,16 +38,30 @@ void UCompanionMasterComponent::SetCompanionToCommand(AActor* NewCompanion)
 			CompanionActor = NewCompanion;
 			Companion->SetMaster(GetOwner());
 			bCommandingCompanion = true;
+			CompanionWidget->SetCompanionName(FName(Companion->GetDisplayName()));
 			// CompanionWidget->SetCompanionName(CompanionActor->GetName());
 		}
 	}
 }
 
-void UCompanionMasterComponent::CommandCompanion(FHitResult HitResult)
+void UCompanionMasterComponent::CommandCompanion(const FHitResult HitResult)
 {
 	if(CompanionActor != nullptr)
 	{
-		HitResult.Actor;
+		const TArray<UActorComponent*> Components = CompanionActor->GetComponentsByInterface(UCompanionInterface::StaticClass());
+		if(Components.IsValidIndex(0))
+		{
+			ICompanionInterface* Companion = Cast<ICompanionInterface>(Components[0]);
+			if(HitResult.Actor == CompanionActor && Companion != nullptr)
+			{
+				Companion->Follow();
+			}
+			else if(Companion != nullptr)
+			{
+				Companion->Wait(HitResult.Location);
+			}
+		}
+
 		// if(Enemy)
 		{
 			//attack

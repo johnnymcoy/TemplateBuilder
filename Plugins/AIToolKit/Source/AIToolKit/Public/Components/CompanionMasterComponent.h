@@ -23,7 +23,7 @@ public:
 	void SetCompanionToCommand(AActor* NewCompanion);
 	
 	UFUNCTION(BlueprintCallable, Category="Companion")
-	void CommandCompanion(FHitResult HitResult);
+	void CommandCompanion(const FHitResult HitResult);
 
 	UFUNCTION(BlueprintCallable, Category="Companion")
 	bool GetIsCommandingCompanion(){return bCommandingCompanion;}
