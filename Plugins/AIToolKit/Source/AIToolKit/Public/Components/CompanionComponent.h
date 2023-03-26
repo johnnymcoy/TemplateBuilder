@@ -52,9 +52,9 @@ protected:
 	void UpdateCompanionState(ECompanionState NewState);
 
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Companions")
 	UAnimMontage* AttackAnimMontage;
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Companions")
 	UAnimMontage* GrabAnimMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")
@@ -63,6 +63,8 @@ protected:
 	bool bHasMaster;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Companions")
 	bool bUseGrabAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Companions")
+	bool bUseAttackAnimation;
 
 	//- todo		//
 	//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Companions")

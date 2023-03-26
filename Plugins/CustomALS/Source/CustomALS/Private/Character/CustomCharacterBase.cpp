@@ -42,7 +42,8 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	// Interaction
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
 	// InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
-
+	//- Set for outlines //
+	SkeletalMesh->bRenderCustomDepth = true;
 
 	// Deafults for some of the ALS character - from the BP 
 	bRightShoulder = true;

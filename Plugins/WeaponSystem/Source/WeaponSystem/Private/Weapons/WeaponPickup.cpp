@@ -17,12 +17,16 @@ AWeaponPickup::AWeaponPickup()
 	GunMesh->SetSimulatePhysics(true);
 	GunMesh->SetRenderCustomDepth(true);
 	RootComponent = GunMesh;
+	GunMesh->bRenderCustomDepth = true;
 }
 
 void AWeaponPickup::BeginPlay()
 {
 	Super::BeginPlay();
 	if(WeaponPickupData.bHasAutoMode){WeaponPickupData.bIsInAutoMode = true;}
+	const UEnum* WeaponTypeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EWeaponName_T"));
+	FString EnumConvertedName = WeaponTypeEnum ? WeaponTypeEnum->GetNameStringByIndex(static_cast<uint32>(WeaponPickupData.WeaponType)) : TEXT("<Invalid Enum Type>");
+	DisplayName = EnumConvertedName;
 	SetMesh();
 }
 
@@ -58,7 +62,7 @@ void AWeaponPickup::OnInteract(AActor* Caller)
 		if(WeaponPickupData.MeshForPickup != nullptr)
 		{
 			SetOwner(Caller);
-			int32 RemainingAmmo = CharacterInteracting->PickupGunEvent(WeaponPickupData);
+			const int32 RemainingAmmo = CharacterInteracting->PickupGunEvent(WeaponPickupData);
 			if(RemainingAmmo)
 			{
 				WeaponPickupData.TotalAmmoCount = RemainingAmmo;

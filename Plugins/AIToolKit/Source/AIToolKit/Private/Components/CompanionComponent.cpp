@@ -125,18 +125,20 @@ void UCompanionComponent::OnGrabObject()
 {
 	GetWorld()->GetTimerManager().ClearTimer(GrabTimerHandle);
 	UE_LOG(LogTemp,	Warning, TEXT("Grab Object"));
-
 }
 
 // Todo Attack function
 // Todo move to Character Pawn
 void UCompanionComponent::Attack()
 {
-	if(AttackAnimMontage == nullptr){LogMissingPointer("Attack Montage");return;}
+	if(bUseAttackAnimation)
+	{
+		if(AttackAnimMontage == nullptr){LogMissingPointer("Attack Montage");return;}
 
-	Server_PlayMontageAnimation(AttackAnimMontage, 1.0f, EMontagePlayReturnType::Duration, 0.0f, true);
+		Server_PlayMontageAnimation(AttackAnimMontage, 1.0f, EMontagePlayReturnType::Duration, 0.0f, true);
+		//if(enemy-dead)
+	}
 	//! ApplyDamage-> get return?
-	//if(enemy-dead)
 	UpdateCompanionState(ECompanionState::Follow);
 	
 }

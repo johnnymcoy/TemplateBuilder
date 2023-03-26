@@ -6,9 +6,6 @@
 #include "GameFramework/GameModeBase.h"
 #include "MenuSystemGameMode.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class MENUSYSTEM_API AMenuSystemGameMode : public AGameModeBase
 {

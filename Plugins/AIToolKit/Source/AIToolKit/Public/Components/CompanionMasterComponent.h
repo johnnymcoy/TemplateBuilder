@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/CharacterComponent.h"
-// #include "Interfaces/CompanionInterface.h"
 #include "CompanionMasterComponent.generated.h"
 
 UCLASS()

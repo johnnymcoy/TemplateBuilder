@@ -72,9 +72,10 @@ void UCompanionMasterComponent::CommandCompanion(const FHitResult HitResult)
 			//-		if aimed at an interactable	object	//
 			else if(InteractableActor && Companion != nullptr)
 			{
-				Companion->GrabObject();
+				Companion->Fetch(HitResult.GetComponent());
 				if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("Grab Object Command"));}
 			}
+			//-		Aimed at just a location	//
 			else if(Companion != nullptr)
 			{
 				Companion->Wait(HitResult.Location);
@@ -89,26 +90,6 @@ void UCompanionMasterComponent::CommandCompanion(const FHitResult HitResult)
 		bCommandingCompanion = false;
 		CompanionWidget->SetIsCommanding(bCommandingCompanion);
 	}
-	// TArray<UActorComponent*> Components = CompanionToCommand->GetComponentsByInterface(UCompanionInterface::StaticClass());
-	// if(Components.IsValidIndex(0))
-	// {
-	// 	ICompanionInterface* Companion = Cast<ICompanionInterface>(Components[0]);
-	// 	if(Companion != nullptr)
-	// 	{
-	// 		Companion;
-	// 		//UE_LOG(LogTemp, Warning, TEXT(" Companion Interface- Master Component"));
-	// 	}
-	// }
-	// ICompanionInterface* Companion = Cast<ICompanionInterface>(CompanionToCommand);
-	// if(Companion != nullptr)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT(" Companion Interface- Master Component"));
-	//
-	// }
-	// if(bCommandingCompanion)
-	// {
-	// 	UE_LOG(LogTemp, Warning, TEXT("Command Companion- Master Component"));
-	// }
 }
 
 void UCompanionMasterComponent::UpdateInteractionTarget(FHitResult InteractionHits)
@@ -151,5 +132,4 @@ void UCompanionMasterComponent::UpdateInteractionTarget(FHitResult InteractionHi
 			if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("Wait at Location Prompt"));}
 		}
 	}
-	
 }

@@ -3,3 +3,11 @@
 
 #include "Character/MenuSystemPlayerController.h"
 
+void AMenuSystemPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	FInputModeGameAndUI InputMode;
+	SetInputMode(InputMode);
+	
+	
+}
