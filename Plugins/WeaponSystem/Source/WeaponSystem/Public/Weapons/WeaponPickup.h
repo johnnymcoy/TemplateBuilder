@@ -24,6 +24,9 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "Pickup")
 	FWeaponData_T WeaponPickupData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString DisplayName;
+
 	//-	For when weapon is spawned	//
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	void WeaponDroppedEvent(FWeaponData_T DroppedWeaponData);
@@ -41,6 +44,9 @@ public:
 	virtual void StartFocus() override;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void EndFocus() override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual FString GetObjectDisplayName() override {return DisplayName;}
+
 
 	// Blueprint Calls
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "On Interacted With"))

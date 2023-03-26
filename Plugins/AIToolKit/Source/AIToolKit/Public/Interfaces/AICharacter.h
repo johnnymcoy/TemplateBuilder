@@ -19,6 +19,7 @@ class AITOOLKIT_API IAICharacter
 
 public:
 
+	virtual FString GetCharacterDisplayName() = 0;
 	// virtual 
 	// virtual bool bIsCompanion() = 0;
 };

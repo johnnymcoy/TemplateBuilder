@@ -10,7 +10,6 @@
 #include "Components/CompanionMasterComponent.h"
 #include "Components/PlayerCharacterShootingComponent.h"
 #include "Interfaces/AICharacter.h"
-#include "Interfaces/CompanionInterface.h"
 
 
 ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -25,6 +24,8 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 	PlayerShootingComponent->SetThrowPoint(ThrowPoint);
 
 	CompanionMasterComponentComponent = CreateDefaultSubobject<UCompanionMasterComponent>("CompanionMasterComponent");
+	//- Bind the interaction function of traceforward and hitting an object to updating the Companion widget //
+	InteractionComponent->OnTraceEventHit.AddDynamic(CompanionMasterComponentComponent, &UCompanionMasterComponent::UpdateInteractionTarget);
 }
 
 void ACustomPlayerCharacter::BeginPlay()
@@ -82,6 +83,15 @@ void ACustomPlayerCharacter::AimPressedAction()
 	if(InteractionComponent != nullptr)
 	{
 		InteractionComponent->StartTraceForward();
+		// if(CompanionMasterComponentComponent != nullptr)
+		// {
+		// 	if(CompanionMasterComponentComponent->GetIsCommandingCompanion())
+		// 	{
+		// 		// GetWorldTimerManager().SetTimer(CompanionContextTimerHandle, )
+		// 		// CompanionMasterComponentComponent->UpdateInteractionTarget(InteractionComponent->GetHitResult());
+		// 		//Log all Objects to update Widget
+		// 	}
+		// }
 	}
 	// if(PlayerShootingComponent != nullptr)
 	// {

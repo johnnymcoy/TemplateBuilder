@@ -47,6 +47,7 @@ void UInteractionComponent::StopTraceForward()
 	
 	// todo Probably need to reset Focused actor on Stop
 	GetOwner()->GetWorldTimerManager().ClearTimer(TraceForwardTimerHandle);
+	bIsTracing = false;
 }
 
 // TODO Hard to read - split into separate functions 
@@ -68,7 +69,7 @@ void UInteractionComponent::TraceForward()
 	EDrawDebugTrace::Type DrawDebugType;
 	if(bDebuggingMode){DrawDebugType = EDrawDebugTrace::ForDuration;}else{DrawDebugType = EDrawDebugTrace::None;}
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(this, StartPoint, EndPoint, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel5),false, ActorsToIgnore, DrawDebugType, Hit, true, FLinearColor::Red, FLinearColor::Green, 0.5f);
-	
+	bIsTracing = true;
 	//TODO: Aim Assist
 	if(bHit)
 	{
@@ -177,12 +178,18 @@ AActor* UInteractionComponent::Use()
 
 FHitResult UInteractionComponent::GetHitResult()
 {
-	TraceForward();
+	if(!bIsTracing)
+	{
+		TraceForward();
+	}
 	return CurrentHitResult;
 }
 //! Possibly Deprecated? //  
 FVector UInteractionComponent::GetTraceEndLocation()
 {
-	TraceForward();
+	if(!bIsTracing)
+	{
+		TraceForward();
+	}
 	return CurrentTraceEnd;
 }

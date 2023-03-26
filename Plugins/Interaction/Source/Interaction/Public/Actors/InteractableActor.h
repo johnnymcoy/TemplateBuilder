@@ -43,5 +43,11 @@ public:
 	virtual void EndFocus() override;
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable, Category = "Interaction", meta=(DisplayName = "End Focus"))
 	void ReceiveEndFocus();
+	
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual FString GetObjectDisplayName() override {return DisplayName;};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString DisplayName;
 
 };

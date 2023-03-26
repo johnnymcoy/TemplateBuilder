@@ -24,5 +24,6 @@ public:
 	virtual void StartFocus() = 0;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void EndFocus() = 0;
-public:
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual FString GetObjectDisplayName() = 0;
 };

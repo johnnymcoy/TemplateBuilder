@@ -43,6 +43,9 @@ void AWeaponPickup::WeaponDroppedEvent(FWeaponData_T DroppedWeaponData)
 	else
 	{
 		WeaponPickupData = DroppedWeaponData;
+		const UEnum* WeaponTypeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EWeaponName_T"));
+		FString EnumConvertedName = WeaponTypeEnum ? WeaponTypeEnum->GetNameStringByIndex(static_cast<uint32>(DroppedWeaponData.WeaponType)) : TEXT("<Invalid Enum Type>");
+		DisplayName = EnumConvertedName;
 		SetMesh();
 	}
 }

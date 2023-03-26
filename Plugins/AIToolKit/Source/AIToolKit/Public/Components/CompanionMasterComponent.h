@@ -27,6 +27,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Companion")
 	bool GetIsCommandingCompanion(){return bCommandingCompanion;}
+
+	UFUNCTION(BlueprintCallable, Category="Companion")
+	void UpdateInteractionTarget(FHitResult InteractionHits);
+	
 protected:
 
 

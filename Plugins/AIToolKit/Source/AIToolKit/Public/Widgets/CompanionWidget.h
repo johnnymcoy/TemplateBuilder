@@ -19,16 +19,25 @@ public:
 	void SetCompanionName(FName CompanionName);
 	UFUNCTION(BlueprintCallable, Category="Companion")
 	void SetInteractionPrompt(FString InteractionPrompt);
+
+	UFUNCTION(BlueprintCallable, Category="Companion")
+	void SetIsCommanding(bool bCommanding);
+
+	UFUNCTION(BlueprintImplementableEvent, Category="Companion")
+	void OnCommandingChanged();
 	
 	// void UpdateWidget();
 	
 protected:
 	virtual bool Initialize() override;
 
-private:
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Companion")
+	bool bIsCommanding;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UTextBlock* CompanionDisplayNameTextBlock;
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (BindWidget))
 	class UTextBlock* InteractionPromptTextBlock;
+private:
 
 };

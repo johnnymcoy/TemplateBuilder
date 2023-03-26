@@ -42,7 +42,10 @@ protected:
 	// Interaction
 	void UseAction();
 	
-
+private:
+	
+	void UpdateCompanionContext();
+	FTimerHandle CompanionContextTimerHandle;
 	
 
 

@@ -58,5 +58,7 @@ private:
 	
 	FTimerHandle TraceForwardTimerHandle;
 
+	bool bIsTracing;
+	
 	void FocusOnActor(bool bStartFocus, AActor* ActorToFocus);
 };

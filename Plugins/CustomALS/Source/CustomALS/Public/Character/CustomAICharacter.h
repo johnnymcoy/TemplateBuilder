@@ -24,6 +24,10 @@ public:
 	virtual void OnPickUp(AActor* Caller) override;
 	virtual void StartFocus() override;
 	virtual void EndFocus() override;
+
+	//-		AICharacter Interface			//
+	virtual FString GetCharacterDisplayName() override	{return DisplayName;}
+	
 	
 protected:
 	virtual void BeginPlay() override;

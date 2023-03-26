@@ -44,6 +44,8 @@ public:
 	virtual void StartFocus() override;
 	UFUNCTION(BlueprintCallable, Category = "Interaction")
 	virtual void EndFocus() override;
+	UFUNCTION(BlueprintCallable, Category = "Interaction")
+	virtual FString GetObjectDisplayName() override {return DisplayName;};
 
 
 	//- Character Weapons Interface
@@ -76,14 +78,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickups")
 	USceneComponent* ThrowPoint;
-
-
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
-	// class UCharacterShootingComponent* ShootingComponent;
-
-	// UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Shooting")
-	// class UCharacterShootingComponent* ShootingComponent;
-
+	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
 	class UInteractionComponent* InteractionComponent;
 

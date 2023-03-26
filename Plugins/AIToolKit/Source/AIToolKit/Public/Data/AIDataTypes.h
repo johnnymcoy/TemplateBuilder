@@ -16,6 +16,9 @@ enum class EAIResponse : uint8
 };
 
 
+// UENUM(BlueprintType)
+// enum class EAI
+
 
 // class AITOOLKIT_API CompanionDataTypes
 // {

@@ -23,8 +23,13 @@ void UCompanionWidget::SetInteractionPrompt(FString InteractionPrompt)
 {
 	//	Todo: Add global? or just in this 
 	FString InteractionKey = "[E] ";
-	InteractionKey.Append(InteractionPrompt);
 	const FText FormattedPrompt = FText::FromString(InteractionKey.Append(InteractionPrompt));
 	InteractionPromptTextBlock->SetText(FormattedPrompt);
+}
+
+void UCompanionWidget::SetIsCommanding(bool bCommanding)
+{
+	bIsCommanding = bCommanding;
+	OnCommandingChanged();
 }
 
