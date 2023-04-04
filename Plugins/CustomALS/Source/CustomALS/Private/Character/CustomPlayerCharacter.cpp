@@ -214,3 +214,13 @@ void ACustomPlayerCharacter::UseAction()
 	// 	// UE_LOG(LogTemp,Warning, TEXT("Server USE"));
 	// }
 }
+
+void ACustomPlayerCharacter::OnDeath(AActor* OwningActor)
+{
+	Super::OnDeath(OwningActor);
+	if(PlayerShootingComponent != nullptr)
+	{
+		PlayerShootingComponent->SetIsDead(bIsDead);
+		PlayerShootingComponent->OwnerDeath();
+	}
+}

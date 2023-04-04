@@ -33,7 +33,8 @@ public class CustomALS : ModuleRules
 				"DialogueComponent",
 				"WeaponSystem",
 				"Interaction",
-				"AIToolKit"
+				"AIToolKit",
+				"HitReactions"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

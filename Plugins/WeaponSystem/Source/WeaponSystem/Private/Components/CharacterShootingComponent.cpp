@@ -1087,8 +1087,9 @@ bool UCharacterShootingComponent::GetCurrentWeaponData(FWeaponData_T& CurrentWea
 //-						Death						//
 //-													//
 
-void UCharacterShootingComponent::Death()
+void UCharacterShootingComponent::OwnerDeath()
 {
+	Super::OwnerDeath();
 	// if(PlayerWeaponState.bHasGun)
 	// {
 	// 	ThrowWeapon(GetCurrentWeapon());

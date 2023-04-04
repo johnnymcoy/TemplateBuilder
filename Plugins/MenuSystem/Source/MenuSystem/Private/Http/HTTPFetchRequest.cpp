@@ -8,13 +8,13 @@
 
 void UHTTPFetchRequest::Activate()
 {
-	// Create HTTP Request
+	//-		Create HTTP Request		//
 	TSharedRef<IHttpRequest, ESPMode::ThreadSafe> HttpRequest = FHttpModule::Get().CreateRequest();
 	HttpRequest->SetVerb("GET");
 	HttpRequest->SetHeader("Content-Type", "application/json");
 	HttpRequest->SetURL(URL);
 
-	// Setup Async response
+	//-		Setup Async response	//
 	HttpRequest->OnProcessRequestComplete().BindLambda([this](FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSuccess)
 		{
 			FString ResponseString = "";
@@ -26,13 +26,13 @@ void UHTTPFetchRequest::Activate()
 			this->HandleRequestCompleted(ResponseString, bSuccess);
 		});
 	
-	// Handle actual request
+	//-		Handle actual request		//
 	HttpRequest->ProcessRequest();
 }
 
 UHTTPFetchRequest* UHTTPFetchRequest::AsyncRequestHTTP(UObject* WorldContextObject, FString URL, FString Field)
 {
-	// Create Action Instance for Blueprint System
+	//-		Create Action Instance for Blueprint System		//
 	UHTTPFetchRequest* Action = NewObject<UHTTPFetchRequest>();
 	Action->URL = URL;
 	Action->RegisterWithGameInstance(WorldContextObject);
@@ -46,17 +46,17 @@ void UHTTPFetchRequest::HandleRequestCompleted(FString ResponseString, bool bSuc
 	FString OutString;
 	if (bSuccess)
 	{
-		/* Deserialize object */
+		//-		Deserialize object		//
 		TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
 		TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<>::Create(ResponseString);
 		FJsonSerializer::Deserialize(JsonReader, JsonObject);
 
-		// The simplest example parsing of the plain JSON.
-		// Here you can expand to fetch your specific layout of values and objects and return
-		// it via a UStruct or separate params in the Completed.Broadcast()
+		//-		The simplest example parsing of the plain JSON											//
+		//-		Here you can expand to fetch your specific layout of values and objects and return		//
+		//-		it via a UStruct or separate params in the Completed.Broadcast()						//
 		if (!JsonObject->TryGetStringField(TextField, OutString))
 		{
-			// While response may be successful, we failed to retrieve the string field
+			//-		While response may be successful, we failed to retrieve the string field	//
 			bSuccess = false;
 		}
 	}

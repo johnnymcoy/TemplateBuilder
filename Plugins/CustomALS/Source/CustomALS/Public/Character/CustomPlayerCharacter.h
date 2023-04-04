@@ -41,6 +41,10 @@ protected:
 
 	// Interaction
 	void UseAction();
+
+	//-		Overridden from CustomCharacter
+	virtual void OnDeath(AActor* OwningActor) override;
+
 	
 private:
 	

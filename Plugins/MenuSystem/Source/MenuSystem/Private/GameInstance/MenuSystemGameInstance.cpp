@@ -16,21 +16,23 @@ const static FName SESSION_NAME = NAME_GameSession;
 
 UMenuSystemGameInstance::UMenuSystemGameInstance(const FObjectInitializer& ObjectInitializer)
 {
-	// Todo All the BP references 
-	// ConstructorHelpers::FClassFinder<UUserWidget> MainMenuBPClass(TEXT("/Game/MenuSystem/WBP_MainMenu"));
-	// if (!ensure(MainMenuBPClass.Class != nullptr)) return;
-	// MenuClass = MainMenuBPClass.Class;
-	// ConstructorHelpers::FClassFinder<UUserWidget> OptionsMenuBPClass(TEXT("/Game/MenuSystem/WBP_OptionsMenu"));
-	// if (!ensure(OptionsMenuBPClass.Class != nullptr)) return;
-	// OptionsMenuClass = OptionsMenuBPClass.Class;
-	// ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT("/Game/MenuSystem/WBP_InGameMenu"));
-	// if (!ensure(InGameMenuBPClass.Class != nullptr)) return;
-	// InGameMenuClass = InGameMenuBPClass.Class;
+	// Todo All the BP references
+	// ConstructorHelpers::FClassFinder<UCompanionWidget> const CompanionWidgetBPClass(TEXT("/AIToolKit/Widgets/CompanionWidget_WBP"));
+
+	ConstructorHelpers::FClassFinder<UUserWidget> const MainMenuBP(TEXT("/MenuSystem/Widgets/WBP_MainMenu"));
+	if (!ensure(MainMenuBP.Class != nullptr)) return;
+	MenuClass = MainMenuBP.Class;
+	ConstructorHelpers::FClassFinder<UUserWidget> const OptionsMenuBP(TEXT("/MenuSystem/Widgets/WBP_OptionsMenu"));
+	if (!ensure(OptionsMenuBP.Class != nullptr)) return;
+	OptionsMenuClass = OptionsMenuBP.Class;
+	ConstructorHelpers::FClassFinder<UUserWidget> const InGameMenuBP(TEXT("/MenuSystem/Widgets/WBP_InGameMenu"));
+	if (!ensure(InGameMenuBP.Class != nullptr)) return;
+	InGameMenuClass = InGameMenuBP.Class;
 }
 
 void UMenuSystemGameInstance::Init()
 {
-	IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
 	if(OnlineSubsystem != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnlineSubsystemFound %s"), *OnlineSubsystem->GetSubsystemName().ToString());
@@ -78,11 +80,7 @@ void UMenuSystemGameInstance::StartSession()
 
 void UMenuSystemGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
-	if(!bSuccess)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to Create Session"));
-		return;
-	}
+	if(!bSuccess){UE_LOG(LogTemp, Error, TEXT("Failed to Create Session"));return;}
 	UEngine* EngineReference = GetEngine();
 	if (!ensure(EngineReference != nullptr)) return;
 	// EngineReference->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Hosting...%ls"), *SessionSettings.Get(TEXT("Server Name"))));

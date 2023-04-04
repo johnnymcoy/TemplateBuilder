@@ -54,6 +54,10 @@
 		{
 			"Name": "AIToolKit",
 			"Enabled": true
+		},
+		{
+			"Name": "HitReactions",
+			"Enabled": true
 		}
 	]
 }

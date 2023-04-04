@@ -8,6 +8,7 @@
 #include "Components/DialogueComponent.h"
 #include "Character/Animation/ALSCharacterAnimInstance.h"
 #include "Components/InteractionComponent.h"
+#include "Components/CustomPhysicalAnimationComponent.h"
 
 DEFINE_LOG_CATEGORY(LogCustomCharacters);
 
@@ -16,8 +17,10 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	: AALSCharacter(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
+
+	OnTakePointDamage.AddDynamic(this, &ACustomCharacterBase::TakePointDamage);
 	
-	// Health
+	//-	 Health		//
 	CharacterHealthComponent = CreateDefaultSubobject<UCharacterHealthComponent>(TEXT("Character Health"));
 	CharacterHealthComponent->SetupComponent(SkeletalMesh, nullptr, Controller, bIsNPC, bIsDead);
 	CharacterHealthComponent->OnHealthChanged.AddDynamic(this, &ACustomCharacterBase::OnHealthChanged);
@@ -26,25 +29,24 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	CharacterHealthComponent->OnShieldBreak.AddDynamic(this, &ACustomCharacterBase::OnShieldBreak);
 	CharacterHealthComponent->OnDeath.AddDynamic(this, &ACustomCharacterBase::OnDeath);
 
-	// Dialogue
+	//-	 Dialogue		//
 	DialogueComponent = CreateDefaultSubobject<UDialogueComponent>(TEXT("Dialogue"));
 	DialogueComponent->SetupComponent(nullptr, nullptr, Controller, bIsNPC, bIsDead);
 
 	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
 	ThrowPoint->SetupAttachment(GetMesh(), TEXT("head"));
 
-	// Shooting
-	// ShootingComponent = CreateDefaultSubobject<UCharacterShootingComponent>("Shooting");
-	// ShootingComponent->OnWeaponEqiupped.AddDynamic(this, &ACustomCharacterBase::WeaponEquipped);
-	// ShootingComponent->OnWeaponStateChanged.AddDynamic(this, &ACustomCharacterBase::WeaponStateChanged);
-	// ShootingComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
-
-	// Interaction
+	//-	 Interaction		//
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
 	// InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 	//- Set for outlines //
 	SkeletalMesh->bRenderCustomDepth = true;
 
+
+	//- Physical Animation	//
+	PhysicalAnimationComponent = CreateDefaultSubobject<UCustomPhysicalAnimationComponent>(TEXT("Physical Animation"));
+
+	
 	// Deafults for some of the ALS character - from the BP 
 	bRightShoulder = true;
 	GroundedTraceSettings.MaxLedgeHeight = 250.0f;
@@ -73,15 +75,15 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 void ACustomCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
-	// if(ShootingComponent != nullptr)
-	// {
-	// 	ShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
-	// }
 	if(InteractionComponent != nullptr)
 	{
 		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
-
+	if(PhysicalAnimationComponent != nullptr)
+	{
+		PhysicalAnimationComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
+		PhysicalAnimationComponent->Setup();
+	}
 	
 }
 
@@ -197,11 +199,6 @@ void ACustomCharacterBase::FirePressedAction()
 // 	
 // }
 
-
-
-
-
-
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////				Character Interface			  //////////////////////////
 ////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
@@ -306,16 +303,41 @@ EALSOverlayState ACustomCharacterBase::WeaponStateToOverlayState(const EWeaponOv
 	}
 }
 
+inline void ACustomCharacterBase::RagdollStart()
+{
+	Super::RagdollStart();
+	PhysicalAnimationComponent->SetStrengthMultiplier(0);
+}
+
+void ACustomCharacterBase::RagdollEnd()
+{
+	Super::RagdollEnd();
+	PhysicalAnimationComponent->SetStrengthMultiplier(1);
+
+}
 
 
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 //////////////////////////-				Health						  //////////////////////////
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
+void ACustomCharacterBase::TakePointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
+	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+	const UDamageType* DamageType, AActor* DamageCauser)
+{
+	if(PhysicalAnimationComponent != nullptr)
+	{
+		if(Damage > 10)
+		{
+			//todo 
+		}
+	}
+}
+
 void ACustomCharacterBase::OnHealthChanged(UHealthComponentBase* HealthComponent, float Health, float MaxHealth,
                                            const UDamageType* DamageType)
 {
-	
+	// FVector HitVector = ()
 }
 
 void ACustomCharacterBase::OnHealthAndShieldChanged(UHealthComponentBase* HealthComponent, float Health,
@@ -335,12 +357,30 @@ void ACustomCharacterBase::OnShieldBreak()
 void ACustomCharacterBase::OnDeath(AActor* OwningActor)
 {
 	bIsDead = true;
+	ReplicatedRagdollStart();
+	//-	Set all Components dead	//
+	if(PhysicalAnimationComponent != nullptr)
+	{
+		PhysicalAnimationComponent->SetIsDead(bIsDead);
+		PhysicalAnimationComponent->OwnerDeath();
+	}
+	if(InteractionComponent != nullptr)
+	{
+		InteractionComponent->SetIsDead(bIsDead);
+		// InteractionComponent
+	}
+	if(DialogueComponent != nullptr)
+	{
+		DialogueComponent->SetIsDead(bIsDead);
+		// DialogueComponent
+	}
+	
 }
 
 
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-//////////////////////////				Pure Functions				  //////////////////////////
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
+//////////////////////////-				Pure Functions				  //////////////////////////
+//////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
 bool ACustomCharacterBase::IsDead() const
 {

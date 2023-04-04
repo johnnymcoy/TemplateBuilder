@@ -111,6 +111,22 @@
 		{
 			"Name": "WeaponSystem",
 			"Enabled": true
+		},
+		{
+			"Name": "AIToolKit",
+			"Enabled": true
+		},
+		{
+			"Name": "OnlineSubsystem",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
 		}
+
+
+
+
 	]
 }

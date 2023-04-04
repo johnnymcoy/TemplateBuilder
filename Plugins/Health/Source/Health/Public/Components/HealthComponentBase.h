@@ -119,7 +119,7 @@ private:
 	// float ShieldHealth;
 
 	bool bDeathOnce;
-	void Death();
+	virtual void Death();
 	// UPROPERTY(Replicated)
 	// bool bIsDead;
 	//Limb counter?

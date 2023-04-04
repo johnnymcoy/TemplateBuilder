@@ -65,26 +65,31 @@ public:
 	// UFUNCTION()
 	// void Multicast_WeaponStateChanged();
 
+	//- ALS overridden Functions	// 
+	virtual void RagdollStart() override;
+	virtual void RagdollEnd() override;
 
 protected:
 	virtual void BeginPlay() override;
 
-	// Components
+	//-		Components		//
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Health")
 	class UCharacterHealthComponent* CharacterHealthComponent;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Dialogue")
 	class UDialogueComponent* DialogueComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
+	class UInteractionComponent* InteractionComponent;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Physical Animation")
+	class UCustomPhysicalAnimationComponent* PhysicalAnimationComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickups")
 	USceneComponent* ThrowPoint;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Interaction")
-	class UInteractionComponent* InteractionComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Name")
 	FString DisplayName;
 
+	void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);  
 	
 	// Health Component Functions 
 	UFUNCTION()
@@ -131,4 +136,6 @@ private:
 
 	
 };
+
+
 

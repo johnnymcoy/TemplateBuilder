@@ -97,7 +97,7 @@ public:
 
 	
 
-	void Death();
+	void OwnerDeath() override;
 
 	//Getters
 	UFUNCTION(BlueprintCallable, Category = "Player Stats")

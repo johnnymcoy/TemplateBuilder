@@ -23,7 +23,7 @@ public:
 	void SetAnimInstance(UAnimInstance* AnimationInstance){MainAnimInstance = AnimationInstance;};
 	void SetController(AController* Controller);
 	void SetIsNPC(const bool bNPC){bIsNPC = bNPC;};
-	void SetIsDead(const bool bDead){bIsDead = bDead;};
+	void SetIsDead(const bool bDead);
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 protected:
@@ -43,6 +43,11 @@ protected:
 	bool GetIsNPC() const {return bIsNPC;};
 	UFUNCTION(BlueprintCallable, Category = "Character")
 	bool GetIsDead() const {return bIsDead;};
+
+	UFUNCTION(BlueprintCallable, Category="Character")
+	virtual void OwnerDeath();
+	UFUNCTION(BlueprintImplementableEvent, Category="Character")
+	void OnDeathEvent();
 
 	void SetInputModeGameAndUI(bool bGameAndUI, class UWidget* InWidgetToFocus, bool bShowMouse);
 

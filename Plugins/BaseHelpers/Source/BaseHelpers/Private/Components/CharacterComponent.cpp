@@ -70,10 +70,23 @@ void UCharacterComponent::SetController(AController* Controller)
 	}
 }
 
+void UCharacterComponent::SetIsDead(const bool bDead)
+{
+	bIsDead = bDead;
+	OwnerDeath();
+}
+
+
 void UCharacterComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+}
+
+void UCharacterComponent::OwnerDeath()
+{
+	OnDeathEvent();
+	if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Death"));}
 }
 
 void UCharacterComponent::SetInputModeGameAndUI(bool bGameAndUI, UWidget* InWidgetToFocus, bool bShowMouse)
