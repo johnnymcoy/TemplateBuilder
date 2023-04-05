@@ -8,6 +8,5 @@ void AMenuSystemPlayerController::BeginPlay()
 	Super::BeginPlay();
 	FInputModeGameAndUI InputMode;
 	SetInputMode(InputMode);
-	
-	
+	bShowMouseCursor = true;
 }

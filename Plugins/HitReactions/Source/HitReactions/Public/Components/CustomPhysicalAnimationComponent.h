@@ -18,7 +18,7 @@ public:
 	void Setup();
 
 	UFUNCTION(BlueprintCallable, Category="Physical Animation")
-	void HitReaction(FHitResult Hit, float Multiplier = 1);
+	void HitReaction(FName BoneHit, FVector HitVector, float Multiplier = 1);
 	UFUNCTION(BlueprintCallable, Category="Physical Animation")
 	void TogglePhysicalAnimation(bool bTurnOn = true);
 	UFUNCTION()
@@ -29,17 +29,30 @@ public:
 protected:
 
 	virtual void BeginPlay() override;
+
+	UFUNCTION()
+	virtual void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);
+
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physical Animation")
-	float MaxFloppyTime = 1.5f;
 	UPROPERTY()
 	class UPhysicalAnimationComponent* PhysicalAnimationComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physical Animation")
-	float CounterMultiplier = 0.1;
+	float MaxFloppyTime = 1.5f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physical Animation")
-	float ImpulseMultiplier = 1000;
+	float CounterMultiplier = 0.1f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physical Animation")
+	float ImpulseMultiplier = 1000.0f;
+	//- How much Damage Has to be done for it to move that character // 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Physical Animation")
+	float BlendTimeMultiplier = 10.0f;
+
+	
 private:
+	void PhysicalReaction();
+
+
+
 	const FName Pelvis = "Pelvis";
 	const FName Spine = "Spine_01";
 
@@ -50,6 +63,9 @@ private:
 	float InterpFloat;
 	float HitReactionTimeRemaining = 0.0f;
 	float Counter = 0.0f;
-	void PhysicalReaction();
 	FTimerHandle ReactionLengthTimer;
+
+	FVector LastHitVector = FVector::ZeroVector;
+	FName LastHitBone = Spine;
+	float LastMultiplier = 1.0f;
 };

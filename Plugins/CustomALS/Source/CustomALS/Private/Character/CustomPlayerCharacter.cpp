@@ -31,6 +31,12 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 void ACustomPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	// SetupComponents();
+}
+
+void ACustomPlayerCharacter::SetupComponents()
+{
+	Super::SetupComponents();
 	if(PlayerShootingComponent != nullptr)
 	{
 		PlayerShootingComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
@@ -224,3 +230,4 @@ void ACustomPlayerCharacter::OnDeath(AActor* OwningActor)
 		PlayerShootingComponent->OwnerDeath();
 	}
 }
+

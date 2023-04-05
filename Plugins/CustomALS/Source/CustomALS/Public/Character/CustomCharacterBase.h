@@ -20,7 +20,7 @@ class CUSTOMALS_API ACustomCharacterBase : public AALSCharacter, public ICustomC
 
 public:
 	ACustomCharacterBase(const FObjectInitializer& ObjectInitializer);
-	
+
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -31,7 +31,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool IsCrouching() const;
 
-	//-  Character Interface
+	//-  Character Interface	//
 	UFUNCTION(BlueprintCallable, Category = "Dialogue")
 	virtual void GetDialogueComponent(UDialogueComponent* &Out_DialogueComponent) const override;
 
@@ -48,7 +48,7 @@ public:
 	virtual FString GetObjectDisplayName() override {return DisplayName;};
 
 
-	//- Character Weapons Interface
+	//- Character Weapons Interface	//
 	UFUNCTION(BlueprintCallable, Category = "Pickups")
 	virtual int32 PickupGunEvent(const FWeaponData_T In_WeaponData) override;
 	UFUNCTION(Server, Reliable)
@@ -89,9 +89,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category= "Name")
 	FString DisplayName;
 
-	void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);  
+	// void TakePointDamage(AActor* DamagedActor, float Damage, class AController* InstigatedBy, FVector HitLocation, class UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection, const class UDamageType* DamageType, AActor* DamageCauser);  
 	
-	// Health Component Functions 
+	//-	 Health Component Functions //
 	UFUNCTION()
 	virtual void OnHealthChanged(class UHealthComponentBase* HealthComponent, float Health, float MaxHealth, const class UDamageType* DamageType);
 	UFUNCTION()
@@ -108,13 +108,13 @@ protected:
 	static EALSOverlayState WeaponStateToOverlayState(EWeaponOverlay WeaponOverlay);
 	
 	
-	bool bIsNPC;
-	bool bIsDead;
+	bool bIsNPC = false;
+	bool bIsDead = false;
 
 	virtual void FirePressedAction();
-	
+	virtual void SetupComponents();
 private:
-	
+
 
 	///////////////// Input Functions ////////////////////
 	// virtual void AimPressedAction() override;

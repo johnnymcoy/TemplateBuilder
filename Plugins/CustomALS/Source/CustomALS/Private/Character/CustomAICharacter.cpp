@@ -16,6 +16,12 @@ ACustomAICharacter::ACustomAICharacter(const FObjectInitializer& ObjectInitializ
 void ACustomAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	// SetupComponents();
+}
+
+void ACustomAICharacter::SetupComponents()
+{
+	Super::SetupComponents();
 	if(CompanionComponent != nullptr)
 	{
 		CompanionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
@@ -37,14 +43,6 @@ void ACustomAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 void ACustomAICharacter::OnInteract(AActor* Caller)
 {
 	Super::OnInteract(Caller);
-	// if(CompanionComponent != nullptr)
-	// {
-	// 	CompanionComponent->SetMasterActor(Caller);	
-		// if(Caller->GetComponentByClass(UCompanionMasterComponent::StaticClass()))
-		// {
-		// }
-		// CompanionComponent->Follow();
-	// }
 }
 
 void ACustomAICharacter::OnPickUp(AActor* Caller)

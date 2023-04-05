@@ -23,38 +23,46 @@ public:
 
 protected:
 	virtual bool Initialize() override;
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category="Menu System")
 	void StartScreenButtonClicked();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category="Menu System")
 	void JoinButtonClicked();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category="Menu System")
 	void SearchServersButtonClicked();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, Category="Menu System")
 	void HostButtonClicked();
+
+	UFUNCTION(BlueprintCallable, Category="Menu System")
+	void QuitGame();
 
 	void UpdateServerRows();
 	UFUNCTION()
 	void NumberOnSliderChanged(float Value);
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float GameVersion = 0.01;
+	UFUNCTION(BlueprintCallable, Category="Menu System")
+	void SetIsControllerInput(bool bIsController);
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	int32 ButtonFocused = 1;
 	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* StartScreenButton;
-	
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UButton* JoinButton;
-    
-	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
-	class UWidgetSwitcher* MenuSwitcher;
 	UPROPERTY(BlueprintReadWrite)
 	int32 MenuPageIndex = 0;
 	UPROPERTY(BlueprintReadWrite)
 	int32 CampaignPageIndex = 0;
 	UPROPERTY(BlueprintReadWrite)
 	int32 MultiplayerPageIndex = 0;
+	
+
+
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* StartScreenButton;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UButton* JoinButton;
+	
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidgetSwitcher* MenuSwitcher;
+	
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UWidget* StartScreen;
@@ -76,6 +84,8 @@ protected:
 	// class UWidget* CharacterMenu;
 
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UTextBlock* GameVersionText;
 
 	
 private:
@@ -94,8 +104,6 @@ private:
 	class USlider* NumberOfPlayersSlider;
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* NumberOfPlayersText;
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* GameVersionText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;

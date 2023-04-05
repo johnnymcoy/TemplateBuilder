@@ -73,7 +73,10 @@ void UCharacterComponent::SetController(AController* Controller)
 void UCharacterComponent::SetIsDead(const bool bDead)
 {
 	bIsDead = bDead;
-	OwnerDeath();
+	if(bIsDead)
+	{
+		OwnerDeath();
+	}
 }
 
 

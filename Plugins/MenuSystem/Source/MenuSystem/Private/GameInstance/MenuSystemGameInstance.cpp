@@ -19,13 +19,13 @@ UMenuSystemGameInstance::UMenuSystemGameInstance(const FObjectInitializer& Objec
 	// Todo All the BP references
 	// ConstructorHelpers::FClassFinder<UCompanionWidget> const CompanionWidgetBPClass(TEXT("/AIToolKit/Widgets/CompanionWidget_WBP"));
 
-	ConstructorHelpers::FClassFinder<UUserWidget> const MainMenuBP(TEXT("/MenuSystem/Widgets/WBP_MainMenu"));
+	ConstructorHelpers::FClassFinder<UUserWidget> const MainMenuBP(TEXT("/MenuSystem/Widgets/WBP_MainMenuSystem"));
 	if (!ensure(MainMenuBP.Class != nullptr)) return;
 	MenuClass = MainMenuBP.Class;
-	ConstructorHelpers::FClassFinder<UUserWidget> const OptionsMenuBP(TEXT("/MenuSystem/Widgets/WBP_OptionsMenu"));
+	ConstructorHelpers::FClassFinder<UUserWidget> const OptionsMenuBP(TEXT("/MenuSystem/Widgets/WBP_OptionsMenuSystem"));
 	if (!ensure(OptionsMenuBP.Class != nullptr)) return;
 	OptionsMenuClass = OptionsMenuBP.Class;
-	ConstructorHelpers::FClassFinder<UUserWidget> const InGameMenuBP(TEXT("/MenuSystem/Widgets/WBP_InGameMenu"));
+	ConstructorHelpers::FClassFinder<UUserWidget> const InGameMenuBP(TEXT("/MenuSystem/Widgets/WBP_InGameMenuSystem"));
 	if (!ensure(InGameMenuBP.Class != nullptr)) return;
 	InGameMenuClass = InGameMenuBP.Class;
 }
@@ -212,7 +212,8 @@ void UMenuSystemGameInstance::LaunchInGameMenu(bool bIsDead)
 void UMenuSystemGameInstance::SinglePlayer()
 {
 	// TODO Level Name
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Demos/ShooterDemo/Levels/ShooterDemoLevel"), TRAVEL_Absolute);
+	UE_LOG(LogTemp,Warning, TEXT("Single Player"));
+	// UGameplayStatics::OpenLevel(GetWorld(), TEXT("/Game/Demos/ShooterDemo/Levels/ShooterDemoLevel"), TRAVEL_Absolute);
 }
 
 void UMenuSystemGameInstance::Character()
@@ -245,9 +246,9 @@ void UMenuSystemGameInstance::OnNetworkFailure(UWorld* World, UNetDriver* NewDri
 	LoadMenu();
 }
 
-void UMenuSystemGameInstance::Quit()
+void UMenuSystemGameInstance::Quit(APlayerController* Player)
 {
-	APlayerController* PlayerControllerReference = GetFirstLocalPlayerController();
-	if (!ensure(PlayerControllerReference != nullptr)) return;
-	PlayerControllerReference->ConsoleCommand(("Quit"), true);
+	if (!ensure(Player != nullptr)) return;
+	UKismetSystemLibrary::QuitGame(GetWorld(), Player, EQuitPreference::Quit, false);
+	// Player->ConsoleCommand(("Quit"), true);
 }

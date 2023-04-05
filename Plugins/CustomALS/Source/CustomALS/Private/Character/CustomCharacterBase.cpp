@@ -17,12 +17,9 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	: AALSCharacter(ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	OnTakePointDamage.AddDynamic(this, &ACustomCharacterBase::TakePointDamage);
 	
 	//-	 Health		//
 	CharacterHealthComponent = CreateDefaultSubobject<UCharacterHealthComponent>(TEXT("Character Health"));
-	CharacterHealthComponent->SetupComponent(SkeletalMesh, nullptr, Controller, bIsNPC, bIsDead);
 	CharacterHealthComponent->OnHealthChanged.AddDynamic(this, &ACustomCharacterBase::OnHealthChanged);
 	CharacterHealthComponent->OnHealthAndShieldChanged.AddDynamic(this, &ACustomCharacterBase::OnHealthAndShieldChanged);
 	CharacterHealthComponent->OnInjuredBodyPart.AddDynamic(this, &ACustomCharacterBase::OnInjuredBodyPart);
@@ -31,14 +28,12 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 
 	//-	 Dialogue		//
 	DialogueComponent = CreateDefaultSubobject<UDialogueComponent>(TEXT("Dialogue"));
-	DialogueComponent->SetupComponent(nullptr, nullptr, Controller, bIsNPC, bIsDead);
 
 	ThrowPoint = CreateDefaultSubobject<USceneComponent>(TEXT("ThrowPoint"));
 	ThrowPoint->SetupAttachment(GetMesh(), TEXT("head"));
 
 	//-	 Interaction		//
 	InteractionComponent = CreateDefaultSubobject<UInteractionComponent>("Interaction");
-	// InteractionComponent->SetupComponent(SkeletalMesh, MainAnimInstance, Controller, bIsNPC, bIsDead);
 	//- Set for outlines //
 	SkeletalMesh->bRenderCustomDepth = true;
 
@@ -47,7 +42,7 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	PhysicalAnimationComponent = CreateDefaultSubobject<UCustomPhysicalAnimationComponent>(TEXT("Physical Animation"));
 
 	
-	// Deafults for some of the ALS character - from the BP 
+	//-  Defaults for some of the ALS character - from the BP 
 	bRightShoulder = true;
 	GroundedTraceSettings.MaxLedgeHeight = 250.0f;
 	GroundedTraceSettings.MinLedgeHeight = 50.0f;
@@ -68,13 +63,27 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	FallingTraceSettings.DownwardTraceRadius = 30.0f;
 	bRagdollOnLand = true;
 	SkeletalMesh->SetHiddenInGame(true);
+
+	//-		Hit Events/Collision		//
+	GetMesh()->BodyInstance.bNotifyRigidBodyCollision = true; //- Generate Hit Events //
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GetMesh()->bUpdateJointsFromAnimation = true;
+	GetMesh()->bEnableUpdateRateOptimizations = true;
 	
+	
+	// GetMesh()->
 	
 }
+
 
 void ACustomCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();
+	SetupComponents();
+}
+
+void ACustomCharacterBase::SetupComponents()
+{
 	if(InteractionComponent != nullptr)
 	{
 		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
@@ -84,7 +93,14 @@ void ACustomCharacterBase::BeginPlay()
 		PhysicalAnimationComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 		PhysicalAnimationComponent->Setup();
 	}
-	
+	if(DialogueComponent != nullptr)
+	{
+		DialogueComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
+	}
+	if(CharacterHealthComponent != nullptr)
+	{
+		CharacterHealthComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
+	}
 }
 
 void ACustomCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -321,18 +337,15 @@ void ACustomCharacterBase::RagdollEnd()
 //////////////////////////-				Health						  //////////////////////////
 //////////////////////////- |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
 
-void ACustomCharacterBase::TakePointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
-	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
-	const UDamageType* DamageType, AActor* DamageCauser)
-{
-	if(PhysicalAnimationComponent != nullptr)
-	{
-		if(Damage > 10)
-		{
-			//todo 
-		}
-	}
-}
+// void ACustomCharacterBase::TakePointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
+// 	FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+// 	const UDamageType* DamageType, AActor* DamageCauser)
+// {
+// 	if(PhysicalAnimationComponent != nullptr)
+// 	{
+// 		UE_LOG(LogTemp,Warning,TEXT("Point Damage"));
+// 	}
+// }
 
 void ACustomCharacterBase::OnHealthChanged(UHealthComponentBase* HealthComponent, float Health, float MaxHealth,
                                            const UDamageType* DamageType)
@@ -391,9 +404,4 @@ bool ACustomCharacterBase::IsCrouching() const
 {
 	return Stance == EALSStance::Crouching;
 }
-
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-////////////////////////// |||||||||||||||||||||||||||||||||||||||||| //////////////////////////
-
 

@@ -6,14 +6,13 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/KismetMathLibrary.h" 
 #include "TimerManager.h"
+#include "DamageTypes/BulletDamage.h"
+#include "GameFramework/Character.h"
 
 
-///
 /// TODO: Create different profiles based on how hurt the person is
 /// Almost dead - arms and head weak 
 //  Have it not effect the legs so much
-// Change to gun Impulse
-//
 
 UCustomPhysicalAnimationComponent::UCustomPhysicalAnimationComponent()
 {
@@ -35,6 +34,10 @@ void UCustomPhysicalAnimationComponent::Setup()
 void UCustomPhysicalAnimationComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	if(GetOwnerRole() == ROLE_Authority)
+	{
+		GetOwner()->OnTakePointDamage.AddDynamic(this, &UCustomPhysicalAnimationComponent::TakePointDamage);
+	}
 }
 
 void UCustomPhysicalAnimationComponent::TogglePhysicalAnimation(bool bTurnOn)
@@ -54,11 +57,53 @@ void UCustomPhysicalAnimationComponent::SetStrengthMultiplier(float Strength)
 	PhysicalAnimationComponent->SetStrengthMultiplyer(Strength);
 }
 
-void UCustomPhysicalAnimationComponent::HitReaction(FHitResult Hit, float Multiplier)
+
+//////////////////-		Point Damage				////
+	
+void UCustomPhysicalAnimationComponent::TakePointDamage(AActor* DamagedActor, float Damage, AController* InstigatedBy,
+                                                        FVector HitLocation, UPrimitiveComponent* FHitComponent, FName BoneName, FVector ShotFromDirection,
+                                                        const UDamageType* DamageType, AActor* DamageCauser)
+{
+	if(PhysicalAnimationComponent == nullptr){LogMissingPointer("Physical Animation Component"); return;}
+
+	
+	// todo Multiply depending on DamageType
+	//? WIP
+	float DamageTypeMultiplier = 1.0f;
+	// switch (DamageType)
+	// {
+	// default:
+	// 	DamageTypeMultiplier = 1.0f;
+	// 	break;
+	// case(UBulletDamage::StaticClass()):
+	// 	UE_LOG(LogTemp,Warning,TEXT("Bullet Damage"));
+	// 	break;
+	// }
+
+	
+	// FVector HitVector = (in_Hit.TraceEnd - in_Hit.TraceStart);
+	// HitVector.Normalize(0.0001f);
+	// HitVector *= in_GunImpulse;
+	//todo: get proper number, also add in ragdoll if high enough
+	//! Remove, Plays animation over any reaction.. 
+	// if(Damage > LaunchCharacterThreshold)
+	// {
+	// 	ACharacter* OwningCharacter = Cast<ACharacter>(GetOwner());
+	// 	if(OwningCharacter == nullptr){LogMissingPointer("Owner Character Cast Failed");return;}
+	// 	OwningCharacter->LaunchCharacter(ShotFromDirection,true,true);
+	// }
+	LastHitBone = BoneName;
+	LastHitVector = ShotFromDirection;
+	LastMultiplier = (ImpulseMultiplier * Damage * DamageTypeMultiplier);
+	HitReaction(BoneName, ShotFromDirection, (ImpulseMultiplier * Damage * DamageTypeMultiplier));
+}
+
+
+void UCustomPhysicalAnimationComponent::HitReaction(FName BoneHit, FVector HitVector, float Multiplier)
 {
 	if(!GetIsDead())
 	{
-		if(HitReactionTimeRemaining <= MaxFloppyTime) //todo Magic number (Max Time can be floppy)
+		if(HitReactionTimeRemaining <= MaxFloppyTime) //- (Max Time can be floppy)
 		{
 			HitReactionTimeRemaining += 0.1f;
 		}
@@ -66,24 +111,13 @@ void UCustomPhysicalAnimationComponent::HitReaction(FHitResult Hit, float Multip
 		GetOwnerMesh()->SetAllBodiesBelowSimulatePhysics(Pelvis, true, false);
 		PhysicalAnimationComponent->ApplyPhysicalAnimationProfileBelow(Pelvis, ProfileStrong, false);
 	}
-	FName BoneHit = Hit.BoneName;
-	if(Hit.BoneName == Pelvis)
+	if(BoneHit == Pelvis)
 	{
 		BoneHit = Spine;
 	}
-	FVector HitVector = (Hit.TraceEnd - Hit.TraceStart);
-	HitVector.Normalize(0.0001f);
-	// OwnerMesh->AddImpulse((HitVector * ImpulseMultiplyer), BoneHit, true);
-	FVector BulletForce = HitVector * Multiplier;
-	//    BulletForce.X = (HitVector.X * UKismetMathLibrary::RandomFloatInRange(0.3f, Multiplier));
-	// BulletForce.Y = (HitVector.Y * UKismetMathLibrary::RandomFloatInRange(0.3f, Multiplier));
-	// BulletForce.Z = (HitVector.Z * UKismetMathLibrary::RandomFloatInRange(0.3f, Multiplier));
-	// OwnerMesh->AddImpulse((BulletForce * ImpulseMultiplyer), BoneHit, true);
-	
-	// HitImpulse.Normalize(0.0001f);
+	const FVector BulletForce = HitVector * Multiplier;
 	GetOwnerMesh()->AddImpulse((BulletForce * ImpulseMultiplier), BoneHit, true);
-	// OwnerMesh->AddImpulseToAllBodiesBelow((BulletForce * ImpulseMultiplyer), BoneHit, true);
-
+	GetOwnerMesh()->AddImpulseToAllBodiesBelow(((BulletForce * ImpulseMultiplier) / 2), BoneHit, true);
 }
 
 // todo Continue with changing above value of how long they should be floppy
@@ -102,15 +136,16 @@ void UCustomPhysicalAnimationComponent::PhysicalReaction()
 	}
 	else
 	{
-		float BlendFloat = UKismetMathLibrary::FMin(HitReactionTimeRemaining * 10, 1);
-		UE_LOG(LogTemp,Warning,TEXT("v1.93 %f : TimeRemaining ,BlendFloat: %f "), HitReactionTimeRemaining, BlendFloat);
-		GetOwnerMesh()->SetAllBodiesBelowPhysicsBlendWeight(Pelvis, HitReactionTimeRemaining);
+		const float BlendFloat = UKismetMathLibrary::FMin((HitReactionTimeRemaining * BlendTimeMultiplier), 1);
+		if(bDebuggingMode){UE_LOG(LogTemp,Warning,TEXT("v1.94 %f : TimeRemaining ,BlendFloat: %f "), HitReactionTimeRemaining, BlendFloat);}
+		GetOwnerMesh()->SetAllBodiesBelowPhysicsBlendWeight(Pelvis, BlendFloat);
 	}
 }
 
 void UCustomPhysicalAnimationComponent::OwnerDeath()
 {
 	Super::OwnerDeath();
+	HitReaction(LastHitBone, LastHitVector, LastMultiplier);
 	HitReactionTimeRemaining = 0.0f;
 	GetOwnerMesh()->SetAllBodiesBelowSimulatePhysics(Pelvis, true, true);
 	SetStrengthMultiplier(0.0f);

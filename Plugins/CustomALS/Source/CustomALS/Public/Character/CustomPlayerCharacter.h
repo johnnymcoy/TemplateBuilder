@@ -45,6 +45,7 @@ protected:
 	//-		Overridden from CustomCharacter
 	virtual void OnDeath(AActor* OwningActor) override;
 
+	virtual void SetupComponents() override;
 	
 private:
 	

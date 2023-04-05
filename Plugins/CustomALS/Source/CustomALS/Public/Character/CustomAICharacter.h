@@ -35,6 +35,8 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Companion")
 	class UCompanionComponent* CompanionComponent;
 
+	virtual void SetupComponents() override;
+
 
 private:
 	

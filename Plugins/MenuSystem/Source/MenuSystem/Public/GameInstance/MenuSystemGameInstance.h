@@ -36,7 +36,7 @@ public:
 	UFUNCTION(Exec)
 	virtual void SearchServers() override;
 	UFUNCTION(Exec)
-	virtual void Quit() override;
+	virtual void Quit(APlayerController* Player) override;
 
 
 private:

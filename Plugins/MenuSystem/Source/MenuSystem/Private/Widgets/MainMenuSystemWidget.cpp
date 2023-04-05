@@ -36,7 +36,6 @@ bool UMainMenuSystemWidget::Initialize()
 	// if (!ensure(HostBackButton != nullptr)) return false;
 	// if (!ensure(OptionsBackButton != nullptr)) return false;
 	// if (!ensure(CharacterBackButton != nullptr)) return false;
-	// if (!ensure(QuitButton != nullptr)) return false;
 	// if (!ensure(JoinMenuButton != nullptr)) return false;
 	if (!ensure(StartScreenButton != nullptr)) return false;
 	if (!ensure(SearchServersButton != nullptr)) return false;
@@ -44,6 +43,7 @@ bool UMainMenuSystemWidget::Initialize()
 	if (!ensure(NumberOfPlayersSlider != nullptr)) return false;
 	if (!ensure(NumberOfPlayersText != nullptr)) return false;
 	if (!ensure(GameVersionText != nullptr)) return false;	
+	// if (!ensure(QuitButton != nullptr)) return false;
 	// HostButton->OnClicked.AddDynamic(this, &UMainMenuWidget::HostButtonClicked);
 	// SinglePlayerButton->OnClicked.AddDynamic(this, &UMainMenuWidget::SinglePlayerButtonClicked);
 	// JoinBackButton->OnClicked.AddDynamic(this, &UMainMenuWidget::BackButtonClicked);
@@ -65,7 +65,6 @@ bool UMainMenuSystemWidget::Initialize()
 	NumberOfPlayersSlider->SetMinValue(1.0f);
 	NumberOfPlayersSlider->SetMaxValue(16.0f);
 
-    GameVersionText->SetText(FText::AsNumber(GameVersion));
 
 	return true;
 }
@@ -185,6 +184,14 @@ void UMainMenuSystemWidget::NumberOnSliderChanged(float Value)
 	NumberOfPlayersText->SetText(FText::AsNumber(Value));
 }
 
+void UMainMenuSystemWidget::SetIsControllerInput(bool bIsController)
+{
+	if(!bIsController == bIsControllerInput)
+	{
+		bIsControllerInput = bIsController;
+	}
+}
+
 void UMainMenuSystemWidget::JoinButtonClicked()
 {
 	if(SelectedIndex.IsSet() && MenuInterface != nullptr)
@@ -223,10 +230,12 @@ void UMainMenuSystemWidget::SearchServersButtonClicked()
 //     MenuSwitcher->SetActiveWidget(MainMenu);
 // }
 
-// void UMainMenuWidget::QuitButtonClicked() 
-// {
-//     if(MenuInterface != nullptr)
-//     {
-//         MenuInterface->Quit();
-//     }
-// }
+void UMainMenuSystemWidget::QuitGame() 
+{
+	if(MenuInterface == nullptr){UE_LOG(LogTemp,Warning,TEXT("MENU INTERFACE NULLPTR"));}
+	if(GetOwningPlayer() == nullptr){UE_LOG(LogTemp,Warning,TEXT("GetOwningPlayer NULLPTR"));}
+    if(MenuInterface != nullptr && GetOwningPlayer() != nullptr)
+    {
+        MenuInterface->Quit(GetOwningPlayer());
+    }
+}

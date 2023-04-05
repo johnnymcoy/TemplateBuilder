@@ -69,7 +69,6 @@ void UCustomPhysicalAnimation::HitReaction(FHitResult Hit, float Multiplier)
 	// BulletForce.Z = (HitVector.Z * UKismetMathLibrary::RandomFloatInRange(0.3f, Multiplier));
     // OwnerMesh->AddImpulse((BulletForce * ImpulseMultiplyer), BoneHit, true);
 
-    // HitImpulse.Normalize(0.0001f);
     OwnerMesh->AddImpulse((BulletForce * ImpulseMultiplyer), BoneHit, true);
     // OwnerMesh->AddImpulseToAllBodiesBelow((BulletForce * ImpulseMultiplyer), BoneHit, true);
 }

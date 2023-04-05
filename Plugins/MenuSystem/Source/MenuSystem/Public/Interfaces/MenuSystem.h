@@ -25,7 +25,7 @@ public:
 
 	virtual void Join(uint32 Index) = 0;
 	virtual void JoinManualAddress(const FString& IpAddress) = 0;
-	virtual void Quit() = 0;
+	virtual void Quit(APlayerController* Player) = 0;
 	virtual void SearchServers() = 0;
 
 };
