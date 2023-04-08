@@ -28,6 +28,9 @@ public class MenuSystem : ModuleRules
 				"Core", 
 				"UMG",
 				"OnlineSubsystem",
+				"OnlineSubsystemUtils", 
+				// "OnlineSubsystemEOS",
+				// "OnlineSubsystemEOSPlus",
 				"HTTP", 
 				"Json"
 

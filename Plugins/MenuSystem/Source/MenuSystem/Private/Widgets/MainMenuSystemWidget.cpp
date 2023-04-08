@@ -14,14 +14,10 @@
 
 UMainMenuSystemWidget::UMainMenuSystemWidget()
 {
-	// todo Change WBP
-	ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBPClass(TEXT("/Game/MenuSystem/WBP_ServerRow"));
-	if (!ensure(ServerRowBPClass.Class != nullptr)) return;
-	ServerRowClass = ServerRowBPClass.Class;
-	
-	// if (!ensure(ServerRowReference->StaticClass() != nullptr)) return;
-	// ServerRowClass = ServerRowReference->StaticClass();
-}
+	const ConstructorHelpers::FClassFinder<UUserWidget> ServerRowBP(TEXT("/MenuSystem/Widgets/WBP_ServerRowMenuSystem"));
+	if (!ensure(ServerRowBP.Class != nullptr)) return;
+	ServerRowClass = ServerRowBP.Class;
+	}
 
 bool UMainMenuSystemWidget::Initialize()
 {
@@ -119,18 +115,28 @@ void UMainMenuSystemWidget::StartScreenButtonClicked()
 
 void UMainMenuSystemWidget::HostButtonClicked()
 {
-	if (!ensure(ServerNameTextBox != nullptr)) return;
 	if(MenuInterface != nullptr)
 	{
 		FOnlineSessionSettings SessionSettings;
-		SessionSettings.bShouldAdvertise = true;
-		SessionSettings.bUsesPresence = true;
+		SessionSettings.bShouldAdvertise = bShouldAdvertise;
+		SessionSettings.bAllowJoinInProgress = bAllowJoinInProgress;
+		SessionSettings.bIsDedicated = bIsDedicatedServer;
+		SessionSettings.bUsesPresence = bUsesPresence;
 		SessionSettings.NumPublicConnections = NumberOfPlayers;
-		// SessionSettings.bAllowJoinInProgress = true;
-		// SessionSettings.bAntiCheatProtected = true;
-		// SessionSettings.bIsLANMatch = true;
-		// SessionSettings.Settings
-		FString ServerName = ServerNameTextBox->GetText().ToString();
+		SessionSettings.bAllowInvites = bAllowInvites;
+		SessionSettings.bIsLANMatch = bIsLAN;
+		SessionSettings.bAllowJoinViaPresence = bAllowJoinViaPresence;
+
+		
+		//- not in 4.26	//
+		// SessionSettings.bUseLobbiesIfAvailable = bUseLobbiesIfAvailable; // Glitched? 
+		// SessionSettings.bUseLobbiesVoiceChatIfAvailable = true; // Glitched?
+		
+		FString ServerName = "Default";
+		if(ServerNameTextBox->GetText().ToString() != "")
+		{
+			ServerName = ServerNameTextBox->GetText().ToString();
+		};
 		SessionSettings.Set(TEXT("Server Name"), ServerName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		MenuInterface->Host(SessionSettings);
 	}
@@ -156,6 +162,7 @@ void UMainMenuSystemWidget::SetServerList(TArray<FServerRow> ServerInfo)
 		++i;
 		ServerList->AddChild(Row);
 	}
+	bSearchingForServersInProgress = false;
 	SearchingProgressSpinner->SetVisibility(ESlateVisibility::Hidden);
 }
 
@@ -184,11 +191,11 @@ void UMainMenuSystemWidget::NumberOnSliderChanged(float Value)
 	NumberOfPlayersText->SetText(FText::AsNumber(Value));
 }
 
-void UMainMenuSystemWidget::SetIsControllerInput(bool bIsController)
+void UMainMenuSystemWidget::SetIsControllerInput(bool bIsNewController)
 {
-	if(!bIsController == bIsControllerInput)
+	if(!bIsNewController == bIsControllerInput)
 	{
-		bIsControllerInput = bIsController;
+		bIsControllerInput = bIsNewController;
 	}
 }
 
@@ -218,6 +225,7 @@ void UMainMenuSystemWidget::SearchServersButtonClicked()
 	if(MenuInterface != nullptr)
 	{
 		MenuInterface->SearchServers();
+		bSearchingForServersInProgress = true;
 		SearchingProgressSpinner->SetVisibility(ESlateVisibility::Visible);
 	}
 }

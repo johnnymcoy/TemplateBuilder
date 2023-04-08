@@ -41,7 +41,7 @@ protected:
 	void NumberOnSliderChanged(float Value);
 
 	UFUNCTION(BlueprintCallable, Category="Menu System")
-	void SetIsControllerInput(bool bIsController);
+	void SetIsControllerInput(bool bIsNewController);
 	UPROPERTY(BlueprintReadWrite, Category="Menu System")
 	int32 ButtonFocused = 1;
 	
@@ -59,9 +59,15 @@ protected:
 	class UButton* StartScreenButton;
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UButton* JoinButton;
-	
+
+	//-		Sub Menus	//
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidgetSwitcher* CampaignMenuSwitcher;
+	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
+	class UWidgetSwitcher* MultiplayerMenuSwitcher;
+
 	
 
 	UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
@@ -83,12 +89,41 @@ protected:
 	// UPROPERTY(BlueprintReadOnly, meta = (BindWidget))
 	// class UWidget* CharacterMenu;
 
+	
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* GameVersionText;
+	UPROPERTY(BlueprintReadonly, Category="Menu System")
+	bool bSearchingForServersInProgress = false;
 
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bAllowJoinInProgress = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bAllowInvites = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bIsLAN = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bIsDedicatedServer = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bShouldAdvertise = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bUseLobbiesIfAvailable = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bUseLobbiesVoiceChatIfAvailable = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bUsesPresence = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bAllowJoinViaPresence = false;
 	
 private:
+	UPROPERTY(meta = (BindWidget))
+	class UEditableTextBox* ServerNameTextBox;
+	UPROPERTY(meta = (BindWidget))
+	class USlider* NumberOfPlayersSlider;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* NumberOfPlayersText;
+
+	
 	TSubclassOf<class UUserWidget>	ServerRowClass;
 	
 	
@@ -97,13 +132,7 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UEditableTextBox* IPInputTextBox;
-	UPROPERTY(meta = (BindWidget))
-	class UEditableTextBox* ServerNameTextBox;
 
-	UPROPERTY(meta = (BindWidget))
-	class USlider* NumberOfPlayersSlider;
-	UPROPERTY(meta = (BindWidget))
-	class UTextBlock* NumberOfPlayersText;
 
 	UPROPERTY(meta = (BindWidget))
 	class UPanelWidget* ServerList;

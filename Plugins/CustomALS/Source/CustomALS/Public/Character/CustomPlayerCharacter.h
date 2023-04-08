@@ -23,6 +23,9 @@ protected:
 	class UPlayerCharacterShootingComponent* PlayerShootingComponent;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Companion")
 	class UCompanionMasterComponent* CompanionMasterComponentComponent;
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category= "Proximity Chat")
+	class UPlayerVoiceComponent* ProximityVoiceComponent;
 
 	virtual void BeginPlay() override;
 
@@ -46,6 +49,13 @@ protected:
 	virtual void OnDeath(AActor* OwningActor) override;
 
 	virtual void SetupComponents() override;
+
+	//-		Voice Chat	//
+	// UFUNCTION(Server, Reliable, WithValidation)
+	// void SendVoiceChat(const TArray<uint8>& VoiceData, int32 SampleRate);
+	// UFUNCTION(BlueprintCallable, Category="Proximity Chat")
+	// void OnVoiceChatReceived(APlayerController* SenderPlayerController, const TArray<uint8>& VoiceData, int32 SampleRate);
+
 	
 private:
 	

@@ -31,7 +31,15 @@ public:
 	virtual void OnLevelRemovedFromWorld(ULevel* InLevel, UWorld* InWorld) override;
 	virtual void SetServerList(TArray<FServerRow> ServerInfo);
 	virtual void SetPlayerIsDead(bool bIsPlayerDead);
+
 	
 protected:
 	IMenuSystem* MenuInterface;
+
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bIsController = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bIsKeyboard = false;
+	UPROPERTY(BlueprintReadWrite, Category="Menu System")
+	bool bMouse = false;
 };

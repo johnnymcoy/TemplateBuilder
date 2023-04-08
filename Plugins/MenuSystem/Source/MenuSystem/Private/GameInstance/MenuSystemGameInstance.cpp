@@ -3,6 +3,7 @@
 
 #include "GameInstance/MenuSystemGameInstance.h"
 #include "UObject/ConstructorHelpers.h"
+#include "OnlineSessionSettings.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 #include "OnlineSubsystem.h"
@@ -10,15 +11,14 @@
 #include "Online.h"
 #include "Widgets/MainMenuSystemWidget.h"
 #include "Widgets/OptionsMenuSystemWidget.h"
+#include "OnlineSubsystemUtils.h"
+
 
 
 const static FName SESSION_NAME = NAME_GameSession;
 
 UMenuSystemGameInstance::UMenuSystemGameInstance(const FObjectInitializer& ObjectInitializer)
 {
-	// Todo All the BP references
-	// ConstructorHelpers::FClassFinder<UCompanionWidget> const CompanionWidgetBPClass(TEXT("/AIToolKit/Widgets/CompanionWidget_WBP"));
-
 	ConstructorHelpers::FClassFinder<UUserWidget> const MainMenuBP(TEXT("/MenuSystem/Widgets/WBP_MainMenuSystem"));
 	if (!ensure(MainMenuBP.Class != nullptr)) return;
 	MenuClass = MainMenuBP.Class;
@@ -28,6 +28,7 @@ UMenuSystemGameInstance::UMenuSystemGameInstance(const FObjectInitializer& Objec
 	ConstructorHelpers::FClassFinder<UUserWidget> const InGameMenuBP(TEXT("/MenuSystem/Widgets/WBP_InGameMenuSystem"));
 	if (!ensure(InGameMenuBP.Class != nullptr)) return;
 	InGameMenuClass = InGameMenuBP.Class;
+	bDebuggingMode = true;
 }
 
 void UMenuSystemGameInstance::Init()
@@ -37,8 +38,9 @@ void UMenuSystemGameInstance::Init()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("OnlineSubsystemFound %s"), *OnlineSubsystem->GetSubsystemName().ToString());
 		SessionInterface = OnlineSubsystem->GetSessionInterface();
-		if(SessionInterface.IsValid())
+		if(SessionInterface != nullptr)
 		{
+			
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UMenuSystemGameInstance::OnCreateSessionComplete);
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UMenuSystemGameInstance::OnDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UMenuSystemGameInstance::OnFindSessionsComplete);
@@ -50,6 +52,17 @@ void UMenuSystemGameInstance::Init()
 		GEngine->OnNetworkFailure().AddUObject(this, &UMenuSystemGameInstance::OnNetworkFailure);
 	}
 }
+
+FName UMenuSystemGameInstance::GetCurrentSessionName()
+{
+	if(CurrentSessionName.GetStringLength() != 0)
+	{
+		return CurrentSessionName;
+	}
+	return FName("InvalidName");
+
+}
+
 
 void UMenuSystemGameInstance::LoadMenu()
 {
@@ -64,8 +77,11 @@ void UMenuSystemGameInstance::CreateSession()
 {
 	if(SessionInterface.IsValid())
 	{
+		//!		Error
+		// SessionSettings.Get(TEXT("Server Name"), CurrentSessionName);
+		
 		//If we're not on steam, set to lan match
-		SessionSettings.bIsLANMatch = (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL");
+		// SessionSettings.bIsLANMatch = (IOnlineSubsystem::Get()->GetSubsystemName() == "NULL");
 		SessionInterface->CreateSession(0, SESSION_NAME, SessionSettings);
 	}
 }
@@ -80,31 +96,126 @@ void UMenuSystemGameInstance::StartSession()
 
 void UMenuSystemGameInstance::OnCreateSessionComplete(FName SessionName, bool bSuccess)
 {
-	if(!bSuccess){UE_LOG(LogTemp, Error, TEXT("Failed to Create Session"));return;}
-	UEngine* EngineReference = GetEngine();
-	if (!ensure(EngineReference != nullptr)) return;
-	// EngineReference->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Hosting...%ls"), *SessionSettings.Get(TEXT("Server Name"))));
+	if(bDebuggingMode)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Session Name: %s"), *SessionName.ToString());
+		if(!bSuccess){UE_LOG(LogTemp, Error, TEXT("Failed to Create Session"));return;}
+		UEngine* EngineReference = GetEngine();
+		if (!ensure(EngineReference != nullptr)) return;
+		EngineReference->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, FString::Printf(TEXT("Hosting...%s"), *SessionName.ToString()));
+	}
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr)) return;
-	World->ServerTravel("/Game/MenuSystem/Lobby?listen");
+	World->ServerTravel("/MenuSystem/Levels/Lobby?listen");
 }
 
 void UMenuSystemGameInstance::Host(FOnlineSessionSettings HostSessionSettings)
 {
 	SessionSettings = HostSessionSettings;
-	if(SessionInterface.IsValid())
+	if(!SessionInterface.IsValid()) {return;}
+	
+	FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
+	if(ExistingSession != nullptr)
 	{
-		FNamedOnlineSession* ExistingSession = SessionInterface->GetNamedSession(SESSION_NAME);
-		if(ExistingSession != nullptr)
+		SessionInterface->DestroySession(SESSION_NAME);
+	}
+	else
+	{
+		CreateSession();
+	}
+}
+
+
+void UMenuSystemGameInstance::JoinFirstPossibleMatch()
+{
+	SessionSearch = MakeShareable(new FOnlineSessionSearch());
+	if(SessionSearch.IsValid())
+	{
+		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
+		SessionSearch->bIsLanQuery = false;
+		SessionSearch->MaxSearchResults = 20;
+		// OnlineSessionSearch->QuerySettings.SearchParams.Empty();
+		//todo add null check SessionInterface
+		SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UMenuSystemGameInstance::SessionFoundComplete);
+		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
+	}
+}
+
+void UMenuSystemGameInstance::SessionFoundComplete(bool bSuccess)
+{
+	if(bSuccess)
+	{
+		const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+		if(OnlineSubsystem != nullptr)
 		{
-			SessionInterface->DestroySession(SESSION_NAME);
+			IOnlineSessionPtr OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+			if(OnlineSessionPtr != nullptr)
+			{
+				OnlineSessionPtr->OnJoinSessionCompleteDelegates.AddUObject(this, &UMenuSystemGameInstance::OnJoinSessionCompleted);
+				if(SessionSearch->SearchResults.IsValidIndex(0))
+				{
+					// OnlineSessionPtr->GetSessionSettings();
+					// FName ServerName;
+					FString SessionID = SessionSearch.ToSharedRef()->SearchResults[0].GetSessionIdStr();
+					FName ServerToJoin = FName(SessionID);
+					// FOnlineSession Session = SessionSearch->SearchResults[0].Session;
+					// FOnlineSessionInfo* Info = Session.SessionInfo.Get();
+					// if(Session.SessionSettings.Get(TEXT("Server Name"), ServerName))
+					// {
+					// 	ServerToJoin = ServerName;
+					// }
+					// else
+					// {
+					// 	ServerToJoin= "Error in Server Name";
+					// }
+					
+
+					// SessionSettings.Get(TEXT("Server Name"), ServerName);
+					OnlineSessionPtr->JoinSession(0, ServerToJoin, SessionSearch->SearchResults[0]);
+					// OnlineSessionPtr->JoinSession(0, FName("Random"), SessionSearch->SearchResults[0]);
+
+				}
+				else
+				{
+					UE_LOG(LogTemp,Warning,TEXT("Invalid Session index.. "));
+					// CreateEOSSession(FName("Random"), false, false, false, 10);
+				}
+			}
 		}
-		else
+	}
+	else
+	{
+		UE_LOG(LogTemp,Warning,TEXT("Failed to Quick join"));
+		// CreateEOSSession(FName("Random"), false, false, false, 10);
+	}
+}
+
+void UMenuSystemGameInstance::OnJoinSessionCompleted(FName SessionName, EOnJoinSessionCompleteResult::Type Result)
+{
+	if(Result == EOnJoinSessionCompleteResult::Success)
+	{
+		if(APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0))
 		{
-			CreateSession();
+			FString JoinAddress;
+			const IOnlineSubsystem* OnlineSubSystem = IOnlineSubsystem::Get();
+			if(OnlineSubSystem != nullptr)
+			{
+				IOnlineSessionPtr OnlineSessionPtr = OnlineSubSystem->GetSessionInterface();
+				if(OnlineSessionPtr != nullptr)
+				{
+					// OnlineSessionPtr->GetResolvedConnectString(FName("Random"), JoinAddress);
+					OnlineSessionPtr->GetResolvedConnectString(SessionName, JoinAddress);
+					UE_LOG(LogTemp,Warning,TEXT("Join Address: %s"), *JoinAddress);
+					if(!JoinAddress.IsEmpty())
+					{
+						PlayerController->ClientTravel(JoinAddress, ETravelType::TRAVEL_Absolute);
+					}
+				}
+			}
 		}
 	}
 }
+
 
 void UMenuSystemGameInstance::SearchServers()
 {
@@ -115,7 +226,7 @@ void UMenuSystemGameInstance::SearchServers()
 		SessionSearch->MaxSearchResults = 100;
 		SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, true, EOnlineComparisonOp::Equals);
 		SessionInterface->FindSessions(0, SessionSearch.ToSharedRef());
-		UE_LOG(LogTemp, Warning, TEXT("Searching For sessions..."));
+		if(bDebuggingMode){UE_LOG(LogTemp, Warning, TEXT("Searching For sessions..."));}
 	}
 }
 
@@ -124,7 +235,6 @@ void UMenuSystemGameInstance::OnFindSessionsComplete(bool bSuccess)
 	if(bSuccess && SessionSearch.IsValid() && MainMenu != nullptr)
 	{
 		UE_LOG(LogTemp,Warning, TEXT("Find Session Complete"));
-		// for (auto& It = SessionSearch->SearchResults.CreateIterator(); It; It++)
 		TArray<FServerRow> ServerInfo;
 		FServerRow TestData;
 		for (auto& It : SessionSearch->SearchResults)

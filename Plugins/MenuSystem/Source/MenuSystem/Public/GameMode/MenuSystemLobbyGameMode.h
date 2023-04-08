@@ -16,6 +16,8 @@ public:
 
 	virtual void Logout(AController* Exiting) override;
 
+	
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	float StartDelay = 5;

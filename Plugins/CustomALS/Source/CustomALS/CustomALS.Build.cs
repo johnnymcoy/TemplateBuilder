@@ -34,7 +34,8 @@ public class CustomALS : ModuleRules
 				"WeaponSystem",
 				"Interaction",
 				"AIToolKit",
-				"HitReactions"
+				"HitReactions",
+				"MenuSystem"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

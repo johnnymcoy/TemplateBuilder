@@ -9,7 +9,9 @@
 #include "Components/CharacterShootingComponent.h"
 #include "Components/CompanionMasterComponent.h"
 #include "Components/PlayerCharacterShootingComponent.h"
+#include "ProximityChat/PlayerVoiceComponent.h"
 #include "Interfaces/AICharacter.h"
+#include "ProximityChat/ProximityChatBPLib.h"
 
 
 ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectInitializer)
@@ -26,6 +28,11 @@ ACustomPlayerCharacter::ACustomPlayerCharacter(const FObjectInitializer& ObjectI
 	CompanionMasterComponentComponent = CreateDefaultSubobject<UCompanionMasterComponent>("CompanionMasterComponent");
 	//- Bind the interaction function of traceforward and hitting an object to updating the Companion widget //
 	InteractionComponent->OnTraceEventHit.AddDynamic(CompanionMasterComponentComponent, &UCompanionMasterComponent::UpdateInteractionTarget);
+
+
+	//- Create the ProximityVoiceComponent instance	//
+	ProximityVoiceComponent = CreateDefaultSubobject<UPlayerVoiceComponent>(TEXT("ProximityVoiceComponent"));
+
 }
 
 void ACustomPlayerCharacter::BeginPlay()
@@ -64,6 +71,7 @@ void ACustomPlayerCharacter::SetupComponents()
 		InteractionComponent->SetupComponent(GetMesh(), MainAnimInstance, Controller, bIsNPC, bIsDead);
 	}
 }
+
 
 void ACustomPlayerCharacter::Tick(float DeltaTime)
 {
@@ -207,10 +215,6 @@ void ACustomPlayerCharacter::UseAction()
 		CompanionMasterComponentComponent->CommandCompanion(InteractionComponent->GetHitResult());
 		
 	}
-
-	
-	
-	
 	// if(GetLocalRole() < ROLE_Authority)
 	// {
 	// 	ServerUse();
@@ -220,6 +224,49 @@ void ACustomPlayerCharacter::UseAction()
 	// 	// UE_LOG(LogTemp,Warning, TEXT("Server USE"));
 	// }
 }
+
+// void ACustomPlayerCharacter::SendVoiceChat_Implementation(const TArray<uint8>& VoiceData, int32 SampleRate)
+// {
+// 	// The server receives the voice data here
+// 	// Broadcast the received voice data to all connected clients
+// 	for (auto& PlayerController : GetWorld()->GetPlayerControllerIterator())
+// 	{
+// 		ACustomPlayerCharacter* Character = Cast<ACustomPlayerCharacter>(PlayerController->GetPawn());
+// 		if (Character != nullptr)
+// 		{
+// 			// Call OnVoiceChatReceived for each player character
+// 			Character->OnVoiceChatReceived(PlayerController, VoiceData, SampleRate);
+// 		}
+// 	}
+// }
+//
+// bool ACustomPlayerCharacter::SendVoiceChat_Validate(const TArray<uint8>& VoiceData, int32 SampleRate)
+// {
+// 	return true;
+// }
+//
+// void ACustomPlayerCharacter::OnVoiceChatReceived(APlayerController* SenderPlayerController,
+// 	const TArray<uint8>& VoiceData, int32 SampleRate)
+// {
+// 	if (SenderPlayerController != nullptr)
+// 	{
+// 		// Get the speaker's location
+// 		FVector SpeakerLocation = SenderPlayerController->GetPawn()->GetActorLocation();
+//
+// 		// Get the listener's location
+// 		FVector ListenerLocation = GetActorLocation();
+//
+// 		// Calculate the voice attenuation
+// 		float VoiceVolume = UProximityChatBPLib::CalculateVoiceAttenuation(SpeakerLocation, ListenerLocation, 1000.0f, 0.1f);
+//
+// 		// Play the voice chat if the volume is greater than zero
+// 		if (VoiceVolume > 0.0f)
+// 		{
+// 			ProximityVoiceComponent->SetVolumeMultiplier(VoiceVolume);
+// 			ProximityVoiceComponent->PlayVoiceChat(VoiceData, SampleRate);
+// 		}
+// 	}
+// }
 
 void ACustomPlayerCharacter::OnDeath(AActor* OwningActor)
 {

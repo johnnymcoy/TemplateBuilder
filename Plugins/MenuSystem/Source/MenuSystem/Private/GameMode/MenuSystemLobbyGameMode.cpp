@@ -26,9 +26,7 @@ void AMenuSystemLobbyGameMode::LoadMap()
 	UMenuSystemGameInstance* GameInstance = Cast<UMenuSystemGameInstance>(GetGameInstance());
 	if(GameInstance == nullptr) return;
 	GameInstance->StartSession();
-	// Todo: Put the Starting Level somewhere else..  Maybe the game Instance
-	
-	World->ServerTravel("/Game/Demos/ShooterDemo/Levels/ShooterDemoLevel?listen");
+	World->ServerTravel(GameInstance->StartingLevel);
 }
 
 
