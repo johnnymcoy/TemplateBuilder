@@ -70,9 +70,6 @@ ACustomCharacterBase::ACustomCharacterBase(const FObjectInitializer& ObjectIniti
 	GetMesh()->bUpdateJointsFromAnimation = true;
 	GetMesh()->bEnableUpdateRateOptimizations = true;
 	
-	
-	// GetMesh()->
-	
 }
 
 

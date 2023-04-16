@@ -60,7 +60,6 @@ FName UMenuSystemGameInstance::GetCurrentSessionName()
 		return CurrentSessionName;
 	}
 	return FName("InvalidName");
-
 }
 
 
