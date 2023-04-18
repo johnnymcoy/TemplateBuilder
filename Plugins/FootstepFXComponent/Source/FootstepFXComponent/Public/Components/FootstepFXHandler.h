@@ -123,8 +123,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
 	bool bIsMale = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
-	bool bIsPawnCharacter = true;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
 	bool bPlayVFX = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Footsteps")
 	float VFXSize = 1.0f;

@@ -30,7 +30,6 @@ void AWeaponFramework::BeginPlay()
 	WeaponStats.FireRate = (WeaponStats.FireRate / 200.0f);
 }
 
-
 void AWeaponFramework::Fire(const FVector in_Location,const FRotator in_Rotation, const AActor* ActorToIgnore, const float in_Accuracy)
 {
 	if(bDebuggingMode){UE_LOG(LogWeaponSystem, Warning, TEXT("Fire - Weapon Framework "));}
@@ -110,7 +109,7 @@ void AWeaponFramework::ServerShoot_Implementation()
 			Hit.Location,
 			MuzzleLocation,
 			UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-			true, ActorsToIgnore,
+			false, ActorsToIgnore,
 			DrawDebugType, HitCheck,
 			true, FLinearColor::Blue,
 			FLinearColor::Blue, DrawDebugTime))
@@ -123,8 +122,8 @@ void AWeaponFramework::ServerShoot_Implementation()
 			if(Hit.GetActor() != nullptr)
 			{
 				//todo: Fire in proper spot
-				// APawn* OwnerPawn = Cast<APawn>(GetOwner());
-				// ReceiveFire(Hit, OwnerPawn);
+				APawn* OwnerPawn = Cast<APawn>(GetOwner());
+				ReceiveFire(Hit, OwnerPawn);
 				ApplyDamageToActor(Hit, ShotDirection);
 			}
 		}
@@ -161,12 +160,6 @@ bool AWeaponFramework::ServerShoot_Validate()
 	return true;
 }
 
-// bool AWeaponFramework::ServerLineTrace_Implementation(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color,
-// 	FVector CustomLineEnd)
-// {
-// 	LineTrace(Hit,ShotDirection,Color, CustomLineEnd);
-// }
-
 bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinearColor Color, FVector CustomLineEnd) 
 {
 	const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
@@ -183,7 +176,7 @@ bool AWeaponFramework::LineTrace(FHitResult& Hit, FVector& ShotDirection, FLinea
 		TraceLocation,
 		LineEnd,
 		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4),
-	true,
+	false,
 		ActorsToIgnore,
 		DrawDebugType,
 		Hit,
@@ -328,7 +321,9 @@ void AWeaponFramework::BlindFireWeapon(const float in_Accuracy, const AActor* Ac
 	FHitResult BlindFireHit;
 	FVector ShotDirection;
 	LineTrace(BlindFireHit, ShotDirection, FLinearColor::Green);
-	
+	//? Added in blindfire, blueprint event fire
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	ReceiveFire(BlindFireHit, OwnerPawn);
 	//! v1
 	// const FVector ForwardVector = (FRotationMatrix(TraceRotation).GetScaledAxis( EAxis::X ));
 	// FVector BulletSpread;
